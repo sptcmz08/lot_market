@@ -178,50 +178,74 @@
                 $zone = substr($lotCode, 0, 2);
                 $num = (int)substr($lotCode, 2, 2);
 
-                $leftCodes = ['GB', 'GC', 'GD', 'GE', 'GF', 'GG', 'GH', 'GI', 'GJ'];
-                $bottomCodes = ['GL', 'GM', 'GN', 'GO', 'GP', 'GQ', 'GR', 'GS', 'GT'];
+                $leftRedCodes = ['GB', 'GC', 'GD'];
+                $leftGreenCodes = ['GE', 'GF', 'GG', 'GH', 'GI', 'GJ'];
+                $bottomRedCodes = ['GL', 'GM', 'GN'];
+                $bottomGreenCodes = ['GO', 'GP', 'GQ', 'GR', 'GS', 'GT'];
                 $rightCodes = ['GW', 'GX', 'GY', 'GZ'];
 
-                if (in_array($zone, $leftCodes)) {
+                if (in_array($zone, $leftRedCodes)) {
                     $corners = [
-                        [120, 252],
-                        [278, 142],
-                        [330, 470],
-                        [520, 318]
+                        [152, 226],
+                        [198, 202],
+                        [370, 442],
+                        [420, 418]
                     ];
-                    $cols = 9;
+                    $cols = 3;
                     $rows = 10;
-                    $c = array_search($zone, $leftCodes);
+                    $c = array_search($zone, $leftRedCodes);
                     $r = $num - 1;
-                } elseif (in_array($zone, $bottomCodes)) {
+                } elseif (in_array($zone, $leftGreenCodes)) {
                     $corners = [
-                        [515, 385],
-                        [780, 240],
-                        [730, 520],
-                        [980, 345]
+                        [232, 188],
+                        [310, 150],
+                        [458, 396],
+                        [535, 360]
                     ];
-                    $cols = 9;
+                    $cols = 6;
                     $rows = 10;
-                    $c = array_search($zone, $bottomCodes);
+                    $c = array_search($zone, $leftGreenCodes);
+                    $r = $num - 1;
+                } elseif (in_array($zone, $bottomRedCodes)) {
+                    $corners = [
+                        [512, 380],
+                        [562, 355],
+                        [726, 521],
+                        [788, 482]
+                    ];
+                    $cols = 3;
+                    $rows = 10;
+                    $c = array_search($zone, $bottomRedCodes);
+                    $r = $num - 1;
+                } elseif (in_array($zone, $bottomGreenCodes)) {
+                    $corners = [
+                        [596, 332],
+                        [688, 280],
+                        [824, 460],
+                        [920, 404]
+                    ];
+                    $cols = 6;
+                    $rows = 10;
+                    $c = array_search($zone, $bottomGreenCodes);
                     $r = $num - 1;
                 } elseif (in_array($zone, $rightCodes)) {
-                    $corners = [
-                        [722, 175],
-                        [965, 55],
-                        [900, 292],
-                        [1030, 175]
-                    ];
-                    $cols = 8;
+                    $cols = 2;
                     $rows = 5;
                     
-                    $baseCol = array_search($zone, $rightCodes) * 2;
-                    if ($num % 2 !== 0) {
-                        $c = $baseCol;
-                        $r = intval(($num - 1) / 2);
+                    if ($zone === 'GW') {
+                        $corners = [[718, 175], [748, 160], [816, 235], [846, 220]];
+                    } elseif ($zone === 'GX') {
+                        $corners = [[766, 150], [796, 135], [864, 210], [894, 195]];
+                    } elseif ($zone === 'GY') {
+                        $corners = [[814, 125], [844, 110], [912, 185], [942, 170]];
+                    } elseif ($zone === 'GZ') {
+                        $corners = [[862, 100], [892, 85], [960, 160], [990, 145]];
                     } else {
-                        $c = $baseCol + 1;
-                        $r = intval(($num / 2) - 1);
+                        return null;
                     }
+                    
+                    $c = ($num % 2 !== 0) ? 0 : 1;
+                    $r = intval(($num - 1) / 2);
                 } else {
                     return null;
                 }
