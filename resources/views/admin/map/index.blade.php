@@ -240,9 +240,9 @@
             <!-- Map rendering -->
             <div class="map-card">
                 <div class="map-viewport">
-                    <svg viewBox="0 0 1024 549" width="100%" height="100%" class="market-svg">
+                    <svg viewBox="0 0 1024 513" width="100%" height="100%" class="market-svg">
                         <!-- Background cartoon image -->
-                        <image href="/images/market_map.png" x="0" y="0" width="1024" height="549" />
+                        <image href="/images/market_map.png" x="0" y="0" width="1024" height="513" />
 
                         <!-- Dynamic Lots rendering with pixel-perfect overlays -->
                         @foreach($zones as $zone)
