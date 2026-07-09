@@ -24,10 +24,14 @@ class PublicMapController extends Controller
             'date' => 'required|date_format:Y-m-d'
         ])['date'];
 
-        $lots = Lot::with(['bookings' => function ($query) use ($date) {
-            $query->where('use_date', $date)
-                  ->where('status', '!=', 'cancelled');
-        }])->get();
+        $lots = Lot::with([
+            'bookings' => function ($query) use ($date) {
+                $query->where('use_date', $date)
+                      ->where('status', '!=', 'cancelled')
+                      ->with(['lots', 'deliveryTask.photos']);
+            },
+            'zone'
+        ])->get();
 
         $showShopName = Setting::getVal('show_shop_name_public', 'false') === 'true';
 
@@ -35,6 +39,7 @@ class PublicMapController extends Controller
             $status = 'available';
             $shopName = null;
             $bookingCode = null;
+            $bookingDetails = null;
 
             if (!$lot->is_active) {
                 $status = 'blocked';
@@ -64,6 +69,23 @@ class PublicMapController extends Controller
                         default:
                             $status = 'available';
                     }
+
+                    // Detailed booking info for the popover/tooltip
+                    $bookingLots = $activeBooking->lots->pluck('lot_code')->toArray();
+                    $photoPaths = [];
+                    if ($activeBooking->deliveryTask && $activeBooking->deliveryTask->photos) {
+                        foreach ($activeBooking->deliveryTask->photos as $p) {
+                            $photoPaths[$p->photo_type] = asset('storage/' . $p->image_path);
+                        }
+                    }
+
+                    $bookingDetails = [
+                        'booking_code' => $activeBooking->booking_code,
+                        'shop_name' => $activeBooking->shop_name,
+                        'status' => $activeBooking->status,
+                        'lots' => $bookingLots,
+                        'photos' => (object)$photoPaths
+                    ];
                 }
             }
 
@@ -74,7 +96,8 @@ class PublicMapController extends Controller
                 'status' => $status,
                 'shop_name' => $shopName,
                 'booking_code' => $bookingCode,
-                'zone_code' => $lot->zone ? $lot->zone->code : null
+                'zone_code' => $lot->zone ? $lot->zone->code : null,
+                'booking_details' => $bookingDetails
             ];
         });
 

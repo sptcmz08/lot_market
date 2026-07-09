@@ -5,6 +5,191 @@
 
 @section('styles')
 <style>
+    /* Floating Popover styling */
+    .lot-popover {
+        position: absolute;
+        z-index: 2000;
+        width: 360px;
+        max-width: 90vw;
+        background: rgba(255, 255, 255, 0.88);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        padding: 18px;
+        transform: translate(-50%, -100%) translateY(-25px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        pointer-events: auto;
+    }
+
+    /* Popover Arrow */
+    .lot-popover::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 10px 10px 0;
+        border-style: solid;
+        border-color: rgba(255, 255, 255, 0.88) transparent;
+        display: block;
+        width: 0;
+    }
+
+    .popover-close {
+        position: absolute;
+        top: 10px;
+        right: 14px;
+        background: none;
+        border: none;
+        font-size: 20px;
+        color: #999;
+        cursor: pointer;
+        transition: color 0.15s ease;
+        line-height: 1;
+    }
+
+    .popover-close:hover {
+        color: #333;
+    }
+
+    .popover-title {
+        font-size: 18px;
+        font-weight: 800;
+        color: #111;
+        margin: 0 0 4px 0;
+        text-align: center;
+        padding-right: 15px;
+    }
+
+    .popover-badge-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 12px;
+    }
+
+    .popover-badge {
+        font-size: 13px;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 20px;
+        background-color: #E2F9EB;
+        color: #10B981;
+    }
+
+    .popover-badge.pending {
+        background-color: #FEF3C7;
+        color: #D97706;
+    }
+
+    .popover-badge.booked {
+        background-color: #FEE2E2;
+        color: #EF4444;
+    }
+
+    .popover-badge.installing {
+        background-color: #F3E8FF;
+        color: #8B5CF6;
+    }
+
+    .popover-badge.completed {
+        background-color: #E0F2FE;
+        color: #0284C7;
+    }
+
+    .popover-badge.problem {
+        background-color: #FFEDD5;
+        color: #EA580C;
+    }
+
+    .popover-badge.blocked {
+        background-color: #F3F4F6;
+        color: #4B5563;
+    }
+
+    .popover-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    .popover-card {
+        background: rgba(243, 244, 246, 0.85);
+        border: 1px solid rgba(229, 231, 235, 0.7);
+        border-radius: 12px;
+        aspect-ratio: 1.2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .popover-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .popover-card-label {
+        font-size: 11px;
+        color: #888;
+        margin-top: 4px;
+        font-weight: 500;
+    }
+
+    .popover-card-text {
+        font-size: 12px;
+        font-weight: 700;
+        color: #777;
+    }
+
+    .popover-btn-share {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background-color: #4B5563;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 10px;
+        width: 100%;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background-color 0.15s ease;
+    }
+
+    .popover-btn-share:hover {
+        background-color: #374151;
+    }
+
+    .popover-btn-book {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background-color: #10B981;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 10px;
+        width: 100%;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background-color 0.15s ease;
+        margin-top: 8px;
+    }
+
+    .popover-btn-book:hover {
+        background-color: #059669;
+    }
+
     .date-select-container {
         display: flex;
         justify-content: space-between;
@@ -239,8 +424,8 @@
 
             <!-- Map rendering -->
             <div class="map-card">
-                <div class="map-viewport">
-                    <svg viewBox="0 0 1024 513" width="100%" height="100%" class="market-svg">
+                <div class="map-viewport" id="map-viewport-wrapper">
+                    <svg viewBox="0 0 1024 513" width="100%" height="100%" class="market-svg" id="market-svg-element">
                         <!-- Background cartoon image -->
                         <image href="/images/market_map.png" x="0" y="0" width="1024" height="513" />
 
@@ -257,12 +442,22 @@
                                                  data-lot-id="{{ $lot->id }}"
                                                  data-lot-code="{{ $lot->lot_code }}"
                                                  data-display-name="{{ $lot->display_name ?? $lot->lot_code }}"
+                                                 data-cx="{{ $mapData['cx'] }}"
+                                                 data-cy="{{ $mapData['cy'] }}"
                                                  points="{{ $mapData['points'] }}" />
                                     @endif
                                 @endforeach
                             </g>
                         @endforeach
                     </svg>
+
+                    <!-- Floating Popover -->
+                    <div id="lot-popover" class="lot-popover" style="display: none;">
+                        <button class="popover-close" id="popover-close-btn">&times;</button>
+                        <div id="popover-content-area">
+                            <!-- filled dynamically by JS -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -310,11 +505,16 @@
         const datePicker = document.getElementById('date-picker');
         const noSelect = document.getElementById('no-selection-panel');
         const detailPanel = document.getElementById('detail-panel');
+        const popover = document.getElementById('lot-popover');
+        const popoverContent = document.getElementById('popover-content-area');
+        const popoverClose = document.getElementById('popover-close-btn');
+        const mapViewport = document.getElementById('map-viewport-wrapper');
+        const svgElement = document.getElementById('market-svg-element');
         
         let lotStatuses = {};
         let currentSelected = null;
 
-        function loadStatuses() {
+        function loadStatuses(onComplete = null) {
             const date = datePicker.value;
             fetch(`{{ route('public.lots.status') }}?date=${date}`)
                 .then(res => res.json())
@@ -335,10 +535,25 @@
                     if (currentSelected) {
                         showDetails(currentSelected);
                     }
+                    
+                    if (onComplete) onComplete();
                 });
         }
 
-        loadStatuses();
+        loadStatuses(function() {
+            // Check for URL parameters to auto-select lot
+            const urlParams = new URLSearchParams(window.location.search);
+            const autoLot = urlParams.get('lot');
+            if (autoLot) {
+                setTimeout(() => {
+                    const el = document.getElementById(`lot-${autoLot}`);
+                    if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        el.dispatchEvent(new Event('click'));
+                    }
+                }, 800);
+            }
+        });
 
         datePicker.addEventListener('change', function() {
             if (currentSelected) {
@@ -346,6 +561,7 @@
                 if (prevEl) prevEl.classList.remove('lot-selected');
                 currentSelected = null;
             }
+            popover.style.display = 'none';
             noSelect.style.display = 'block';
             detailPanel.style.display = 'none';
             loadStatuses();
@@ -354,7 +570,8 @@
         // Lot click listener
         const lotGroups = document.querySelectorAll('.market-lot');
         lotGroups.forEach(g => {
-            g.addEventListener('click', function() {
+            g.addEventListener('click', function(e) {
+                e.stopPropagation();
                 const code = this.getAttribute('data-lot-code');
                 
                 if (currentSelected) {
@@ -367,7 +584,152 @@
                 if (newEl) newEl.classList.add('lot-selected');
 
                 showDetails(code);
+
+                // Floating Popover positioning and content
+                const lot = lotStatuses[code];
+                if (!lot) return;
+
+                const cx = parseFloat(this.getAttribute('data-cx'));
+                const cy = parseFloat(this.getAttribute('data-cy'));
+
+                const svgRect = svgElement.getBoundingClientRect();
+                const viewportRect = mapViewport.getBoundingClientRect();
+
+                const px = (cx / 1024) * svgRect.width;
+                const py = (cy / 513) * svgRect.height;
+
+                const left = px + (svgRect.left - viewportRect.left) + mapViewport.scrollLeft;
+                const top = py + (svgRect.top - viewportRect.top) + mapViewport.scrollTop;
+
+                popover.style.left = left + 'px';
+                popover.style.top = top + 'px';
+                popover.style.display = 'block';
+
+                let html = '';
+                const details = lot.booking_details;
+
+                if (lot.status === 'available') {
+                    html = `
+                        <h3 class="popover-title">แผงยังไม่มีการจอง</h3>
+                        <div class="popover-badge-container">
+                            <span class="popover-badge">ล็อค ${code} (ว่าง)</span>
+                        </div>
+                        <div class="popover-grid">
+                            <div class="popover-card">
+                                <span class="popover-card-text">ไม่มีรูปแผง</span>
+                                <span class="popover-card-label" style="position: absolute; bottom: 4px; left: 0; right: 0; text-align: center; background: rgba(0,0,0,0.4); color: white; padding: 2px 0; font-size: 9px;">รูปภาพแผง</span>
+                            </div>
+                            <div class="popover-card">
+                                <span class="popover-card-text">ไม่มีรูปเมนู</span>
+                                <span class="popover-card-label" style="position: absolute; bottom: 4px; left: 0; right: 0; text-align: center; background: rgba(0,0,0,0.4); color: white; padding: 2px 0; font-size: 9px;">รูปภาพเมนู</span>
+                            </div>
+                        </div>
+                        <button class="popover-btn-share" onclick="shareCoordinates('${code}', null, null)">
+                            <i class="fa-solid fa-location-arrow"></i> แชร์พิกัด
+                        </button>
+                    `;
+                } else if (lot.status === 'blocked') {
+                    html = `
+                        <h3 class="popover-title">ปิดใช้งานแผงชั่วคราว</h3>
+                        <div class="popover-badge-container">
+                            <span class="popover-badge blocked">ล็อค ${code} (ปิดแผง)</span>
+                        </div>
+                        <div class="popover-grid">
+                            <div class="popover-card">
+                                <span class="popover-card-text">ไม่มีรูปแผง</span>
+                                <span class="popover-card-label" style="position: absolute; bottom: 4px; left: 0; right: 0; text-align: center; background: rgba(0,0,0,0.4); color: white; padding: 2px 0; font-size: 9px;">รูปภาพแผง</span>
+                            </div>
+                            <div class="popover-card">
+                                <span class="popover-card-text">ไม่มีรูปเมนู</span>
+                                <span class="popover-card-label" style="position: absolute; bottom: 4px; left: 0; right: 0; text-align: center; background: rgba(0,0,0,0.4); color: white; padding: 2px 0; font-size: 9px;">รูปภาพเมนู</span>
+                            </div>
+                        </div>
+                        <button class="popover-btn-share" style="opacity: 0.5; cursor: not-allowed;" disabled>
+                            <i class="fa-solid fa-location-arrow"></i> แชร์พิกัด
+                        </button>
+                    `;
+                } else {
+                    const shopName = details ? details.shop_name : 'ไม่ระบุชื่อร้าน';
+                    const listLots = details && details.lots ? details.lots.join(', ') : code;
+                    
+                    let imageHtml1 = `<span class="popover-card-text">ไม่มีรูปแผง</span>`;
+                    if (details && details.photos) {
+                        const afterPhoto = details.photos.after;
+                        const beforePhoto = details.photos.before;
+                        const numberPhoto = details.photos.lot_number;
+                        const problemPhoto = details.photos.problem;
+                        const photoUrl = afterPhoto || beforePhoto || numberPhoto || problemPhoto;
+                        if (photoUrl) {
+                            imageHtml1 = `<img src="${photoUrl}" alt="Shop image">`;
+                        }
+                    }
+
+                    let badgeClass = 'popover-badge';
+                    if (lot.status === 'pending') badgeClass += ' pending';
+                    if (lot.status === 'booked') badgeClass += ' booked';
+                    if (lot.status === 'installing') badgeClass += ' installing';
+                    if (lot.status === 'completed') badgeClass += ' completed';
+                    if (lot.status === 'problem') badgeClass += ' problem';
+
+                    let statusText = '';
+                    switch (lot.status) {
+                        case 'pending': statusText = 'รอยืนยัน'; break;
+                        case 'booked': statusText = 'จองแล้ว'; break;
+                        case 'installing': statusText = 'กำลังติดตั้ง'; break;
+                        case 'completed': statusText = 'ติดตั้งแล้ว'; break;
+                        case 'problem': statusText = 'มีปัญหา'; break;
+                    }
+
+                    html = `
+                        <h3 class="popover-title">${shopName}</h3>
+                        <div class="popover-badge-container">
+                            <span class="${badgeClass}">ล็อค ${listLots} (${statusText})</span>
+                        </div>
+                        <div class="popover-grid">
+                            <div class="popover-card">
+                                ${imageHtml1}
+                                <span class="popover-card-label" style="position: absolute; bottom: 4px; left: 0; right: 0; text-align: center; background: rgba(0,0,0,0.4); color: white; padding: 2px 0; font-size: 9px;">รูปภาพแผง</span>
+                            </div>
+                            <div class="popover-card">
+                                <span class="popover-card-text">ไม่มีรูปเมนู</span>
+                                <span class="popover-card-label" style="position: absolute; bottom: 4px; left: 0; right: 0; text-align: center; background: rgba(0,0,0,0.4); color: white; padding: 2px 0; font-size: 9px;">รูปภาพเมนู</span>
+                            </div>
+                        </div>
+                        <button class="popover-btn-share" onclick="shareCoordinates('${code}', null, null)">
+                            <i class="fa-solid fa-location-arrow"></i> แชร์พิกัด
+                        </button>
+                    `;
+                }
+
+                popoverContent.innerHTML = html;
             });
+        });
+
+        // Close popover
+        popoverClose.addEventListener('click', function(e) {
+            e.stopPropagation();
+            popover.style.display = 'none';
+            if (currentSelected) {
+                const prevEl = document.getElementById(`lot-${currentSelected}`);
+                if (prevEl) prevEl.classList.remove('lot-selected');
+                currentSelected = null;
+            }
+            noSelect.style.display = 'block';
+            detailPanel.style.display = 'none';
+        });
+
+        // Hide popover when clicking outside
+        document.addEventListener('click', function(e) {
+            if (popover.style.display !== 'none' && !popover.contains(e.target) && !e.target.classList.contains('market-lot')) {
+                popover.style.display = 'none';
+                if (currentSelected) {
+                    const prevEl = document.getElementById(`lot-${currentSelected}`);
+                    if (prevEl) prevEl.classList.remove('lot-selected');
+                    currentSelected = null;
+                }
+                noSelect.style.display = 'block';
+                detailPanel.style.display = 'none';
+            }
         });
 
         function showDetails(code) {
@@ -437,6 +799,20 @@
                 `;
             }
         }
+
+        // Share functionality
+        window.shareCoordinates = function(code, lat, lng) {
+            if (lat && lng) {
+                window.open(`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`, '_blank');
+            } else {
+                const url = `${window.location.origin}/?date=${datePicker.value}&lot=${code}`;
+                navigator.clipboard.writeText(url).then(() => {
+                    alert(`คัดลอกลิงก์พิกัดสำหรับล็อค ${code} เรียบร้อยแล้ว!`);
+                }).catch(err => {
+                    console.error('Could not copy text: ', err);
+                });
+            }
+        };
 
         function formatThaiDate(dateStr) {
             const parts = dateStr.split('-');
