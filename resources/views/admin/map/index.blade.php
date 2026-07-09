@@ -59,55 +59,32 @@
     }
 
     .market-lot {
+        fill: rgba(255, 255, 255, 0) !important;
+        stroke: transparent !important;
+        stroke-width: 0 !important;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all 0.15s ease;
     }
 
     .market-lot:hover {
-        fill-opacity: 0.8 !important;
-        stroke-width: 2px !important;
+        fill: rgba(255, 255, 255, 0.25) !important;
+        stroke: rgba(255, 255, 255, 0.8) !important;
+        stroke-width: 1.5px !important;
     }
 
     .lot-text {
-        fill: #1d1d1f;
-        font-size: 7px;
-        font-weight: 800;
-        pointer-events: none;
-        text-anchor: middle;
-        dominant-baseline: middle;
-        opacity: 0.55;
-        transition: all 0.15s ease;
-        text-shadow: 0 0 2px #ffffff, 0 0 2px #ffffff;
-    }
-
-    .lot-group:hover .lot-text,
-    .lot-selected + .lot-text {
-        opacity: 1;
-        font-size: 8px;
-        font-weight: 900;
-        fill: #000000;
+        display: none !important;
     }
 
     .zone-label {
-        font-size: 13px;
-        font-weight: 800;
-        fill: var(--text-dark);
+        display: none !important;
     }
-
-    /* Lot Status Colors with semi-transparency */
-    .lot-available { fill: rgba(162, 232, 185, 0.35); stroke: #52c41a; stroke-width: 1px; }
-    .lot-pending { fill: rgba(255, 225, 125, 0.5); stroke: #faad14; stroke-width: 1px; }
-    .lot-booked { fill: rgba(255, 163, 163, 0.6); stroke: #ff4d4f; stroke-width: 1px; }
-    .lot-installing { fill: rgba(199, 181, 255, 0.5); stroke: #722ed1; stroke-width: 1px; }
-    .lot-completed { fill: rgba(141, 229, 222, 0.5); stroke: #13c2c2; stroke-width: 1px; }
-    .lot-blocked { fill: rgba(150, 150, 150, 0.4); stroke: #888888; stroke-dasharray: 2,2; stroke-width: 1px; }
-    .lot-problem { fill: rgba(255, 192, 120, 0.5); stroke: #fa8c16; stroke-width: 1px; }
 
     /* Selected highlight */
     .lot-selected {
         stroke: var(--primary) !important;
-        stroke-width: 3.5px !important;
-        fill: rgba(255, 59, 112, 0.4) !important;
+        stroke-width: 2.5px !important;
+        fill: rgba(255, 59, 112, 0.25) !important;
         filter: drop-shadow(0 0 8px rgba(255, 143, 177, 0.5));
     }
 
