@@ -228,17 +228,12 @@
                                         $mapData = getLotMapData($lot->lot_code);
                                     @endphp
                                     @if($mapData)
-                                        <g class="lot-group" data-lot-code="{{ $lot->lot_code }}" id="lot-group-{{ $lot->lot_code }}">
-                                            <polygon class="market-lot lot-available" 
-                                                     id="lot-{{ $lot->lot_code }}"
-                                                     data-lot-id="{{ $lot->id }}"
-                                                     data-lot-code="{{ $lot->lot_code }}"
-                                                     data-display-name="{{ $lot->display_name ?? $lot->lot_code }}"
-                                                     points="{{ $mapData['points'] }}" />
-                                            <text x="{{ $mapData['cx'] }}" 
-                                                  y="{{ $mapData['cy'] + 1 }}" 
-                                                  class="lot-text">{{ $lot->lot_code }}</text>
-                                        </g>
+                                        <polygon class="market-lot lot-available" 
+                                                 id="lot-{{ $lot->lot_code }}"
+                                                 data-lot-id="{{ $lot->id }}"
+                                                 data-lot-code="{{ $lot->lot_code }}"
+                                                 data-display-name="{{ $lot->display_name ?? $lot->lot_code }}"
+                                                 points="{{ $mapData['points'] }}" />
                                     @endif
                                 @endforeach
                             </g>
@@ -333,7 +328,7 @@
         });
 
         // Lot click listener
-        const lotGroups = document.querySelectorAll('.lot-group');
+        const lotGroups = document.querySelectorAll('.market-lot');
         lotGroups.forEach(g => {
             g.addEventListener('click', function() {
                 const code = this.getAttribute('data-lot-code');
