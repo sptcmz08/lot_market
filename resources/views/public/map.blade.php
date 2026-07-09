@@ -63,24 +63,33 @@
     }
 
     .market-lot {
-        stroke: #ffffff;
-        stroke-width: 2px;
         cursor: pointer;
         transition: all 0.2s ease;
     }
 
     .market-lot:hover {
-        filter: brightness(1.1);
-        transform: scale(1.02);
+        fill-opacity: 0.8 !important;
+        stroke-width: 2px !important;
     }
 
     .lot-text {
-        fill: #2F2F37;
-        font-size: 10px;
+        fill: #1d1d1f;
+        font-size: 7px;
         font-weight: 800;
         pointer-events: none;
         text-anchor: middle;
         dominant-baseline: middle;
+        opacity: 0.55;
+        transition: all 0.15s ease;
+        text-shadow: 0 0 2px #ffffff, 0 0 2px #ffffff;
+    }
+
+    .lot-group:hover .lot-text,
+    .lot-selected + .lot-text {
+        opacity: 1;
+        font-size: 8px;
+        font-weight: 900;
+        fill: #000000;
     }
 
     .zone-label {
@@ -89,20 +98,21 @@
         fill: var(--text-dark);
     }
 
-    /* Lot Status Fills */
-    .lot-available { fill: #A2E8B9; } /* soft green */
-    .lot-pending { fill: #FFE17D; } /* soft yellow */
-    .lot-booked { fill: #FFA3A3; } /* soft red */
-    .lot-installing { fill: #C7B5FF; } /* soft purple */
-    .lot-completed { fill: #8DE5DE; } /* soft green-blue */
-    .lot-blocked { fill: #E0E0E0; } /* light gray */
-    .lot-problem { fill: #FFC078; } /* soft orange */
+    /* Lot Status Fills with semi-transparency for isometric overlay */
+    .lot-available { fill: rgba(162, 232, 185, 0.35); stroke: #52c41a; stroke-width: 1px; } 
+    .lot-pending { fill: rgba(255, 225, 125, 0.5); stroke: #faad14; stroke-width: 1px; } 
+    .lot-booked { fill: rgba(255, 163, 163, 0.6); stroke: #ff4d4f; stroke-width: 1px; } 
+    .lot-installing { fill: rgba(199, 181, 255, 0.5); stroke: #722ed1; stroke-width: 1px; } 
+    .lot-completed { fill: rgba(141, 229, 222, 0.5); stroke: #13c2c2; stroke-width: 1px; } 
+    .lot-blocked { fill: rgba(150, 150, 150, 0.4); stroke: #888888; stroke-dasharray: 2,2; stroke-width: 1px; } 
+    .lot-problem { fill: rgba(255, 192, 120, 0.5); stroke: #fa8c16; stroke-width: 1px; } 
 
     /* Selected state */
     .lot-selected {
         stroke: #FF3B70 !important;
         stroke-width: 3px !important;
-        filter: drop-shadow(0 0 6px rgba(255, 60, 112, 0.4));
+        fill: rgba(255, 59, 112, 0.4) !important;
+        filter: drop-shadow(0 0 6px rgba(255, 60, 112, 0.5));
     }
 
     /* Bottom Sheet Details */
@@ -186,179 +196,119 @@
     </div>
 
     @php
-        $leftBlockCodes = ['GB', 'GC', 'GD', 'GE', 'GF', 'GG', 'GH', 'GI', 'GJ'];
-        $bottomBlockCodes = ['GL', 'GM', 'GN', 'GO', 'GP', 'GQ', 'GR', 'GS', 'GT'];
-        $rightBlockCodes = ['GW', 'GX', 'GY', 'GZ'];
+        if (!function_exists('getLotMapData')) {
+            function getLotMapData($lotCode) {
+                $zone = substr($lotCode, 0, 2);
+                $num = (int)substr($lotCode, 2, 2);
+
+                $leftCodes = ['GB', 'GC', 'GD', 'GE', 'GF', 'GG', 'GH', 'GI', 'GJ'];
+                $bottomCodes = ['GL', 'GM', 'GN', 'GO', 'GP', 'GQ', 'GR', 'GS', 'GT'];
+                $rightCodes = ['GW', 'GX', 'GY', 'GZ'];
+
+                if (in_array($zone, $leftCodes)) {
+                    $corners = [
+                        [120, 252],
+                        [278, 142],
+                        [330, 470],
+                        [520, 318]
+                    ];
+                    $cols = 9;
+                    $rows = 10;
+                    $c = array_search($zone, $leftCodes);
+                    $r = $num - 1;
+                } elseif (in_array($zone, $bottomCodes)) {
+                    $corners = [
+                        [515, 385],
+                        [780, 240],
+                        [730, 520],
+                        [980, 345]
+                    ];
+                    $cols = 9;
+                    $rows = 10;
+                    $c = array_search($zone, $bottomCodes);
+                    $r = $num - 1;
+                } elseif (in_array($zone, $rightCodes)) {
+                    $corners = [
+                        [722, 175],
+                        [965, 55],
+                        [900, 292],
+                        [1030, 175]
+                    ];
+                    $cols = 8;
+                    $rows = 5;
+                    
+                    $baseCol = array_search($zone, $rightCodes) * 2;
+                    if ($num % 2 !== 0) {
+                        $c = $baseCol;
+                        $r = intval(($num - 1) / 2);
+                    } else {
+                        $c = $baseCol + 1;
+                        $r = intval(($num / 2) - 1);
+                    }
+                } else {
+                    return null;
+                }
+
+                $pts = [];
+                $sumX = 0;
+                $sumY = 0;
+
+                // TL, TR, BR, BL order for SVG polygon points
+                $directions = [[0, 0], [1, 0], [1, 1], [0, 1]];
+                foreach ($directions as $d) {
+                    $dc = $d[0];
+                    $dr = $d[1];
+
+                    $u = ($c + $dc) / $cols;
+                    $v = ($r + $dr) / $rows;
+
+                    $x = (1 - $u) * (1 - $v) * $corners[0][0] + $u * (1 - $v) * $corners[1][0] + (1 - $u) * $v * $corners[2][0] + $u * $v * $corners[3][0];
+                    $y = (1 - $u) * (1 - $v) * $corners[0][1] + $u * (1 - $v) * $corners[1][1] + (1 - $u) * $v * $corners[2][1] + $u * $v * $corners[3][1];
+                    
+                    $pts[] = round($x) . ',' . round($y);
+                    $sumX += $x;
+                    $sumY += $y;
+                }
+
+                return [
+                    'points' => implode(' ', $pts),
+                    'cx' => round($sumX / 4),
+                    'cy' => round($sumY / 4)
+                ];
+            }
+        }
     @endphp
 
     <!-- Map View -->
     <div class="map-card">
         <div class="map-viewport">
-            <svg viewBox="0 0 1100 700" width="100%" height="100%" class="market-svg">
-                <defs>
-                    <!-- Gradients for different zones/stalls -->
-                    <linearGradient id="orange-tent-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#FF5A36" />
-                        <stop offset="100%" stop-color="#FFA857" />
-                    </linearGradient>
-                    <linearGradient id="grass-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stop-color="#8ED699" />
-                        <stop offset="100%" stop-color="#5FB46D" />
-                    </linearGradient>
-                    <linearGradient id="road-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stop-color="#E8E8EC" />
-                        <stop offset="100%" stop-color="#DCDCE2" />
-                    </linearGradient>
-                    <linearGradient id="building-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stop-color="#8B5E4F" />
-                        <stop offset="100%" stop-color="#5D3A2E" />
-                    </linearGradient>
-                </defs>
+            <svg viewBox="0 0 1024 549" width="100%" height="100%" class="market-svg">
+                <!-- Background cartoon image -->
+                <image href="/images/market_map.png" x="0" y="0" width="1024" height="549" />
 
-                <!-- Background Ground color -->
-                <rect width="1100" height="700" fill="#F4EFEA" rx="20" />
-
-                <!-- Roads -->
-                <!-- Lamlukka Road -->
-                <polygon points="-50,220 700,-30 780,-30 -50,280" fill="url(#road-grad)" />
-                <text x="240" y="100" transform="rotate(-20 240 100)" fill="#9A9AA4" font-size="16" font-weight="bold">ถนนลำลูกกา</text>
-
-                <!-- Phahonyothin Road -->
-                <polygon points="-50,600 900,240 980,240 -50,660" fill="url(#road-grad)" />
-                <text x="320" y="470" transform="rotate(-20 320 470)" fill="#9A9AA4" font-size="16" font-weight="bold">ถนนพหลโยธิน</text>
-
-                <!-- Buildings -->
-                <!-- Kanmanee Building -->
-                <g class="building" transform="translate(680, 50)">
-                    <polygon points="0,40 100,0 200,40 200,80 100,120 0,80" fill="#E6DFD9" stroke="#C5BDB6" stroke-width="2" />
-                    <polygon points="0,40 100,0 200,40 100,60" fill="url(#building-grad)" />
-                    <rect x="80" y="80" width="40" height="40" fill="#5D3A2E" rx="4" />
-                    <text x="100" y="55" text-anchor="middle" fill="#FFFFFF" font-size="13" font-weight="bold">อาคารกานต์มณี</text>
-                </g>
-
-                <!-- Beer Garden -->
-                <g class="beer-garden" transform="translate(480, 270)">
-                    <polygon points="0,60 140,0 280,60 140,120" fill="url(#grass-grad)" stroke="#4A9C59" stroke-width="3" />
-                    <!-- Table circles -->
-                    <circle cx="60" cy="45" r="8" fill="#FFFFFF" stroke="#CCCCCC" />
-                    <circle cx="140" cy="35" r="8" fill="#FFFFFF" stroke="#CCCCCC" />
-                    <circle cx="220" cy="45" r="8" fill="#FFFFFF" stroke="#CCCCCC" />
-                    <circle cx="90" cy="70" r="8" fill="#FFFFFF" stroke="#CCCCCC" />
-                    <circle cx="190" cy="70" r="8" fill="#FFFFFF" stroke="#CCCCCC" />
-                    <circle cx="140" cy="95" r="8" fill="#FFFFFF" stroke="#CCCCCC" />
-                    <!-- Signboard -->
-                    <g transform="translate(110, -5) rotate(-20)">
-                        <rect x="0" y="0" width="90" height="26" fill="#6FD08C" rx="6" stroke="#4A9C59" stroke-width="1.5" />
-                        <text x="45" y="17" text-anchor="middle" fill="#FFFFFF" font-size="11" font-weight="bold">ลานเบียร์ช้าง</text>
+                <!-- Dynamic Lots rendering with pixel-perfect overlays -->
+                @foreach($zones as $zone)
+                    <g class="zone-group" data-zone-code="{{ $zone->code }}">
+                        @foreach($zone->lots as $lot)
+                            @php
+                                $mapData = getLotMapData($lot->lot_code);
+                            @endphp
+                            @if($mapData)
+                                <g class="lot-group" data-lot-code="{{ $lot->lot_code }}" id="lot-group-{{ $lot->lot_code }}">
+                                    <polygon class="market-lot lot-available" 
+                                             id="lot-{{ $lot->lot_code }}"
+                                             data-lot-id="{{ $lot->id }}"
+                                             data-lot-code="{{ $lot->lot_code }}"
+                                             data-display-name="{{ $lot->display_name ?? $lot->lot_code }}"
+                                             points="{{ $mapData['points'] }}" />
+                                    <text x="{{ $mapData['cx'] }}" 
+                                          y="{{ $mapData['cy'] + 1 }}" 
+                                          class="lot-text">{{ $lot->lot_code }}</text>
+                                </g>
+                            @endif
+                        @endforeach
                     </g>
-                </g>
-
-                <!-- Trees -->
-                <g transform="translate(100, 320)">
-                    <line x1="0" y1="0" x2="0" y2="20" stroke="#8B5E4F" stroke-width="3" />
-                    <circle cx="0" cy="-5" r="14" fill="#95D5A4" stroke="#77C58A" stroke-width="2" />
-                </g>
-                <g transform="translate(140, 340)">
-                    <line x1="0" y1="0" x2="0" y2="20" stroke="#8B5E4F" stroke-width="3" />
-                    <circle cx="0" cy="-5" r="14" fill="#95D5A4" stroke="#77C58A" stroke-width="2" />
-                </g>
-                <g transform="translate(180, 360)">
-                    <line x1="0" y1="0" x2="0" y2="20" stroke="#8B5E4F" stroke-width="3" />
-                    <circle cx="0" cy="-5" r="14" fill="#95D5A4" stroke="#77C58A" stroke-width="2" />
-                </g>
-
-                <g transform="translate(80, 150)">
-                    <line x1="0" y1="0" x2="0" y2="20" stroke="#8B5E4F" stroke-width="3" />
-                    <circle cx="0" cy="-5" r="14" fill="#95D5A4" stroke="#77C58A" stroke-width="2" />
-                </g>
-                <g transform="translate(110, 130)">
-                    <line x1="0" y1="0" x2="0" y2="20" stroke="#8B5E4F" stroke-width="3" />
-                    <circle cx="0" cy="-5" r="14" fill="#95D5A4" stroke="#77C58A" stroke-width="2" />
-                </g>
-
-                <!-- Block 1: Left Block (GB to GJ) -->
-                <g class="block-group" transform="translate(140, 220) rotate(-20) skewX(20)">
-                    @foreach($zones->whereIn('code', $leftBlockCodes) as $zone)
-                        <g class="zone-group" data-zone-code="{{ $zone->code }}">
-                            <!-- Render Zone Label -->
-                            <text x="{{ ($loop->index * 34) + 12 }}" y="-10" class="zone-label" text-anchor="middle" font-size="9" fill="#7F7F8F" font-weight="bold">{{ $zone->code }}</text>
-                            @foreach($zone->lots as $lot)
-                                <g class="lot-group" data-lot-code="{{ $lot->lot_code }}" id="lot-group-{{ $lot->lot_code }}">
-                                    <rect class="market-lot lot-available" 
-                                          id="lot-{{ $lot->lot_code }}"
-                                          data-lot-id="{{ $lot->id }}"
-                                          data-lot-code="{{ $lot->lot_code }}"
-                                          data-display-name="{{ $lot->display_name ?? $lot->lot_code }}"
-                                          x="{{ $lot->position_x }}" 
-                                          y="{{ $lot->position_y }}" 
-                                          width="{{ $lot->width }}" 
-                                          height="{{ $lot->height }}" 
-                                          rx="3" />
-                                    <text x="{{ $lot->position_x + ($lot->width / 2) }}" 
-                                          y="{{ $lot->position_y + ($lot->height / 2) + 1 }}" 
-                                          class="lot-text" font-size="7">{{ $lot->lot_code }}</text>
-                                </g>
-                            @endforeach
-                        </g>
-                    @endforeach
-                </g>
-
-                <!-- Block 2: Bottom Block (GL to GT) -->
-                <g class="block-group" transform="translate(560, 420) rotate(-20) skewX(20)">
-                    @foreach($zones->whereIn('code', $bottomBlockCodes) as $zone)
-                        <g class="zone-group" data-zone-code="{{ $zone->code }}">
-                            <!-- Render Zone Label -->
-                            <text x="{{ ($loop->index * 34) + 12 }}" y="-10" class="zone-label" text-anchor="middle" font-size="9" fill="#7F7F8F" font-weight="bold">{{ $zone->code }}</text>
-                            @foreach($zone->lots as $lot)
-                                <g class="lot-group" data-lot-code="{{ $lot->lot_code }}" id="lot-group-{{ $lot->lot_code }}">
-                                    <rect class="market-lot lot-available" 
-                                          id="lot-{{ $lot->lot_code }}"
-                                          data-lot-id="{{ $lot->id }}"
-                                          data-lot-code="{{ $lot->lot_code }}"
-                                          data-display-name="{{ $lot->display_name ?? $lot->lot_code }}"
-                                          x="{{ $lot->position_x }}" 
-                                          y="{{ $lot->position_y }}" 
-                                          width="{{ $lot->width }}" 
-                                          height="{{ $lot->height }}" 
-                                          rx="3" />
-                                    <text x="{{ $lot->position_x + ($lot->width / 2) }}" 
-                                          y="{{ $lot->position_y + ($lot->height / 2) + 1 }}" 
-                                          class="lot-text" font-size="7">{{ $lot->lot_code }}</text>
-                                </g>
-                            @endforeach
-                        </g>
-                    @endforeach
-                </g>
-
-                <!-- Block 3: Right Block (GW to GZ) - Orange Tents -->
-                <g class="block-group" transform="translate(850, 220) rotate(-20) skewX(20)">
-                    @foreach($zones->whereIn('code', $rightBlockCodes) as $zone)
-                        <g class="zone-group" data-zone-code="{{ $zone->code }}">
-                            <!-- Render Zone Label with 'คี่'/'คู่' labels -->
-                            <text x="{{ ($loop->index * 54) + 19 }}" y="-15" class="zone-label" text-anchor="middle" font-size="9" fill="#E65100" font-weight="bold">{{ $zone->code }} คี่</text>
-                            <text x="{{ ($loop->index * 54) + 19 }}" y="-5" class="zone-label" text-anchor="middle" font-size="9" fill="#E65100" font-weight="bold">{{ $zone->code }} คู่</text>
-                            @foreach($zone->lots as $lot)
-                                <g class="lot-group" data-lot-code="{{ $lot->lot_code }}" id="lot-group-{{ $lot->lot_code }}">
-                                    <!-- Orange Tents -->
-                                    <rect class="market-lot lot-available" 
-                                          id="lot-{{ $lot->lot_code }}"
-                                          data-lot-id="{{ $lot->id }}"
-                                          data-lot-code="{{ $lot->lot_code }}"
-                                          data-display-name="{{ $lot->display_name ?? $lot->lot_code }}"
-                                          x="{{ $lot->position_x }}" 
-                                          y="{{ $lot->position_y }}" 
-                                          width="{{ $lot->width }}" 
-                                          height="{{ $lot->height }}" 
-                                          rx="4"
-                                          style="fill-opacity: 0.85; stroke: #FF7043; stroke-width: 1.5px;" />
-                                    <text x="{{ $lot->position_x + ($lot->width / 2) }}" 
-                                          y="{{ $lot->position_y + ($lot->height / 2) + 1 }}" 
-                                          class="lot-text" font-size="8" font-weight="900">{{ $lot->lot_code }}</text>
-                                </g>
-                            @endforeach
-                        </g>
-                    @endforeach
-                </g>
+                @endforeach
             </svg>
         </div>
     </div>
