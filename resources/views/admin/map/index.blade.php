@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 
 @section('title', 'แผนผังแผงตลาดสด')
 @section('page_title', 'แผนผังและสถานะแผงตลาด')
@@ -238,7 +238,7 @@
 
     .market-svg {
         display: block;
-        min-width: 1000px;
+        min-width: 1120px;
         margin: 0 auto;
         user-select: none;
     }
@@ -249,6 +249,14 @@
         cursor: pointer;
         transition: all 0.2s ease;
     }
+
+    .lot-available { fill: #A2E8B9; }
+    .lot-pending { fill: #FFE17D; }
+    .lot-booked { fill: #FFA3A3; }
+    .lot-installing { fill: #C7B5FF; }
+    .lot-completed { fill: #8DE5DE; }
+    .lot-problem { fill: #FFC078; }
+    .lot-blocked { fill: #E0E0E0; }
 
     .market-lot:hover {
         filter: brightness(1.15);
@@ -265,9 +273,11 @@
     }
 
     .zone-label {
-        font-size: 11px;
-        font-weight: 800;
+        font-size: 14px;
+        font-weight: 900;
         fill: var(--text-dark);
+        text-anchor: end;
+        dominant-baseline: middle;
     }
 
     /* Selected highlight */
@@ -321,127 +331,7 @@
             <!-- Map rendering -->
             <div class="map-card">
                 <div class="map-viewport" id="map-viewport-wrapper">
-                    <svg viewBox="0 0 1200 620" width="100%" height="100%" class="market-svg" id="market-svg-element">
-                @php
-                    // === LEFT SIDE: GB-GJ, 10 lots each, 2 rows of 5 ===
-                    $leftGroups = [
-                        ['GJ'],         // Row 1 (top)
-                        ['GI', 'GH'],   // Row 2
-                        ['GG', 'GF'],   // Row 3
-                        ['GE', 'GD'],   // Row 4
-                        ['GC', 'GB'],   // Row 5 (bottom)
-                    ];
-                    $ltW = 24; $ltH = 16; $ltGap = 3; // left tent dimensions
-                    $lx0 = 50; // left start X
-                    $ly = 15;  // current Y cursor
-                    $groupGap = 18; // gap between row groups
-                @endphp
-
-                @foreach($leftGroups as $gi => $groupCodes)
-                    @foreach($groupCodes as $zi => $zCode)
-                        @php $zone = $zones->firstWhere('code', $zCode); @endphp
-                        @if($zone)
-                        {{-- Zone label --}}
-                        <text x="{{ $lx0 - 5 }}" y="{{ $ly + $ltH }}" text-anchor="end" font-size="10" fill="#4B5563" font-weight="bold">{{ $zCode }}</text>
-                        @foreach($zone->lots as $lot)
-                            @php
-                                $r = (int)substr($lot->lot_code, 2, 2);
-                                $col = ($r - 1) % 5;
-                                $row = intval(($r - 1) / 5);
-                                $tx = $lx0 + $col * ($ltW + $ltGap);
-                                $ty = $ly + $row * ($ltH + $ltGap);
-                                $cx = $tx + $ltW / 2;
-                                $cy = $ty + $ltH / 2;
-                            @endphp
-                            <g class="lot-group" data-lot-code="{{ $lot->lot_code }}" id="lot-group-{{ $lot->lot_code }}">
-                                <rect class="market-lot lot-available"
-                                      id="lot-{{ $lot->lot_code }}"
-                                      data-lot-id="{{ $lot->id }}"
-                                      data-lot-code="{{ $lot->lot_code }}"
-                                      data-display-name="{{ $lot->display_name ?? $lot->lot_code }}"
-                                      data-cx="{{ $cx }}" data-cy="{{ $cy }}"
-                                      x="{{ $tx }}" y="{{ $ty }}"
-                                      width="{{ $ltW }}" height="{{ $ltH }}" rx="3" />
-                                <text x="{{ $cx }}" y="{{ $cy + 1 }}" class="lot-text" font-size="7.5">{{ substr($lot->lot_code, 2, 2) }}</text>
-                            </g>
-                        @endforeach
-                        @php $ly += 2 * ($ltH + $ltGap); @endphp {{-- 2 rows per zone --}}
-                        @endif
-                    @endforeach
-                    @php $ly += $groupGap; @endphp {{-- gap between groups --}}
-                @endforeach
-
-                {{-- === CENTER: Chang Beer Yard === --}}
-                <g>
-                    <rect x="255" y="100" width="210" height="420" fill="none" stroke="#2E7D32" stroke-width="2.5" rx="12" stroke-dasharray="6 4" opacity="0.5" />
-                    <rect x="260" y="105" width="200" height="410" fill="#E8F5E9" stroke="#81C784" stroke-width="1.5" rx="10" />
-                    <text x="360" y="310" text-anchor="middle" fill="#1B5E20" font-size="15" font-weight="900" letter-spacing="2">ลานเบียร์ช้าง</text>
-                    {{-- tables --}}
-                    <circle cx="310" cy="200" r="8" fill="#FFF" stroke="#2E7D32" stroke-width="1.2" /><circle cx="310" cy="200" r="3" fill="#2E7D32" />
-                    <circle cx="410" cy="200" r="8" fill="#FFF" stroke="#2E7D32" stroke-width="1.2" /><circle cx="410" cy="200" r="3" fill="#2E7D32" />
-                    <circle cx="310" cy="400" r="8" fill="#FFF" stroke="#2E7D32" stroke-width="1.2" /><circle cx="310" cy="400" r="3" fill="#2E7D32" />
-                    <circle cx="410" cy="400" r="8" fill="#FFF" stroke="#2E7D32" stroke-width="1.2" /><circle cx="410" cy="400" r="3" fill="#2E7D32" />
-                    <circle cx="360" cy="200" r="10" fill="#FFF" stroke="#2E7D32" stroke-width="1.2" /><circle cx="360" cy="200" r="4" fill="#2E7D32" />
-                    <circle cx="360" cy="400" r="10" fill="#FFF" stroke="#2E7D32" stroke-width="1.2" /><circle cx="360" cy="400" r="4" fill="#2E7D32" />
-                </g>
-
-                @php
-                    // === RIGHT SIDE: GL-GT ===
-                    $rightGroups = [
-                        ['GT'],         // Row 1 (top) - 9 tents (4+5)
-                        ['GS', 'GR'],   // Row 2 - 14 each (4+5+5)
-                        ['GQ', 'GP'],   // Row 3
-                        ['GO', 'GN'],   // Row 4
-                        ['GM', 'GL'],   // Row 5 (bottom)
-                    ];
-                    $rtW = 20; $rtH = 16; $rtGap = 3; // right tent dimensions
-                    $rx0 = 520; // right start X
-                    $secGap = 8; // gap between sections (4|5|5)
-                    $ry = 15; // Y cursor
-                @endphp
-
-                @foreach($rightGroups as $gi => $groupCodes)
-                    @foreach($groupCodes as $zi => $zCode)
-                        @php $zone = $zones->firstWhere('code', $zCode); @endphp
-                        @if($zone)
-                        <text x="{{ $rx0 - 5 }}" y="{{ $ry + $rtH }}" text-anchor="end" font-size="10" fill="#4B5563" font-weight="bold">{{ $zCode }}</text>
-                        @foreach($zone->lots as $lot)
-                            @php
-                                $r = (int)substr($lot->lot_code, 2, 2);
-                                // Section layout: 1-4 = section1, 5-9 = section2, 10-14 = section3
-                                if ($r <= 4) {
-                                    $col = $r - 1;
-                                    $secOffset = 0;
-                                } elseif ($r <= 9) {
-                                    $col = $r - 5;
-                                    $secOffset = 4 * ($rtW + $rtGap) + $secGap;
-                                } else {
-                                    $col = $r - 10;
-                                    $secOffset = 4 * ($rtW + $rtGap) + $secGap + 5 * ($rtW + $rtGap) + $secGap;
-                                }
-                                $tx = $rx0 + $secOffset + $col * ($rtW + $rtGap);
-                                $ty = $ry;
-                                $cx = $tx + $rtW / 2;
-                                $cy = $ty + $rtH / 2;
-                            @endphp
-                            <g class="lot-group" data-lot-code="{{ $lot->lot_code }}" id="lot-group-{{ $lot->lot_code }}">
-                                <rect class="market-lot lot-available"
-                                      id="lot-{{ $lot->lot_code }}"
-                                      data-lot-id="{{ $lot->id }}"
-                                      data-lot-code="{{ $lot->lot_code }}"
-                                      data-display-name="{{ $lot->display_name ?? $lot->lot_code }}"
-                                      data-cx="{{ $cx }}" data-cy="{{ $cy }}"
-                                      x="{{ $tx }}" y="{{ $ty }}"
-                                      width="{{ $rtW }}" height="{{ $rtH }}" rx="3" />
-                                <text x="{{ $cx }}" y="{{ $cy + 1 }}" class="lot-text" font-size="7">{{ substr($lot->lot_code, 2, 2) }}</text>
-                            </g>
-                        @endforeach
-                        @php $ry += $rtH + $rtGap; @endphp {{-- next row --}}
-                        @endif
-                    @endforeach
-                    @php $ry += $groupGap; @endphp
-                @endforeach
-            </svg>
+                    @include('components.market-map-svg', ['zones' => $zones])
 
                     <!-- Floating Popover -->
                     <div id="lot-popover" class="lot-popover" style="display: none;">
