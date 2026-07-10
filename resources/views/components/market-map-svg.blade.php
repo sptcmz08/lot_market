@@ -3,7 +3,8 @@
     $tentW = 32;
     $tentH = 32;
     $tentGap = 3;
-    $groupGap = 34;
+    $rowGap = 8;
+    $groupGap = 24;
     $topPad = 58;
     $bottomPad = 42;
     $leftPad = 36;
@@ -12,16 +13,16 @@
     $centerW = 178;
     $rightGap = 64;
     $roadW = 22;
-    $rowStep = $tentH + $groupGap;
+    $rowStep = $tentH + $rowGap;
 
-    $leftGroups = [
+    $leftRows = [
         ['GJ'],
         ['GI', 'GH'],
         ['GG', 'GF'],
         ['GE', 'GD'],
         ['GC', 'GB'],
     ];
-    $rightGroups = [
+    $rightRows = [
         ['GT'],
         ['GS', 'GR'],
         ['GQ', 'GP'],
@@ -29,50 +30,57 @@
         ['GM', 'GL'],
     ];
 
-    $groupLots = function ($groupCodes) use ($zones) {
-        $lots = collect();
+    $zoneLots = function ($zCode) use ($zones) {
+        $zone = $zones->firstWhere('code', $zCode);
 
-        foreach ($groupCodes as $zCode) {
-            $zone = $zones->firstWhere('code', $zCode);
-            if ($zone) {
-                $lots = $lots->concat($zone->lots);
-            }
-        }
-
-        return $lots->values();
+        return $zone ? $zone->lots->values() : collect();
     };
 
-    $groupWidth = function ($groupCodes) use ($groupLots, $tentW, $tentGap) {
-        $count = $groupLots($groupCodes)->count();
+    $zoneWidth = function ($zCode) use ($zoneLots, $tentW, $tentGap) {
+        $count = $zoneLots($zCode)->count();
 
         return $count > 0 ? ($count * $tentW) + (($count - 1) * $tentGap) : 0;
     };
 
-    $sideWidth = function ($groups) use ($groupWidth) {
+    $sideWidth = function ($rows) use ($zoneWidth) {
         $width = 0;
 
-        foreach ($groups as $groupCodes) {
-            $width = max($width, $groupWidth($groupCodes));
+        foreach ($rows as $rowCodes) {
+            foreach ($rowCodes as $zCode) {
+                $width = max($width, $zoneWidth($zCode));
+            }
         }
 
         return $width;
     };
 
-    $groupsHeight = function ($groups) use ($groupLots, $tentH, $groupGap) {
+    $rowsHeight = function ($rows) use ($zoneLots, $tentH, $rowGap, $groupGap) {
         $rows = 0;
+        $groups = 0;
 
-        foreach ($groups as $groupCodes) {
-            if ($groupLots($groupCodes)->count() > 0) {
-                $rows++;
+        foreach ($rows as $rowCodes) {
+            $groupHasLots = false;
+            foreach ($rowCodes as $zCode) {
+                if ($zoneLots($zCode)->count() > 0) {
+                    $rows++;
+                    $groupHasLots = true;
+                }
+            }
+            if ($groupHasLots) {
+                $groups++;
             }
         }
 
-        return $rows > 0 ? ($rows * $tentH) + (($rows - 1) * $groupGap) : 0;
+        if ($rows === 0) {
+            return 0;
+        }
+
+        return ($rows * $tentH) + (($rows - $groups) * $rowGap) + (max(0, $groups - 1) * $groupGap);
     };
 
-    $leftW = $sideWidth($leftGroups);
-    $rightW = $sideWidth($rightGroups);
-    $mapH = $topPad + max($groupsHeight($leftGroups), $groupsHeight($rightGroups), 430) + $bottomPad;
+    $leftW = $sideWidth($leftRows);
+    $rightW = $sideWidth($rightRows);
+    $mapH = $topPad + max($rowsHeight($leftRows), $rowsHeight($rightRows), 430) + $bottomPad;
     $leftLabelX = $leftPad;
     $leftX = $leftLabelX + $labelGap;
     $centerX = $leftX + $leftW + $centerGap;
@@ -84,15 +92,15 @@
     $yardY = $topPad + 10;
     $yardH = max(390, $contentH - 20);
 
-    $renderGroup = function ($groupCodes, $labelX, $startX, $startY) use ($groupLots, $tentImg, $tentW, $tentH, $tentGap) {
-        $lots = $groupLots($groupCodes);
+    $renderZone = function ($zCode, $labelX, $startX, $startY) use ($zoneLots, $tentImg, $tentW, $tentH, $tentGap) {
+        $lots = $zoneLots($zCode);
         if ($lots->count() === 0) {
             return '';
         }
 
-        $groupLabel = e(implode(' ', $groupCodes));
+        $zoneLabel = e($zCode);
         $labelY = $startY + ($tentH / 2);
-        $markup = '<text x="' . $labelX . '" y="' . $labelY . '" class="zone-label">' . $groupLabel . '</text>';
+        $markup = '<text x="' . $labelX . '" y="' . $labelY . '" class="zone-label">' . $zoneLabel . '</text>';
 
         foreach ($lots as $index => $lot) {
             $tx = $startX + ($index * ($tentW + $tentGap));
@@ -129,10 +137,19 @@
     <path d="M{{ $roadX + ($roadW / 2) }} 44 V{{ $mapH - 44 }}" stroke="#DDD6CE" stroke-width="{{ $roadW }}" opacity="0.55" />
 
     @php $currentY = $topPad; @endphp
-    @foreach($leftGroups as $groupCodes)
-        @if($groupLots($groupCodes)->count() > 0)
-            {!! $renderGroup($groupCodes, $leftLabelX, $leftX, $currentY) !!}
-            @php $currentY += $rowStep; @endphp
+    @foreach($leftRows as $rowCodes)
+        @php $groupHasLots = false; @endphp
+        @foreach($rowCodes as $zCode)
+            @if($zoneLots($zCode)->count() > 0)
+                {!! $renderZone($zCode, $leftLabelX, $leftX, $currentY) !!}
+                @php
+                    $currentY += $rowStep;
+                    $groupHasLots = true;
+                @endphp
+            @endif
+        @endforeach
+        @if($groupHasLots)
+            @php $currentY += $groupGap - $rowGap; @endphp
         @endif
     @endforeach
 
@@ -148,10 +165,19 @@
     </g>
 
     @php $currentY = $topPad; @endphp
-    @foreach($rightGroups as $groupCodes)
-        @if($groupLots($groupCodes)->count() > 0)
-            {!! $renderGroup($groupCodes, $rightLabelX, $rightX, $currentY) !!}
-            @php $currentY += $rowStep; @endphp
+    @foreach($rightRows as $rowCodes)
+        @php $groupHasLots = false; @endphp
+        @foreach($rowCodes as $zCode)
+            @if($zoneLots($zCode)->count() > 0)
+                {!! $renderZone($zCode, $rightLabelX, $rightX, $currentY) !!}
+                @php
+                    $currentY += $rowStep;
+                    $groupHasLots = true;
+                @endphp
+            @endif
+        @endforeach
+        @if($groupHasLots)
+            @php $currentY += $groupGap - $rowGap; @endphp
         @endif
     @endforeach
 </svg>
