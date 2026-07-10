@@ -225,12 +225,29 @@
     }
 
     /* Map SVG styles */
+    .content-container {
+        max-width: none;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .cute-card {
+        max-width: 1020px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
     .map-card {
-        padding: 20px;
+        width: min(100%, calc(100vw - 32px));
+        max-width: 1760px;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 14px;
         background-color: #fff;
         border-radius: 24px;
         overflow: hidden;
         border: 2px solid var(--border-cute);
+        box-sizing: border-box;
     }
 
     .map-viewport {
@@ -246,7 +263,7 @@
         height: auto;
         max-width: none;
         min-width: 0;
-        margin: 0;
+        margin: 0 auto;
         user-select: none;
     }
 

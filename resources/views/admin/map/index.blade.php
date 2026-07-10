@@ -222,11 +222,12 @@
     }
 
     .map-card {
-        padding: 10px;
+        padding: 14px;
         background-color: #fff;
         border-radius: 24px;
         overflow: hidden;
         border: 2px solid var(--border-cute);
+        box-sizing: border-box;
     }
 
     .map-viewport {
@@ -242,7 +243,7 @@
         height: auto;
         max-width: none;
         min-width: 0;
-        margin: 0;
+        margin: 0 auto;
         user-select: none;
     }
 
@@ -292,7 +293,7 @@
 
     .map-layout-grid {
         display: grid;
-        grid-template-columns: 2fr 1fr;
+        grid-template-columns: minmax(0, 3fr) minmax(280px, 1fr);
         gap: 20px;
     }
 

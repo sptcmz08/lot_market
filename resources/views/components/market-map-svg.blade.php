@@ -1,20 +1,20 @@
 @php
     $tentImg = asset('images/tent.png');
-    $tentW = 32;
-    $tentH = 32;
-    $tentGap = 3;
+    $tentW = 24;
+    $tentH = 24;
+    $tentGap = 2;
     $lotsPerBlock = 5;
-    $blockGap = 18;
-    $rowGap = 8;
-    $groupGap = 24;
-    $topPad = 58;
-    $bottomPad = 42;
-    $leftPad = 36;
-    $labelGap = 22;
-    $centerGap = 74;
-    $centerW = 178;
-    $rightGap = 64;
-    $roadW = 22;
+    $blockGap = 14;
+    $rowGap = 6;
+    $groupGap = 20;
+    $topPad = 46;
+    $bottomPad = 34;
+    $leftPad = 32;
+    $labelGap = 20;
+    $centerGap = 54;
+    $centerW = 154;
+    $rightGap = 48;
+    $roadW = 18;
     $rowStep = $tentH + $rowGap;
 
     $leftRows = [
@@ -83,17 +83,17 @@
 
     $leftW = $sideWidth($leftRows);
     $rightW = $sideWidth($rightRows);
-    $mapH = $topPad + max($rowsHeight($leftRows), $rowsHeight($rightRows), 430) + $bottomPad;
+    $mapH = $topPad + max($rowsHeight($leftRows), $rowsHeight($rightRows), 340) + $bottomPad;
     $leftLabelX = $leftPad;
     $leftX = $leftLabelX + $labelGap;
     $centerX = $leftX + $leftW + $centerGap;
     $roadX = $centerX + $centerW + 18;
     $rightLabelX = $roadX + $roadW + $rightGap;
     $rightX = $rightLabelX + $labelGap;
-    $mapW = $rightX + $rightW + 42;
+    $mapW = $rightX + $rightW + 34;
     $contentH = $mapH - $topPad - $bottomPad;
-    $yardY = $topPad + 10;
-    $yardH = max(390, $contentH - 20);
+    $yardY = $topPad + 8;
+    $yardH = max(315, $contentH - 16);
 
     $renderZone = function ($zCode, $labelX, $startX, $startY) use ($zoneLots, $tentImg, $tentW, $tentH, $tentGap, $lotsPerBlock, $blockGap) {
         $lots = $zoneLots($zCode);
