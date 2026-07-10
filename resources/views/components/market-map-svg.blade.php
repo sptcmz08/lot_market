@@ -10,7 +10,7 @@
     $topPad = 46;
     $bottomPad = 34;
     $leftPad = 32;
-    $labelGap = 20;
+    $labelGap = 30;
     $centerGap = 54;
     $centerW = 154;
     $rightGap = 48;
@@ -103,7 +103,8 @@
 
         $zoneLabel = e($zCode);
         $labelY = $startY + ($tentH / 2);
-        $markup = '<text x="' . $labelX . '" y="' . $labelY . '" class="zone-label">' . $zoneLabel . '</text>';
+        $markup = '<rect x="' . ($labelX - 17) . '" y="' . ($labelY - 13) . '" width="34" height="26" rx="7" class="zone-label-bg" />';
+        $markup .= '<text x="' . $labelX . '" y="' . $labelY . '" class="zone-label">' . $zoneLabel . '</text>';
 
         foreach ($lots as $index => $lot) {
             $tx = $startX + ($index * ($tentW + $tentGap)) + (intdiv($index, $lotsPerBlock) * $blockGap);

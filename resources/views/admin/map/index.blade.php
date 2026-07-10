@@ -23,6 +23,10 @@
         pointer-events: auto;
     }
 
+    .lot-popover.below {
+        transform: translate(-50%, 0) translateY(18px);
+    }
+
     /* Popover Arrow */
     .lot-popover::after {
         content: '';
@@ -35,6 +39,13 @@
         border-color: rgba(255, 255, 255, 0.88) transparent;
         display: block;
         width: 0;
+    }
+
+    .lot-popover.below::after {
+        top: -10px;
+        bottom: auto;
+        border-width: 0 10px 10px;
+        border-color: rgba(255, 255, 255, 0.88) transparent;
     }
 
     .popover-close {
@@ -234,6 +245,7 @@
         position: relative;
         width: 100%;
         overflow: auto;
+        padding-top: 8px;
         -webkit-overflow-scrolling: touch;
     }
 
@@ -277,11 +289,17 @@
     }
 
     .zone-label {
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 900;
         fill: var(--text-dark);
-        text-anchor: end;
+        text-anchor: middle;
         dominant-baseline: middle;
+    }
+
+    .zone-label-bg {
+        fill: rgba(255, 255, 255, 0.78);
+        stroke: rgba(241, 221, 229, 0.9);
+        stroke-width: 1;
     }
 
     /* Selected highlight */
@@ -400,6 +418,23 @@
         let lotStatuses = {};
         let currentSelected = null;
 
+        function positionPopover(targetEl) {
+            const viewportRect = mapViewport.getBoundingClientRect();
+            const targetRect = targetEl.getBoundingClientRect();
+            const popoverWidth = popover.offsetWidth || 360;
+            const popoverHeight = popover.offsetHeight || 260;
+            const targetCenterX = (targetRect.left - viewportRect.left) + (targetRect.width / 2) + mapViewport.scrollLeft;
+            const targetCenterY = (targetRect.top - viewportRect.top) + (targetRect.height / 2) + mapViewport.scrollTop;
+            const minLeft = mapViewport.scrollLeft + (popoverWidth / 2) + 12;
+            const maxLeft = mapViewport.scrollLeft + mapViewport.clientWidth - (popoverWidth / 2) - 12;
+            const left = Math.min(Math.max(targetCenterX, minLeft), Math.max(minLeft, maxLeft));
+            const roomAbove = targetRect.top - viewportRect.top;
+
+            popover.classList.toggle('below', roomAbove < popoverHeight + 34);
+            popover.style.left = left + 'px';
+            popover.style.top = targetCenterY + 'px';
+        }
+
         function loadStatuses(onComplete = null) {
             const date = datePicker.value;
             fetch(`{{ route('public.lots.status') }}?date=${date}`)
@@ -475,14 +510,7 @@
                 const lot = lotStatuses[code];
                 if (!lot) return;
 
-                const viewportRect = mapViewport.getBoundingClientRect();
-                const targetRect = this.getBoundingClientRect();
-
-                const left = (targetRect.left - viewportRect.left) + (targetRect.width / 2) + mapViewport.scrollLeft;
-                const top = (targetRect.top - viewportRect.top) + (targetRect.height / 2) + mapViewport.scrollTop;
-
-                popover.style.left = left + 'px';
-                popover.style.top = top + 'px';
+                popover.style.visibility = 'hidden';
                 popover.style.display = 'block';
 
                 let html = '';
@@ -582,6 +610,8 @@
                 }
 
                 popoverContent.innerHTML = html;
+                positionPopover(this);
+                popover.style.visibility = 'visible';
             });
         });
 
