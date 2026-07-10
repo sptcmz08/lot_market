@@ -12,6 +12,8 @@ use App\Http\Controllers\Admin\AdminReportController;
 use App\Http\Controllers\Admin\AdminMapController;
 use App\Http\Controllers\Staff\StaffTaskController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Session\Middleware\StartSession;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 // Public Routes
 Route::get('/', [PublicMapController::class, 'index'])->name('public.map');
@@ -95,4 +97,7 @@ Route::get('/system/{command}/{secret}', function ($command, $secret) {
     } catch (\Exception $e) {
         return "<p style='color: red; font-weight: bold;'>Error occurred:</p><pre style='background: #ffd6d6; color: #900; padding: 15px; border-radius: 8px;'>" . e($e->getMessage()) . "</pre>";
     }
-});
+})->withoutMiddleware([
+    StartSession::class,
+    ShareErrorsFromSession::class,
+]);
