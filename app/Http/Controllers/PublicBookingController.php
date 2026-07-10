@@ -30,6 +30,12 @@ class PublicBookingController extends Controller
             return redirect()->route('public.map', ['date' => $date])->with('error', 'กรุณาเลือกล็อคอย่างน้อย 1 ล็อคเพื่อทำการจอง');
         }
 
+        if (!$this->lotAvailabilityService->isAvailable($lots->pluck('id')->all(), $date)) {
+            return redirect()
+                ->route('public.map', ['date' => $date])
+                ->with('error', 'ล็อคที่เลือกถูกจองไปแล้วในวันดังกล่าว กรุณาเลือกใหม่อีกครั้ง');
+        }
+
         // Available tent and counter sizes
         $tentSizes = ['1.5', '2x2', '2x3', '2.5', '3x4.5'];
         $counterSizes = ['ไม่มีเคาน์เตอร์', '1 ล็อค', '2 ล็อค', '3 ล็อค'];

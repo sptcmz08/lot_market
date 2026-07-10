@@ -7,12 +7,17 @@ use App\Models\Booking;
 use App\Models\DeliveryTask;
 use App\Models\Lot;
 use App\Models\User;
+use App\Services\LotAvailabilityService;
 use App\Services\StatusLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AdminBookingController extends Controller
 {
+    public function __construct(private LotAvailabilityService $lotAvailabilityService)
+    {
+    }
+
     public function index(Request $request)
     {
         $query = Booking::with(['lots', 'deliveryTask.staff']);
@@ -79,6 +84,12 @@ class AdminBookingController extends Controller
             'lots.*' => 'required|integer|exists:lots,id',
             'admin_note' => 'nullable|string',
         ]);
+
+        if (!$this->lotAvailabilityService->isAvailable($validated['lots'], $validated['use_date'], $booking->id)) {
+            return back()
+                ->withErrors(['lots' => 'ล็อคที่เลือกมีการจองอยู่แล้วในวันที่ใช้งานนี้ กรุณาเลือกแผงใหม่'])
+                ->withInput();
+        }
 
         DB::transaction(function () use ($booking, $validated) {
             $booking->update([

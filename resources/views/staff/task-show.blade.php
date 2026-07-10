@@ -146,7 +146,7 @@
                 <i class="fa-solid fa-triangle-exclamation"></i> รายงานความผิดปกติ / ปัญหาหน้างาน
             </h3>
             
-            <form action="{{ route('staff.tasks.problem', $task) }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('staff.tasks.problem', $task) }}" method="POST" enctype="multipart/form-data" onsubmit="return confirm('ยืนยันแจ้งปัญหา? ระบบจะระงับงานติดตั้งชั่วคราวและแจ้งแอดมิน');">
                 @csrf
                 <input type="hidden" name="latitude" class="gps-lat">
                 <input type="hidden" name="longitude" class="gps-lng">
@@ -161,7 +161,7 @@
                     <input type="file" id="problem_photo" name="problem_photo" class="cute-input" accept="image/*" capture="environment">
                 </div>
 
-                <button type="submit" class="btn-large btn-large-danger" style="height: 48px;" onsubmit="return confirm('ยืนยันแจ้งปัญหา? ระบบจะระงับงานติดตั้งชั่วคราวและแจ้งแอดมิน');">
+                <button type="submit" class="btn-large btn-large-danger" style="height: 48px;">
                     <i class="fa-solid fa-circle-exclamation"></i> บันทึกรายงานปัญหาหน้างาน
                 </button>
             </form>

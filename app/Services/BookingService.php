@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Models\Booking;
+use App\Models\Lot;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class BookingService
 {
@@ -15,6 +17,21 @@ class BookingService
     public function createBooking(array $data, array $lotIds): Booking
     {
         return DB::transaction(function () use ($data, $lotIds) {
+            Lot::whereIn('id', $lotIds)->lockForUpdate()->get();
+
+            $alreadyBooked = Booking::where('use_date', $data['use_date'])
+                ->whereIn('status', ['pending_admin', 'confirmed', 'assigned', 'installing', 'completed'])
+                ->whereHas('lots', function ($query) use ($lotIds) {
+                    $query->whereIn('lots.id', $lotIds);
+                })
+                ->exists();
+
+            if ($alreadyBooked) {
+                throw ValidationException::withMessages([
+                    'lots' => 'ล็อคที่คุณเลือกบางล็อตถูกจองไปแล้วในวันดังกล่าว กรุณาเลือกใหม่อีกครั้ง',
+                ]);
+            }
+
             $booking = Booking::create([
                 'booking_code' => $this->generateBookingCode(),
                 'use_date' => $data['use_date'],

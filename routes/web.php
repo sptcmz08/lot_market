@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PublicMapController;
 use App\Http\Controllers\PublicBookingController;
+use App\Http\Controllers\SystemCommandController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminBookingController;
 use App\Http\Controllers\Admin\AdminLotController;
@@ -32,18 +33,18 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-    Route::resource('/bookings', AdminBookingController::class);
+    Route::resource('/bookings', AdminBookingController::class)->except(['create', 'store']);
     Route::post('/bookings/{booking}/confirm', [AdminBookingController::class, 'confirm'])->name('bookings.confirm');
     Route::post('/bookings/{booking}/cancel', [AdminBookingController::class, 'cancel'])->name('bookings.cancel');
     Route::post('/bookings/{booking}/assign', [AdminBookingController::class, 'assignStaff'])->name('bookings.assign');
 
-    Route::resource('/lots', AdminLotController::class);
+    Route::resource('/lots', AdminLotController::class)->except(['show']);
     Route::get('/map', [AdminMapController::class, 'index'])->name('map.index');
 
     Route::get('/tasks', [AdminDeliveryTaskController::class, 'index'])->name('tasks.index');
     Route::get('/tasks/{task}', [AdminDeliveryTaskController::class, 'show'])->name('tasks.show');
 
-    Route::resource('/users', AdminUserController::class);
+    Route::resource('/users', AdminUserController::class)->except(['show']);
     Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
 });
 
@@ -54,50 +55,11 @@ Route::middleware(['auth', 'role:staff,admin'])->prefix('staff')->name('staff.')
     Route::post('/tasks/{task}/start', [StaffTaskController::class, 'start'])->name('tasks.start');
     Route::post('/tasks/{task}/upload-photo', [StaffTaskController::class, 'uploadPhoto'])->name('tasks.upload_photo');
     Route::post('/tasks/{task}/complete', [StaffTaskController::class, 'complete'])->name('tasks.complete');
+    Route::post('/tasks/{task}/problem', [StaffTaskController::class, 'reportProblem'])->name('tasks.problem');
 });
 
 // System Utility Routes for shared hosting (market.after-spa.com)
-Route::get('/system/{command}/{secret}', function ($command, $secret) {
-    $expectedSecret = env('SYSTEM_SECRET_KEY', 'market-secret-99');
-    if ($secret !== $expectedSecret) {
-        abort(403, 'Unauthorized.');
-    }
-
-    try {
-        $allowedCommands = [
-            'migrate' => 'migrate --force',
-            'migrate-fresh' => 'migrate:fresh --force',
-            'seed' => 'db:seed --force',
-            'migrate-seed' => 'migrate:fresh --seed --force',
-            'optimize' => 'optimize',
-            'clear-cache' => 'cache:clear',
-            'config-cache' => 'config:cache',
-            'route-cache' => 'route:cache',
-            'view-clear' => 'view:clear',
-            'storage-link' => 'storage:link',
-        ];
-
-        if (!array_key_exists($command, $allowedCommands)) {
-            return "Command [{$command}] is not allowed or supported.";
-        }
-
-        $artisanCommand = $allowedCommands[$command];
-        
-        echo "<h3>Executing: php artisan {$artisanCommand}</h3>";
-        
-        \Illuminate\Support\Facades\Artisan::call($artisanCommand);
-        
-        $output = \Illuminate\Support\Facades\Artisan::output();
-        
-        echo "<pre style='background: #272822; color: #f8f8f2; padding: 15px; border-radius: 8px; font-family: monospace;'>";
-        echo e($output ?: 'Command executed successfully with empty output.');
-        echo "</pre>";
-        
-        return "<p style='color: green; font-weight: bold;'>Execution complete!</p>";
-    } catch (\Exception $e) {
-        return "<p style='color: red; font-weight: bold;'>Error occurred:</p><pre style='background: #ffd6d6; color: #900; padding: 15px; border-radius: 8px;'>" . e($e->getMessage()) . "</pre>";
-    }
-})->withoutMiddleware([
+Route::get('/system/{command}/{secret}', SystemCommandController::class)->withoutMiddleware([
     StartSession::class,
     ShareErrorsFromSession::class,
 ]);

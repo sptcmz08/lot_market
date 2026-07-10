@@ -336,6 +336,13 @@
         <div>&copy; {{ date('Y') }} ระบบจองและติดตั้งเต็นท์ตลาด &bull; ⛺ ออกแบบด้วยความรักและความใส่ใจ</div>
     </footer>
 
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+            });
+        }
+    </script>
     @yield('scripts')
 </body>
 </html>

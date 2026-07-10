@@ -12,6 +12,8 @@
     
     <!-- FontAwesome icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#FF8FB1">
     
     <!-- Admin Styling -->
     <style>
@@ -491,6 +493,13 @@
                 sidebar.classList.remove('open');
             }
         });
+    </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+            });
+        }
     </script>
     @yield('scripts')
 </body>

@@ -115,8 +115,15 @@
             $displayName = e($lot->display_name ?? $lot->lot_code);
 
             $markup .= <<<SVG
-                <g class="lot-group" data-lot-code="{$code}" id="lot-group-{$code}" style="cursor:pointer">
-                    <image href="{$tentImg}" x="{$tx}" y="{$ty}" width="{$tentW}" height="{$tentH}" preserveAspectRatio="xMidYMid meet" />
+                <g class="lot-group"
+                   data-lot-id="{$lot->id}"
+                   data-lot-code="{$code}"
+                   data-display-name="{$displayName}"
+                   data-cx="{$cx}"
+                   data-cy="{$cy}"
+                   id="lot-group-{$code}"
+                   style="cursor:pointer">
+                    <image href="{$tentImg}" x="{$tx}" y="{$ty}" width="{$tentW}" height="{$tentH}" preserveAspectRatio="xMidYMid meet" style="pointer-events:none" />
                     <rect class="market-lot lot-available"
                           id="lot-{$code}"
                           data-lot-id="{$lot->id}"
@@ -126,6 +133,10 @@
                           x="{$tx}" y="{$ty}"
                           width="{$tentW}" height="{$tentH}" rx="5"
                           opacity="0.42" />
+                    <rect class="lot-hit-area"
+                          x="{$tx}" y="{$ty}"
+                          width="{$tentW}" height="{$tentH}" rx="5"
+                          fill="transparent" />
                 </g>
             SVG;
         }

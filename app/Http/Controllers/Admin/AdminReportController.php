@@ -14,6 +14,9 @@ class AdminReportController extends Controller
     {
         $year = $request->query('year', now()->format('Y'));
         $month = $request->query('month', now()->format('m'));
+        $monthExpression = DB::connection()->getDriverName() === 'sqlite'
+            ? "strftime('%m', use_date)"
+            : "LPAD(MONTH(use_date), 2, '0')";
 
         // Monthly breakdown
         $monthlyReport = Booking::select(
@@ -39,7 +42,7 @@ class AdminReportController extends Controller
 
         // Overall stats group by month
         $yearlyReport = Booking::select(
-                DB::raw("strftime('%m', use_date) as month_num"), // SQLite date format compatible
+                DB::raw("{$monthExpression} as month_num"),
                 DB::raw('count(*) as total_bookings'),
                 DB::raw("sum(case when status = 'completed' then 1 else 0 end) as completed_bookings")
             )

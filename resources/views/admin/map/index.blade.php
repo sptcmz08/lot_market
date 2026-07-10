@@ -262,8 +262,13 @@
     .market-lot {
         stroke: #ffffff;
         stroke-width: 1.5px;
-        cursor: pointer;
+        pointer-events: none;
         transition: all 0.2s ease;
+    }
+
+    .lot-group,
+    .lot-hit-area {
+        cursor: pointer;
     }
 
     .lot-available { fill: #A2E8B9; }
@@ -274,7 +279,7 @@
     .lot-problem { fill: #FFC078; }
     .lot-blocked { fill: #E0E0E0; }
 
-    .market-lot:hover {
+    .lot-group:hover .market-lot {
         filter: brightness(1.15);
         transform: scale(1.02);
     }
@@ -418,21 +423,47 @@
         let lotStatuses = {};
         let currentSelected = null;
 
-        function positionPopover(targetEl) {
+        function getLotAnchor(targetEl) {
             const viewportRect = mapViewport.getBoundingClientRect();
-            const targetRect = targetEl.getBoundingClientRect();
+            const group = targetEl.closest('.lot-group') || targetEl;
+            const cx = Number(group.dataset.cx);
+            const cy = Number(group.dataset.cy);
+
+            if (svgElement && Number.isFinite(cx) && Number.isFinite(cy) && svgElement.createSVGPoint) {
+                const matrix = svgElement.getScreenCTM();
+                if (matrix) {
+                    const point = svgElement.createSVGPoint();
+                    point.x = cx;
+                    point.y = cy;
+                    const screenPoint = point.matrixTransform(matrix);
+
+                    return {
+                        x: (screenPoint.x - viewportRect.left) + mapViewport.scrollLeft,
+                        y: (screenPoint.y - viewportRect.top) + mapViewport.scrollTop,
+                        viewportY: screenPoint.y - viewportRect.top,
+                    };
+                }
+            }
+
+            const targetRect = group.getBoundingClientRect();
+            return {
+                x: (targetRect.left - viewportRect.left) + (targetRect.width / 2) + mapViewport.scrollLeft,
+                y: (targetRect.top - viewportRect.top) + (targetRect.height / 2) + mapViewport.scrollTop,
+                viewportY: targetRect.top - viewportRect.top,
+            };
+        }
+
+        function positionPopover(targetEl) {
             const popoverWidth = popover.offsetWidth || 360;
             const popoverHeight = popover.offsetHeight || 260;
-            const targetCenterX = (targetRect.left - viewportRect.left) + (targetRect.width / 2) + mapViewport.scrollLeft;
-            const targetCenterY = (targetRect.top - viewportRect.top) + (targetRect.height / 2) + mapViewport.scrollTop;
             const minLeft = mapViewport.scrollLeft + (popoverWidth / 2) + 12;
             const maxLeft = mapViewport.scrollLeft + mapViewport.clientWidth - (popoverWidth / 2) - 12;
-            const left = Math.min(Math.max(targetCenterX, minLeft), Math.max(minLeft, maxLeft));
-            const roomAbove = targetRect.top - viewportRect.top;
+            const anchor = getLotAnchor(targetEl);
+            const left = Math.min(Math.max(anchor.x, minLeft), Math.max(minLeft, maxLeft));
 
-            popover.classList.toggle('below', roomAbove < popoverHeight + 34);
+            popover.classList.toggle('below', anchor.viewportY < popoverHeight + 34);
             popover.style.left = left + 'px';
-            popover.style.top = targetCenterY + 'px';
+            popover.style.top = anchor.y + 'px';
         }
 
         function loadStatuses(onComplete = null) {
@@ -467,10 +498,10 @@
             const autoLot = urlParams.get('lot');
             if (autoLot) {
                 setTimeout(() => {
-                    const el = document.getElementById(`lot-${autoLot}`);
+                    const el = document.getElementById(`lot-group-${autoLot}`) || document.getElementById(`lot-${autoLot}`);
                     if (el) {
                         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        el.dispatchEvent(new Event('click'));
+                        el.dispatchEvent(new MouseEvent('click', { bubbles: true }));
                     }
                 }, 800);
             }
@@ -489,11 +520,11 @@
         });
 
         // Lot click listener
-        const lotGroups = document.querySelectorAll('.market-lot');
+        const lotGroups = document.querySelectorAll('.lot-group');
         lotGroups.forEach(g => {
             g.addEventListener('click', function(e) {
                 e.stopPropagation();
-                const code = this.getAttribute('data-lot-code');
+                const code = this.dataset.lotCode;
                 
                 if (currentSelected) {
                     const prevEl = document.getElementById(`lot-${currentSelected}`);
@@ -630,7 +661,7 @@
 
         // Hide popover when clicking outside
         document.addEventListener('click', function(e) {
-            if (popover.style.display !== 'none' && !popover.contains(e.target) && !e.target.classList.contains('market-lot')) {
+            if (popover.style.display !== 'none' && !popover.contains(e.target) && !e.target.closest('.lot-group')) {
                 popover.style.display = 'none';
                 if (currentSelected) {
                     const prevEl = document.getElementById(`lot-${currentSelected}`);
