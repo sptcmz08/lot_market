@@ -46,13 +46,11 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        // 2. Define Zones matching the image
-        // Left Block: GB to GJ
+        // 2. Define Zones
+        // Left Block: GB to GJ (10 lots each)
         $leftCodes = ['GB', 'GC', 'GD', 'GE', 'GF', 'GG', 'GH', 'GI', 'GJ'];
-        // Bottom Block: GL to GT
-        $bottomCodes = ['GL', 'GM', 'GN', 'GO', 'GP', 'GQ', 'GR', 'GS', 'GT'];
-        // Right Block (Orange Tents): GW, GX, GY, GZ
-        $rightCodes = ['GW', 'GX', 'GY', 'GZ'];
+        // Right Block: GL to GT (GL-GS = 14 lots each, GT = 9 lots)
+        $rightCodes = ['GL', 'GM', 'GN', 'GO', 'GP', 'GQ', 'GR', 'GS', 'GT'];
 
         $zones = [];
         $order = 1;
@@ -65,7 +63,7 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        foreach ($bottomCodes as $code) {
+        foreach ($rightCodes as $code) {
             $zones[$code] = Zone::create([
                 'code' => $code,
                 'name' => "โซน {$code}",
@@ -73,87 +71,39 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        // 3. Seed Lots for Left Block (GB to GJ) - 10 lots each
+        foreach ($leftCodes as $code) {
+            $zone = $zones[$code];
+            for ($r = 1; $r <= 10; $r++) {
+                $num = str_pad($r, 2, '0', STR_PAD_LEFT);
+                Lot::create([
+                    'zone_id' => $zone->id,
+                    'lot_code' => $code . $num,
+                    'display_name' => $code . $num,
+                    'svg_element_id' => 'lot-' . $code . $num,
+                    'position_x' => 0, 'position_y' => 0,
+                    'width' => 24, 'height' => 18,
+                    'is_active' => true,
+                    'note' => "แผงค้าฝั่งซ้ายแถวที่ {$r}",
+                ]);
+            }
+        }
+
+        // 4. Seed Lots for Right Block (GL to GS = 14 lots, GT = 9 lots)
         foreach ($rightCodes as $code) {
-            $zones[$code] = Zone::create([
-                'code' => $code,
-                'name' => "โซน {$code} (เต็นท์ส้ม)",
-                'sort_order' => $order++
-            ]);
-        }
-
-        // 3. Seed Lots for Left Block (GB to GJ)
-        // c: column index, r: stall index
-        foreach ($leftCodes as $cIndex => $code) {
             $zone = $zones[$code];
-            for ($r = 1; $r <= 10; $r++) {
+            $maxLots = ($code === 'GT') ? 9 : 14;
+            for ($r = 1; $r <= $maxLots; $r++) {
                 $num = str_pad($r, 2, '0', STR_PAD_LEFT);
-                $lotCode = $code . $num;
-
-                // 2D grid position inside the isometric group
-                $x = $cIndex * 34;
-                $y = ($r - 1) * 26;
-
                 Lot::create([
                     'zone_id' => $zone->id,
-                    'lot_code' => $lotCode,
-                    'display_name' => $lotCode,
-                    'svg_element_id' => 'lot-' . $lotCode,
-                    'position_x' => $x,
-                    'position_y' => $y,
-                    'width' => 24,
-                    'height' => 18,
+                    'lot_code' => $code . $num,
+                    'display_name' => $code . $num,
+                    'svg_element_id' => 'lot-' . $code . $num,
+                    'position_x' => 0, 'position_y' => 0,
+                    'width' => 20, 'height' => 16,
                     'is_active' => true,
-                    'note' => "แผงค้าทั่วไปแถวที่ {$r}",
-                ]);
-            }
-        }
-
-        // 4. Seed Lots for Bottom Block (GL to GT)
-        foreach ($bottomCodes as $cIndex => $code) {
-            $zone = $zones[$code];
-            for ($r = 1; $r <= 10; $r++) {
-                $num = str_pad($r, 2, '0', STR_PAD_LEFT);
-                $lotCode = $code . $num;
-
-                $x = $cIndex * 34;
-                $y = ($r - 1) * 26;
-
-                Lot::create([
-                    'zone_id' => $zone->id,
-                    'lot_code' => $lotCode,
-                    'display_name' => $lotCode,
-                    'svg_element_id' => 'lot-' . $lotCode,
-                    'position_x' => $x,
-                    'position_y' => $y,
-                    'width' => 24,
-                    'height' => 18,
-                    'is_active' => true,
-                    'note' => "แผงค้าทั่วไปแถวที่ {$r}",
-                ]);
-            }
-        }
-
-        // 5. Seed Lots for Right Block (GW to GZ) - Large Orange Tents
-        foreach ($rightCodes as $cIndex => $code) {
-            $zone = $zones[$code];
-            for ($r = 1; $r <= 10; $r++) {
-                $num = str_pad($r, 2, '0', STR_PAD_LEFT);
-                $lotCode = $code . $num;
-
-                $x = $cIndex * 54;
-                $y = ($r - 1) * 36;
-
-                Lot::create([
-                    'zone_id' => $zone->id,
-                    'lot_code' => $lotCode,
-                    'display_name' => $lotCode,
-                    'svg_element_id' => 'lot-' . $lotCode,
-                    'position_x' => $x,
-                    'position_y' => $y,
-                    'width' => 38,
-                    'height' => 24,
-                    'is_active' => true,
-                    'note' => "เต็นท์ส้มขนาดใหญ่แถวที่ {$r}",
+                    'note' => "แผงค้าฝั่งขวาแถวที่ {$r}",
                 ]);
             }
         }
