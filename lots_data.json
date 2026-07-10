@@ -1,0 +1,2514 @@
+{
+    "zones": [
+        {
+            "code": "F28",
+            "name": "\u0e42\u0e0b\u0e19\u0e2d\u0e32\u0e2b\u0e32\u0e23 (2,800/\u0e27\u0e31\u0e19)",
+            "color": "#D35400",
+            "price": 2800
+        },
+        {
+            "code": "F26",
+            "name": "\u0e42\u0e0b\u0e19\u0e2d\u0e32\u0e2b\u0e32\u0e23 (2,600/\u0e27\u0e31\u0e19)",
+            "color": "#E67E22",
+            "price": 2600
+        },
+        {
+            "code": "F25",
+            "name": "\u0e42\u0e0b\u0e19\u0e2d\u0e32\u0e2b\u0e32\u0e23 (2,500/\u0e27\u0e31\u0e19)",
+            "color": "#F39C12",
+            "price": 2500
+        },
+        {
+            "code": "F22",
+            "name": "\u0e42\u0e0b\u0e19\u0e2d\u0e32\u0e2b\u0e32\u0e23 (2,200/\u0e27\u0e31\u0e19)",
+            "color": "#F1C40F",
+            "price": 2200
+        },
+        {
+            "code": "F16",
+            "name": "\u0e42\u0e0b\u0e19\u0e2d\u0e32\u0e2b\u0e32\u0e23 (1,600/\u0e27\u0e31\u0e19)",
+            "color": "#FDEDEC",
+            "price": 1600
+        },
+        {
+            "code": "S18",
+            "name": "\u0e42\u0e0b\u0e19\u0e41\u0e1f\u0e0a\u0e31\u0e48\u0e19/\u0e2d\u0e37\u0e48\u0e19\u0e46 (1,800/\u0e27\u0e31\u0e19)",
+            "color": "#9B59B6",
+            "price": 1800
+        },
+        {
+            "code": "S15",
+            "name": "\u0e42\u0e0b\u0e19\u0e41\u0e1f\u0e0a\u0e31\u0e48\u0e19/\u0e2d\u0e37\u0e48\u0e19\u0e46 (1,500/\u0e27\u0e31\u0e19)",
+            "color": "#AF7AC5",
+            "price": 1500
+        },
+        {
+            "code": "S13",
+            "name": "\u0e42\u0e0b\u0e19\u0e41\u0e1f\u0e0a\u0e31\u0e48\u0e19/\u0e2d\u0e37\u0e48\u0e19\u0e46 (1,300/\u0e27\u0e31\u0e19)",
+            "color": "#EC87C0",
+            "price": 1300
+        },
+        {
+            "code": "S12",
+            "name": "\u0e42\u0e0b\u0e19\u0e41\u0e1f\u0e0a\u0e31\u0e48\u0e19/\u0e2d\u0e37\u0e48\u0e19\u0e46 (1,200/\u0e27\u0e31\u0e19)",
+            "color": "#F1948A",
+            "price": 1200
+        },
+        {
+            "code": "S10",
+            "name": "\u0e42\u0e0b\u0e19\u0e41\u0e1f\u0e0a\u0e31\u0e48\u0e19/\u0e2d\u0e37\u0e48\u0e19\u0e46 (1,000/\u0e27\u0e31\u0e19)",
+            "color": "#5DADE2",
+            "price": 1000
+        }
+    ],
+    "lots": [
+        {
+            "lot_code": "261",
+            "zone_code": "F25",
+            "x": 390,
+            "y": 150,
+            "w": 45,
+            "h": 45,
+            "display_name": "261"
+        },
+        {
+            "lot_code": "260",
+            "zone_code": "F25",
+            "x": 330,
+            "y": 150,
+            "w": 45,
+            "h": 45,
+            "display_name": "260"
+        },
+        {
+            "lot_code": "259",
+            "zone_code": "F25",
+            "x": 270,
+            "y": 150,
+            "w": 45,
+            "h": 45,
+            "display_name": "259"
+        },
+        {
+            "lot_code": "258",
+            "zone_code": "F25",
+            "x": 210,
+            "y": 150,
+            "w": 45,
+            "h": 45,
+            "display_name": "258"
+        },
+        {
+            "lot_code": "262",
+            "zone_code": "F25",
+            "x": 565,
+            "y": 150,
+            "w": 45,
+            "h": 45,
+            "display_name": "262"
+        },
+        {
+            "lot_code": "263",
+            "zone_code": "F25",
+            "x": 625,
+            "y": 150,
+            "w": 45,
+            "h": 45,
+            "display_name": "263"
+        },
+        {
+            "lot_code": "264",
+            "zone_code": "F25",
+            "x": 685,
+            "y": 150,
+            "w": 45,
+            "h": 45,
+            "display_name": "264"
+        },
+        {
+            "lot_code": "265",
+            "zone_code": "F25",
+            "x": 745,
+            "y": 150,
+            "w": 45,
+            "h": 45,
+            "display_name": "265"
+        },
+        {
+            "lot_code": "252",
+            "zone_code": "F16",
+            "x": 130,
+            "y": 260,
+            "w": 26,
+            "h": 22,
+            "display_name": "252"
+        },
+        {
+            "lot_code": "251",
+            "zone_code": "F16",
+            "x": 130,
+            "y": 286,
+            "w": 26,
+            "h": 22,
+            "display_name": "251"
+        },
+        {
+            "lot_code": "254",
+            "zone_code": "F16",
+            "x": 160,
+            "y": 260,
+            "w": 26,
+            "h": 22,
+            "display_name": "254"
+        },
+        {
+            "lot_code": "253",
+            "zone_code": "F16",
+            "x": 160,
+            "y": 286,
+            "w": 26,
+            "h": 22,
+            "display_name": "253"
+        },
+        {
+            "lot_code": "224",
+            "zone_code": "S18",
+            "x": 105,
+            "y": 340,
+            "w": 26,
+            "h": 22,
+            "display_name": "224"
+        },
+        {
+            "lot_code": "225",
+            "zone_code": "S18",
+            "x": 105,
+            "y": 366,
+            "w": 26,
+            "h": 22,
+            "display_name": "225"
+        },
+        {
+            "lot_code": "226",
+            "zone_code": "S18",
+            "x": 135,
+            "y": 340,
+            "w": 26,
+            "h": 22,
+            "display_name": "226"
+        },
+        {
+            "lot_code": "227",
+            "zone_code": "S18",
+            "x": 135,
+            "y": 366,
+            "w": 26,
+            "h": 22,
+            "display_name": "227"
+        },
+        {
+            "lot_code": "176",
+            "zone_code": "S10",
+            "x": 90,
+            "y": 420,
+            "w": 26,
+            "h": 22,
+            "display_name": "176"
+        },
+        {
+            "lot_code": "175",
+            "zone_code": "S10",
+            "x": 95,
+            "y": 470,
+            "w": 26,
+            "h": 22,
+            "display_name": "175"
+        },
+        {
+            "lot_code": "125",
+            "zone_code": "S10",
+            "x": 105,
+            "y": 520,
+            "w": 26,
+            "h": 22,
+            "display_name": "125"
+        },
+        {
+            "lot_code": "124",
+            "zone_code": "S10",
+            "x": 115,
+            "y": 570,
+            "w": 26,
+            "h": 22,
+            "display_name": "124"
+        },
+        {
+            "lot_code": "74",
+            "zone_code": "F22",
+            "x": 130,
+            "y": 630,
+            "w": 26,
+            "h": 22,
+            "display_name": "74"
+        },
+        {
+            "lot_code": "73",
+            "zone_code": "F22",
+            "x": 145,
+            "y": 680,
+            "w": 26,
+            "h": 22,
+            "display_name": "73"
+        },
+        {
+            "lot_code": "45",
+            "zone_code": "F26",
+            "x": 170,
+            "y": 735,
+            "w": 26,
+            "h": 22,
+            "display_name": "45"
+        },
+        {
+            "lot_code": "44",
+            "zone_code": "F26",
+            "x": 190,
+            "y": 785,
+            "w": 26,
+            "h": 22,
+            "display_name": "44"
+        },
+        {
+            "lot_code": "32",
+            "zone_code": "F28",
+            "x": 215,
+            "y": 840,
+            "w": 26,
+            "h": 22,
+            "display_name": "32"
+        },
+        {
+            "lot_code": "31",
+            "zone_code": "F28",
+            "x": 235,
+            "y": 890,
+            "w": 26,
+            "h": 22,
+            "display_name": "31"
+        },
+        {
+            "lot_code": "22",
+            "zone_code": "F28",
+            "x": 260,
+            "y": 940,
+            "w": 26,
+            "h": 22,
+            "display_name": "22"
+        },
+        {
+            "lot_code": "21",
+            "zone_code": "F28",
+            "x": 280,
+            "y": 990,
+            "w": 26,
+            "h": 22,
+            "display_name": "21"
+        },
+        {
+            "lot_code": "256",
+            "zone_code": "F16",
+            "x": 844,
+            "y": 260,
+            "w": 26,
+            "h": 22,
+            "display_name": "256"
+        },
+        {
+            "lot_code": "255",
+            "zone_code": "F16",
+            "x": 844,
+            "y": 286,
+            "w": 26,
+            "h": 22,
+            "display_name": "255"
+        },
+        {
+            "lot_code": "258W",
+            "zone_code": "F16",
+            "x": 814,
+            "y": 260,
+            "w": 26,
+            "h": 22,
+            "display_name": "258"
+        },
+        {
+            "lot_code": "257",
+            "zone_code": "F16",
+            "x": 814,
+            "y": 286,
+            "w": 26,
+            "h": 22,
+            "display_name": "257"
+        },
+        {
+            "lot_code": "216",
+            "zone_code": "S18",
+            "x": 869,
+            "y": 340,
+            "w": 26,
+            "h": 22,
+            "display_name": "216"
+        },
+        {
+            "lot_code": "217",
+            "zone_code": "S18",
+            "x": 869,
+            "y": 366,
+            "w": 26,
+            "h": 22,
+            "display_name": "217"
+        },
+        {
+            "lot_code": "218",
+            "zone_code": "S18",
+            "x": 839,
+            "y": 340,
+            "w": 26,
+            "h": 22,
+            "display_name": "218"
+        },
+        {
+            "lot_code": "219",
+            "zone_code": "S18",
+            "x": 839,
+            "y": 366,
+            "w": 26,
+            "h": 22,
+            "display_name": "219"
+        },
+        {
+            "lot_code": "174",
+            "zone_code": "S10",
+            "x": 884,
+            "y": 420,
+            "w": 26,
+            "h": 22,
+            "display_name": "174"
+        },
+        {
+            "lot_code": "173",
+            "zone_code": "S10",
+            "x": 879,
+            "y": 470,
+            "w": 26,
+            "h": 22,
+            "display_name": "173"
+        },
+        {
+            "lot_code": "121",
+            "zone_code": "S10",
+            "x": 869,
+            "y": 520,
+            "w": 26,
+            "h": 22,
+            "display_name": "121"
+        },
+        {
+            "lot_code": "120",
+            "zone_code": "S10",
+            "x": 859,
+            "y": 570,
+            "w": 26,
+            "h": 22,
+            "display_name": "120"
+        },
+        {
+            "lot_code": "72",
+            "zone_code": "F22",
+            "x": 844,
+            "y": 630,
+            "w": 26,
+            "h": 22,
+            "display_name": "72"
+        },
+        {
+            "lot_code": "71",
+            "zone_code": "F22",
+            "x": 829,
+            "y": 680,
+            "w": 26,
+            "h": 22,
+            "display_name": "71"
+        },
+        {
+            "lot_code": "43",
+            "zone_code": "F26",
+            "x": 804,
+            "y": 735,
+            "w": 26,
+            "h": 22,
+            "display_name": "43"
+        },
+        {
+            "lot_code": "42",
+            "zone_code": "F26",
+            "x": 784,
+            "y": 785,
+            "w": 26,
+            "h": 22,
+            "display_name": "42"
+        },
+        {
+            "lot_code": "30",
+            "zone_code": "F28",
+            "x": 759,
+            "y": 840,
+            "w": 26,
+            "h": 22,
+            "display_name": "30"
+        },
+        {
+            "lot_code": "29",
+            "zone_code": "F28",
+            "x": 739,
+            "y": 890,
+            "w": 26,
+            "h": 22,
+            "display_name": "29"
+        },
+        {
+            "lot_code": "24",
+            "zone_code": "F28",
+            "x": 714,
+            "y": 940,
+            "w": 26,
+            "h": 22,
+            "display_name": "24"
+        },
+        {
+            "lot_code": "23",
+            "zone_code": "F28",
+            "x": 694,
+            "y": 990,
+            "w": 26,
+            "h": 22,
+            "display_name": "23"
+        },
+        {
+            "lot_code": "218W",
+            "zone_code": "F26",
+            "x": 180,
+            "y": 240,
+            "w": 28,
+            "h": 22,
+            "display_name": "218"
+        },
+        {
+            "lot_code": "219W",
+            "zone_code": "F26",
+            "x": 180,
+            "y": 266,
+            "w": 28,
+            "h": 22,
+            "display_name": "219"
+        },
+        {
+            "lot_code": "226W",
+            "zone_code": "F26",
+            "x": 212,
+            "y": 240,
+            "w": 28,
+            "h": 22,
+            "display_name": "226"
+        },
+        {
+            "lot_code": "227W",
+            "zone_code": "F26",
+            "x": 212,
+            "y": 266,
+            "w": 28,
+            "h": 22,
+            "display_name": "227"
+        },
+        {
+            "lot_code": "220",
+            "zone_code": "S13",
+            "x": 250,
+            "y": 240,
+            "w": 28,
+            "h": 22,
+            "display_name": "220"
+        },
+        {
+            "lot_code": "221",
+            "zone_code": "S13",
+            "x": 250,
+            "y": 266,
+            "w": 28,
+            "h": 22,
+            "display_name": "221"
+        },
+        {
+            "lot_code": "228",
+            "zone_code": "S13",
+            "x": 282,
+            "y": 240,
+            "w": 28,
+            "h": 22,
+            "display_name": "228"
+        },
+        {
+            "lot_code": "229",
+            "zone_code": "S13",
+            "x": 282,
+            "y": 266,
+            "w": 28,
+            "h": 22,
+            "display_name": "229"
+        },
+        {
+            "lot_code": "222",
+            "zone_code": "S13",
+            "x": 320,
+            "y": 240,
+            "w": 28,
+            "h": 22,
+            "display_name": "222"
+        },
+        {
+            "lot_code": "223",
+            "zone_code": "S13",
+            "x": 320,
+            "y": 266,
+            "w": 28,
+            "h": 22,
+            "display_name": "223"
+        },
+        {
+            "lot_code": "230",
+            "zone_code": "S13",
+            "x": 352,
+            "y": 240,
+            "w": 28,
+            "h": 22,
+            "display_name": "230"
+        },
+        {
+            "lot_code": "231",
+            "zone_code": "S13",
+            "x": 352,
+            "y": 266,
+            "w": 28,
+            "h": 22,
+            "display_name": "231"
+        },
+        {
+            "lot_code": "224W",
+            "zone_code": "S13",
+            "x": 390,
+            "y": 240,
+            "w": 28,
+            "h": 22,
+            "display_name": "224"
+        },
+        {
+            "lot_code": "225W",
+            "zone_code": "S13",
+            "x": 390,
+            "y": 266,
+            "w": 28,
+            "h": 22,
+            "display_name": "225"
+        },
+        {
+            "lot_code": "232",
+            "zone_code": "S13",
+            "x": 422,
+            "y": 240,
+            "w": 28,
+            "h": 22,
+            "display_name": "232"
+        },
+        {
+            "lot_code": "233",
+            "zone_code": "S13",
+            "x": 422,
+            "y": 266,
+            "w": 28,
+            "h": 22,
+            "display_name": "233"
+        },
+        {
+            "lot_code": "234",
+            "zone_code": "S13",
+            "x": 550,
+            "y": 240,
+            "w": 28,
+            "h": 22,
+            "display_name": "234"
+        },
+        {
+            "lot_code": "235",
+            "zone_code": "S13",
+            "x": 550,
+            "y": 266,
+            "w": 28,
+            "h": 22,
+            "display_name": "235"
+        },
+        {
+            "lot_code": "242",
+            "zone_code": "S13",
+            "x": 582,
+            "y": 240,
+            "w": 28,
+            "h": 22,
+            "display_name": "242"
+        },
+        {
+            "lot_code": "243",
+            "zone_code": "S13",
+            "x": 582,
+            "y": 266,
+            "w": 28,
+            "h": 22,
+            "display_name": "243"
+        },
+        {
+            "lot_code": "236",
+            "zone_code": "S13",
+            "x": 620,
+            "y": 240,
+            "w": 28,
+            "h": 22,
+            "display_name": "236"
+        },
+        {
+            "lot_code": "237",
+            "zone_code": "S13",
+            "x": 620,
+            "y": 266,
+            "w": 28,
+            "h": 22,
+            "display_name": "237"
+        },
+        {
+            "lot_code": "244",
+            "zone_code": "S13",
+            "x": 652,
+            "y": 240,
+            "w": 28,
+            "h": 22,
+            "display_name": "244"
+        },
+        {
+            "lot_code": "245",
+            "zone_code": "S13",
+            "x": 652,
+            "y": 266,
+            "w": 28,
+            "h": 22,
+            "display_name": "245"
+        },
+        {
+            "lot_code": "238",
+            "zone_code": "S13",
+            "x": 690,
+            "y": 240,
+            "w": 28,
+            "h": 22,
+            "display_name": "238"
+        },
+        {
+            "lot_code": "239",
+            "zone_code": "S13",
+            "x": 690,
+            "y": 266,
+            "w": 28,
+            "h": 22,
+            "display_name": "239"
+        },
+        {
+            "lot_code": "246",
+            "zone_code": "S13",
+            "x": 722,
+            "y": 240,
+            "w": 28,
+            "h": 22,
+            "display_name": "246"
+        },
+        {
+            "lot_code": "247",
+            "zone_code": "S13",
+            "x": 722,
+            "y": 266,
+            "w": 28,
+            "h": 22,
+            "display_name": "247"
+        },
+        {
+            "lot_code": "240",
+            "zone_code": "F26",
+            "x": 760,
+            "y": 240,
+            "w": 28,
+            "h": 22,
+            "display_name": "240"
+        },
+        {
+            "lot_code": "241",
+            "zone_code": "F26",
+            "x": 760,
+            "y": 266,
+            "w": 28,
+            "h": 22,
+            "display_name": "241"
+        },
+        {
+            "lot_code": "248",
+            "zone_code": "F26",
+            "x": 792,
+            "y": 240,
+            "w": 28,
+            "h": 22,
+            "display_name": "248"
+        },
+        {
+            "lot_code": "249",
+            "zone_code": "F26",
+            "x": 792,
+            "y": 266,
+            "w": 28,
+            "h": 22,
+            "display_name": "249"
+        },
+        {
+            "lot_code": "178",
+            "zone_code": "S13",
+            "x": 180,
+            "y": 320,
+            "w": 28,
+            "h": 22,
+            "display_name": "178"
+        },
+        {
+            "lot_code": "177",
+            "zone_code": "S13",
+            "x": 180,
+            "y": 346,
+            "w": 28,
+            "h": 22,
+            "display_name": "177"
+        },
+        {
+            "lot_code": "186",
+            "zone_code": "S13",
+            "x": 212,
+            "y": 320,
+            "w": 28,
+            "h": 22,
+            "display_name": "186"
+        },
+        {
+            "lot_code": "187",
+            "zone_code": "S13",
+            "x": 212,
+            "y": 346,
+            "w": 28,
+            "h": 22,
+            "display_name": "187"
+        },
+        {
+            "lot_code": "180",
+            "zone_code": "S13",
+            "x": 250,
+            "y": 320,
+            "w": 28,
+            "h": 22,
+            "display_name": "180"
+        },
+        {
+            "lot_code": "179",
+            "zone_code": "S13",
+            "x": 250,
+            "y": 346,
+            "w": 28,
+            "h": 22,
+            "display_name": "179"
+        },
+        {
+            "lot_code": "188",
+            "zone_code": "S13",
+            "x": 282,
+            "y": 320,
+            "w": 28,
+            "h": 22,
+            "display_name": "188"
+        },
+        {
+            "lot_code": "189",
+            "zone_code": "S13",
+            "x": 282,
+            "y": 346,
+            "w": 28,
+            "h": 22,
+            "display_name": "189"
+        },
+        {
+            "lot_code": "182",
+            "zone_code": "S13",
+            "x": 320,
+            "y": 320,
+            "w": 28,
+            "h": 22,
+            "display_name": "182"
+        },
+        {
+            "lot_code": "181",
+            "zone_code": "S13",
+            "x": 320,
+            "y": 346,
+            "w": 28,
+            "h": 22,
+            "display_name": "181"
+        },
+        {
+            "lot_code": "190",
+            "zone_code": "S13",
+            "x": 352,
+            "y": 320,
+            "w": 28,
+            "h": 22,
+            "display_name": "190"
+        },
+        {
+            "lot_code": "191",
+            "zone_code": "S13",
+            "x": 352,
+            "y": 346,
+            "w": 28,
+            "h": 22,
+            "display_name": "191"
+        },
+        {
+            "lot_code": "184",
+            "zone_code": "S13",
+            "x": 390,
+            "y": 320,
+            "w": 28,
+            "h": 22,
+            "display_name": "184"
+        },
+        {
+            "lot_code": "183",
+            "zone_code": "S13",
+            "x": 390,
+            "y": 346,
+            "w": 28,
+            "h": 22,
+            "display_name": "183"
+        },
+        {
+            "lot_code": "192",
+            "zone_code": "S13",
+            "x": 422,
+            "y": 320,
+            "w": 28,
+            "h": 22,
+            "display_name": "192"
+        },
+        {
+            "lot_code": "193",
+            "zone_code": "S13",
+            "x": 422,
+            "y": 346,
+            "w": 28,
+            "h": 22,
+            "display_name": "193"
+        },
+        {
+            "lot_code": "194",
+            "zone_code": "S13",
+            "x": 550,
+            "y": 320,
+            "w": 28,
+            "h": 22,
+            "display_name": "194"
+        },
+        {
+            "lot_code": "195",
+            "zone_code": "S13",
+            "x": 550,
+            "y": 346,
+            "w": 28,
+            "h": 22,
+            "display_name": "195"
+        },
+        {
+            "lot_code": "202",
+            "zone_code": "S13",
+            "x": 582,
+            "y": 320,
+            "w": 28,
+            "h": 22,
+            "display_name": "202"
+        },
+        {
+            "lot_code": "203",
+            "zone_code": "S13",
+            "x": 582,
+            "y": 346,
+            "w": 28,
+            "h": 22,
+            "display_name": "203"
+        },
+        {
+            "lot_code": "196",
+            "zone_code": "S13",
+            "x": 620,
+            "y": 320,
+            "w": 28,
+            "h": 22,
+            "display_name": "196"
+        },
+        {
+            "lot_code": "197",
+            "zone_code": "S13",
+            "x": 620,
+            "y": 346,
+            "w": 28,
+            "h": 22,
+            "display_name": "197"
+        },
+        {
+            "lot_code": "204",
+            "zone_code": "S13",
+            "x": 652,
+            "y": 320,
+            "w": 28,
+            "h": 22,
+            "display_name": "204"
+        },
+        {
+            "lot_code": "205",
+            "zone_code": "S13",
+            "x": 652,
+            "y": 346,
+            "w": 28,
+            "h": 22,
+            "display_name": "205"
+        },
+        {
+            "lot_code": "198",
+            "zone_code": "S13",
+            "x": 690,
+            "y": 320,
+            "w": 28,
+            "h": 22,
+            "display_name": "198"
+        },
+        {
+            "lot_code": "199",
+            "zone_code": "S13",
+            "x": 690,
+            "y": 346,
+            "w": 28,
+            "h": 22,
+            "display_name": "199"
+        },
+        {
+            "lot_code": "206",
+            "zone_code": "S13",
+            "x": 722,
+            "y": 320,
+            "w": 28,
+            "h": 22,
+            "display_name": "206"
+        },
+        {
+            "lot_code": "207",
+            "zone_code": "S13",
+            "x": 722,
+            "y": 346,
+            "w": 28,
+            "h": 22,
+            "display_name": "207"
+        },
+        {
+            "lot_code": "200",
+            "zone_code": "S13",
+            "x": 760,
+            "y": 320,
+            "w": 28,
+            "h": 22,
+            "display_name": "200"
+        },
+        {
+            "lot_code": "201",
+            "zone_code": "S13",
+            "x": 760,
+            "y": 346,
+            "w": 28,
+            "h": 22,
+            "display_name": "201"
+        },
+        {
+            "lot_code": "208",
+            "zone_code": "S13",
+            "x": 792,
+            "y": 320,
+            "w": 28,
+            "h": 22,
+            "display_name": "208"
+        },
+        {
+            "lot_code": "209",
+            "zone_code": "S13",
+            "x": 792,
+            "y": 346,
+            "w": 28,
+            "h": 22,
+            "display_name": "209"
+        },
+        {
+            "lot_code": "138",
+            "zone_code": "S13",
+            "x": 180,
+            "y": 400,
+            "w": 28,
+            "h": 22,
+            "display_name": "138"
+        },
+        {
+            "lot_code": "137",
+            "zone_code": "S13",
+            "x": 180,
+            "y": 426,
+            "w": 28,
+            "h": 22,
+            "display_name": "137"
+        },
+        {
+            "lot_code": "146",
+            "zone_code": "S13",
+            "x": 212,
+            "y": 400,
+            "w": 28,
+            "h": 22,
+            "display_name": "146"
+        },
+        {
+            "lot_code": "147",
+            "zone_code": "S13",
+            "x": 212,
+            "y": 426,
+            "w": 28,
+            "h": 22,
+            "display_name": "147"
+        },
+        {
+            "lot_code": "140",
+            "zone_code": "S13",
+            "x": 250,
+            "y": 400,
+            "w": 28,
+            "h": 22,
+            "display_name": "140"
+        },
+        {
+            "lot_code": "139",
+            "zone_code": "S13",
+            "x": 250,
+            "y": 426,
+            "w": 28,
+            "h": 22,
+            "display_name": "139"
+        },
+        {
+            "lot_code": "148",
+            "zone_code": "S13",
+            "x": 282,
+            "y": 400,
+            "w": 28,
+            "h": 22,
+            "display_name": "148"
+        },
+        {
+            "lot_code": "149",
+            "zone_code": "S13",
+            "x": 282,
+            "y": 426,
+            "w": 28,
+            "h": 22,
+            "display_name": "149"
+        },
+        {
+            "lot_code": "142",
+            "zone_code": "S13",
+            "x": 320,
+            "y": 400,
+            "w": 28,
+            "h": 22,
+            "display_name": "142"
+        },
+        {
+            "lot_code": "141",
+            "zone_code": "S13",
+            "x": 320,
+            "y": 426,
+            "w": 28,
+            "h": 22,
+            "display_name": "141"
+        },
+        {
+            "lot_code": "150",
+            "zone_code": "S13",
+            "x": 352,
+            "y": 400,
+            "w": 28,
+            "h": 22,
+            "display_name": "150"
+        },
+        {
+            "lot_code": "151",
+            "zone_code": "S13",
+            "x": 352,
+            "y": 426,
+            "w": 28,
+            "h": 22,
+            "display_name": "151"
+        },
+        {
+            "lot_code": "144",
+            "zone_code": "S13",
+            "x": 390,
+            "y": 400,
+            "w": 28,
+            "h": 22,
+            "display_name": "144"
+        },
+        {
+            "lot_code": "143",
+            "zone_code": "S13",
+            "x": 390,
+            "y": 426,
+            "w": 28,
+            "h": 22,
+            "display_name": "143"
+        },
+        {
+            "lot_code": "152",
+            "zone_code": "S13",
+            "x": 422,
+            "y": 400,
+            "w": 28,
+            "h": 22,
+            "display_name": "152"
+        },
+        {
+            "lot_code": "153",
+            "zone_code": "S13",
+            "x": 422,
+            "y": 426,
+            "w": 28,
+            "h": 22,
+            "display_name": "153"
+        },
+        {
+            "lot_code": "154",
+            "zone_code": "S13",
+            "x": 550,
+            "y": 400,
+            "w": 28,
+            "h": 22,
+            "display_name": "154"
+        },
+        {
+            "lot_code": "155",
+            "zone_code": "S13",
+            "x": 550,
+            "y": 426,
+            "w": 28,
+            "h": 22,
+            "display_name": "155"
+        },
+        {
+            "lot_code": "162",
+            "zone_code": "S13",
+            "x": 582,
+            "y": 400,
+            "w": 28,
+            "h": 22,
+            "display_name": "162"
+        },
+        {
+            "lot_code": "163",
+            "zone_code": "S13",
+            "x": 582,
+            "y": 426,
+            "w": 28,
+            "h": 22,
+            "display_name": "163"
+        },
+        {
+            "lot_code": "156",
+            "zone_code": "S13",
+            "x": 620,
+            "y": 400,
+            "w": 28,
+            "h": 22,
+            "display_name": "156"
+        },
+        {
+            "lot_code": "157",
+            "zone_code": "S13",
+            "x": 620,
+            "y": 426,
+            "w": 28,
+            "h": 22,
+            "display_name": "157"
+        },
+        {
+            "lot_code": "164",
+            "zone_code": "S13",
+            "x": 652,
+            "y": 400,
+            "w": 28,
+            "h": 22,
+            "display_name": "164"
+        },
+        {
+            "lot_code": "165",
+            "zone_code": "S13",
+            "x": 652,
+            "y": 426,
+            "w": 28,
+            "h": 22,
+            "display_name": "165"
+        },
+        {
+            "lot_code": "158",
+            "zone_code": "S13",
+            "x": 690,
+            "y": 400,
+            "w": 28,
+            "h": 22,
+            "display_name": "158"
+        },
+        {
+            "lot_code": "159",
+            "zone_code": "S13",
+            "x": 690,
+            "y": 426,
+            "w": 28,
+            "h": 22,
+            "display_name": "159"
+        },
+        {
+            "lot_code": "166",
+            "zone_code": "S13",
+            "x": 722,
+            "y": 400,
+            "w": 28,
+            "h": 22,
+            "display_name": "166"
+        },
+        {
+            "lot_code": "167",
+            "zone_code": "S13",
+            "x": 722,
+            "y": 426,
+            "w": 28,
+            "h": 22,
+            "display_name": "167"
+        },
+        {
+            "lot_code": "160",
+            "zone_code": "S13",
+            "x": 760,
+            "y": 400,
+            "w": 28,
+            "h": 22,
+            "display_name": "160"
+        },
+        {
+            "lot_code": "161",
+            "zone_code": "S13",
+            "x": 760,
+            "y": 426,
+            "w": 28,
+            "h": 22,
+            "display_name": "161"
+        },
+        {
+            "lot_code": "168",
+            "zone_code": "S13",
+            "x": 792,
+            "y": 400,
+            "w": 28,
+            "h": 22,
+            "display_name": "168"
+        },
+        {
+            "lot_code": "169",
+            "zone_code": "S13",
+            "x": 792,
+            "y": 426,
+            "w": 28,
+            "h": 22,
+            "display_name": "169"
+        },
+        {
+            "lot_code": "108",
+            "zone_code": "S10",
+            "x": 180,
+            "y": 580,
+            "w": 28,
+            "h": 22,
+            "display_name": "108"
+        },
+        {
+            "lot_code": "107",
+            "zone_code": "S10",
+            "x": 180,
+            "y": 606,
+            "w": 28,
+            "h": 22,
+            "display_name": "107"
+        },
+        {
+            "lot_code": "116",
+            "zone_code": "S10",
+            "x": 212,
+            "y": 580,
+            "w": 28,
+            "h": 22,
+            "display_name": "116"
+        },
+        {
+            "lot_code": "117",
+            "zone_code": "S10",
+            "x": 212,
+            "y": 606,
+            "w": 28,
+            "h": 22,
+            "display_name": "117"
+        },
+        {
+            "lot_code": "110",
+            "zone_code": "S10",
+            "x": 250,
+            "y": 580,
+            "w": 28,
+            "h": 22,
+            "display_name": "110"
+        },
+        {
+            "lot_code": "109",
+            "zone_code": "S10",
+            "x": 250,
+            "y": 606,
+            "w": 28,
+            "h": 22,
+            "display_name": "109"
+        },
+        {
+            "lot_code": "118",
+            "zone_code": "S10",
+            "x": 282,
+            "y": 580,
+            "w": 28,
+            "h": 22,
+            "display_name": "118"
+        },
+        {
+            "lot_code": "119",
+            "zone_code": "S10",
+            "x": 282,
+            "y": 606,
+            "w": 28,
+            "h": 22,
+            "display_name": "119"
+        },
+        {
+            "lot_code": "112",
+            "zone_code": "S10",
+            "x": 320,
+            "y": 580,
+            "w": 28,
+            "h": 22,
+            "display_name": "112"
+        },
+        {
+            "lot_code": "111",
+            "zone_code": "S10",
+            "x": 320,
+            "y": 606,
+            "w": 28,
+            "h": 22,
+            "display_name": "111"
+        },
+        {
+            "lot_code": "120W",
+            "zone_code": "S10",
+            "x": 352,
+            "y": 580,
+            "w": 28,
+            "h": 22,
+            "display_name": "120"
+        },
+        {
+            "lot_code": "121W",
+            "zone_code": "S10",
+            "x": 352,
+            "y": 606,
+            "w": 28,
+            "h": 22,
+            "display_name": "121"
+        },
+        {
+            "lot_code": "114",
+            "zone_code": "S10",
+            "x": 390,
+            "y": 580,
+            "w": 28,
+            "h": 22,
+            "display_name": "114"
+        },
+        {
+            "lot_code": "113",
+            "zone_code": "S10",
+            "x": 390,
+            "y": 606,
+            "w": 28,
+            "h": 22,
+            "display_name": "113"
+        },
+        {
+            "lot_code": "122",
+            "zone_code": "S10",
+            "x": 422,
+            "y": 580,
+            "w": 28,
+            "h": 22,
+            "display_name": "122"
+        },
+        {
+            "lot_code": "123",
+            "zone_code": "S10",
+            "x": 422,
+            "y": 606,
+            "w": 28,
+            "h": 22,
+            "display_name": "123"
+        },
+        {
+            "lot_code": "124W",
+            "zone_code": "S10",
+            "x": 550,
+            "y": 580,
+            "w": 28,
+            "h": 22,
+            "display_name": "124"
+        },
+        {
+            "lot_code": "123W",
+            "zone_code": "S10",
+            "x": 550,
+            "y": 606,
+            "w": 28,
+            "h": 22,
+            "display_name": "123"
+        },
+        {
+            "lot_code": "132",
+            "zone_code": "S10",
+            "x": 582,
+            "y": 580,
+            "w": 28,
+            "h": 22,
+            "display_name": "132"
+        },
+        {
+            "lot_code": "131",
+            "zone_code": "S10",
+            "x": 582,
+            "y": 606,
+            "w": 28,
+            "h": 22,
+            "display_name": "131"
+        },
+        {
+            "lot_code": "126",
+            "zone_code": "S10",
+            "x": 620,
+            "y": 580,
+            "w": 28,
+            "h": 22,
+            "display_name": "126"
+        },
+        {
+            "lot_code": "125W",
+            "zone_code": "S10",
+            "x": 620,
+            "y": 606,
+            "w": 28,
+            "h": 22,
+            "display_name": "125"
+        },
+        {
+            "lot_code": "134",
+            "zone_code": "S10",
+            "x": 652,
+            "y": 580,
+            "w": 28,
+            "h": 22,
+            "display_name": "134"
+        },
+        {
+            "lot_code": "133",
+            "zone_code": "S10",
+            "x": 652,
+            "y": 606,
+            "w": 28,
+            "h": 22,
+            "display_name": "133"
+        },
+        {
+            "lot_code": "128",
+            "zone_code": "S10",
+            "x": 690,
+            "y": 580,
+            "w": 28,
+            "h": 22,
+            "display_name": "128"
+        },
+        {
+            "lot_code": "127",
+            "zone_code": "S10",
+            "x": 690,
+            "y": 606,
+            "w": 28,
+            "h": 22,
+            "display_name": "127"
+        },
+        {
+            "lot_code": "136",
+            "zone_code": "S10",
+            "x": 722,
+            "y": 580,
+            "w": 28,
+            "h": 22,
+            "display_name": "136"
+        },
+        {
+            "lot_code": "135",
+            "zone_code": "S10",
+            "x": 722,
+            "y": 606,
+            "w": 28,
+            "h": 22,
+            "display_name": "135"
+        },
+        {
+            "lot_code": "130",
+            "zone_code": "S10",
+            "x": 760,
+            "y": 580,
+            "w": 28,
+            "h": 22,
+            "display_name": "130"
+        },
+        {
+            "lot_code": "129",
+            "zone_code": "S10",
+            "x": 760,
+            "y": 606,
+            "w": 28,
+            "h": 22,
+            "display_name": "129"
+        },
+        {
+            "lot_code": "138W",
+            "zone_code": "S10",
+            "x": 792,
+            "y": 580,
+            "w": 28,
+            "h": 22,
+            "display_name": "138"
+        },
+        {
+            "lot_code": "137W",
+            "zone_code": "S10",
+            "x": 792,
+            "y": 606,
+            "w": 28,
+            "h": 22,
+            "display_name": "137"
+        },
+        {
+            "lot_code": "76",
+            "zone_code": "F22",
+            "x": 180,
+            "y": 660,
+            "w": 28,
+            "h": 22,
+            "display_name": "76"
+        },
+        {
+            "lot_code": "75",
+            "zone_code": "F22",
+            "x": 180,
+            "y": 686,
+            "w": 28,
+            "h": 22,
+            "display_name": "75"
+        },
+        {
+            "lot_code": "84",
+            "zone_code": "F22",
+            "x": 212,
+            "y": 660,
+            "w": 28,
+            "h": 22,
+            "display_name": "84"
+        },
+        {
+            "lot_code": "85",
+            "zone_code": "F22",
+            "x": 212,
+            "y": 686,
+            "w": 28,
+            "h": 22,
+            "display_name": "85"
+        },
+        {
+            "lot_code": "78",
+            "zone_code": "F22",
+            "x": 250,
+            "y": 660,
+            "w": 28,
+            "h": 22,
+            "display_name": "78"
+        },
+        {
+            "lot_code": "77",
+            "zone_code": "F22",
+            "x": 250,
+            "y": 686,
+            "w": 28,
+            "h": 22,
+            "display_name": "77"
+        },
+        {
+            "lot_code": "86",
+            "zone_code": "F22",
+            "x": 282,
+            "y": 660,
+            "w": 28,
+            "h": 22,
+            "display_name": "86"
+        },
+        {
+            "lot_code": "87",
+            "zone_code": "F22",
+            "x": 282,
+            "y": 686,
+            "w": 28,
+            "h": 22,
+            "display_name": "87"
+        },
+        {
+            "lot_code": "80",
+            "zone_code": "F22",
+            "x": 320,
+            "y": 660,
+            "w": 28,
+            "h": 22,
+            "display_name": "80"
+        },
+        {
+            "lot_code": "79",
+            "zone_code": "F22",
+            "x": 320,
+            "y": 686,
+            "w": 28,
+            "h": 22,
+            "display_name": "79"
+        },
+        {
+            "lot_code": "88",
+            "zone_code": "F22",
+            "x": 352,
+            "y": 660,
+            "w": 28,
+            "h": 22,
+            "display_name": "88"
+        },
+        {
+            "lot_code": "89",
+            "zone_code": "F22",
+            "x": 352,
+            "y": 686,
+            "w": 28,
+            "h": 22,
+            "display_name": "89"
+        },
+        {
+            "lot_code": "82",
+            "zone_code": "F22",
+            "x": 390,
+            "y": 660,
+            "w": 28,
+            "h": 22,
+            "display_name": "82"
+        },
+        {
+            "lot_code": "81",
+            "zone_code": "F22",
+            "x": 390,
+            "y": 686,
+            "w": 28,
+            "h": 22,
+            "display_name": "81"
+        },
+        {
+            "lot_code": "90",
+            "zone_code": "F22",
+            "x": 422,
+            "y": 660,
+            "w": 28,
+            "h": 22,
+            "display_name": "90"
+        },
+        {
+            "lot_code": "91",
+            "zone_code": "F22",
+            "x": 422,
+            "y": 686,
+            "w": 28,
+            "h": 22,
+            "display_name": "91"
+        },
+        {
+            "lot_code": "92",
+            "zone_code": "F22",
+            "x": 550,
+            "y": 660,
+            "w": 28,
+            "h": 22,
+            "display_name": "92"
+        },
+        {
+            "lot_code": "93",
+            "zone_code": "F22",
+            "x": 550,
+            "y": 686,
+            "w": 28,
+            "h": 22,
+            "display_name": "93"
+        },
+        {
+            "lot_code": "100",
+            "zone_code": "F22",
+            "x": 582,
+            "y": 660,
+            "w": 28,
+            "h": 22,
+            "display_name": "100"
+        },
+        {
+            "lot_code": "101",
+            "zone_code": "F22",
+            "x": 582,
+            "y": 686,
+            "w": 28,
+            "h": 22,
+            "display_name": "101"
+        },
+        {
+            "lot_code": "94",
+            "zone_code": "F22",
+            "x": 620,
+            "y": 660,
+            "w": 28,
+            "h": 22,
+            "display_name": "94"
+        },
+        {
+            "lot_code": "95",
+            "zone_code": "F22",
+            "x": 620,
+            "y": 686,
+            "w": 28,
+            "h": 22,
+            "display_name": "95"
+        },
+        {
+            "lot_code": "102",
+            "zone_code": "F22",
+            "x": 652,
+            "y": 660,
+            "w": 28,
+            "h": 22,
+            "display_name": "102"
+        },
+        {
+            "lot_code": "103",
+            "zone_code": "F22",
+            "x": 652,
+            "y": 686,
+            "w": 28,
+            "h": 22,
+            "display_name": "103"
+        },
+        {
+            "lot_code": "96",
+            "zone_code": "F22",
+            "x": 690,
+            "y": 660,
+            "w": 28,
+            "h": 22,
+            "display_name": "96"
+        },
+        {
+            "lot_code": "97",
+            "zone_code": "F22",
+            "x": 690,
+            "y": 686,
+            "w": 28,
+            "h": 22,
+            "display_name": "97"
+        },
+        {
+            "lot_code": "104",
+            "zone_code": "F22",
+            "x": 722,
+            "y": 660,
+            "w": 28,
+            "h": 22,
+            "display_name": "104"
+        },
+        {
+            "lot_code": "105",
+            "zone_code": "F22",
+            "x": 722,
+            "y": 686,
+            "w": 28,
+            "h": 22,
+            "display_name": "105"
+        },
+        {
+            "lot_code": "98",
+            "zone_code": "F22",
+            "x": 760,
+            "y": 660,
+            "w": 28,
+            "h": 22,
+            "display_name": "98"
+        },
+        {
+            "lot_code": "99",
+            "zone_code": "F22",
+            "x": 760,
+            "y": 686,
+            "w": 28,
+            "h": 22,
+            "display_name": "99"
+        },
+        {
+            "lot_code": "106",
+            "zone_code": "F22",
+            "x": 792,
+            "y": 660,
+            "w": 28,
+            "h": 22,
+            "display_name": "106"
+        },
+        {
+            "lot_code": "107W",
+            "zone_code": "F22",
+            "x": 792,
+            "y": 686,
+            "w": 28,
+            "h": 22,
+            "display_name": "107"
+        },
+        {
+            "lot_code": "48",
+            "zone_code": "F22",
+            "x": 250,
+            "y": 740,
+            "w": 28,
+            "h": 22,
+            "display_name": "48"
+        },
+        {
+            "lot_code": "47",
+            "zone_code": "F22",
+            "x": 250,
+            "y": 766,
+            "w": 28,
+            "h": 22,
+            "display_name": "47"
+        },
+        {
+            "lot_code": "54",
+            "zone_code": "F22",
+            "x": 282,
+            "y": 740,
+            "w": 28,
+            "h": 22,
+            "display_name": "54"
+        },
+        {
+            "lot_code": "55",
+            "zone_code": "F22",
+            "x": 282,
+            "y": 766,
+            "w": 28,
+            "h": 22,
+            "display_name": "55"
+        },
+        {
+            "lot_code": "50",
+            "zone_code": "F22",
+            "x": 320,
+            "y": 740,
+            "w": 28,
+            "h": 22,
+            "display_name": "50"
+        },
+        {
+            "lot_code": "49",
+            "zone_code": "F22",
+            "x": 320,
+            "y": 766,
+            "w": 28,
+            "h": 22,
+            "display_name": "49"
+        },
+        {
+            "lot_code": "56",
+            "zone_code": "F22",
+            "x": 352,
+            "y": 740,
+            "w": 28,
+            "h": 22,
+            "display_name": "56"
+        },
+        {
+            "lot_code": "57",
+            "zone_code": "F22",
+            "x": 352,
+            "y": 766,
+            "w": 28,
+            "h": 22,
+            "display_name": "57"
+        },
+        {
+            "lot_code": "52",
+            "zone_code": "F22",
+            "x": 390,
+            "y": 740,
+            "w": 28,
+            "h": 22,
+            "display_name": "52"
+        },
+        {
+            "lot_code": "51",
+            "zone_code": "F22",
+            "x": 390,
+            "y": 766,
+            "w": 28,
+            "h": 22,
+            "display_name": "51"
+        },
+        {
+            "lot_code": "58",
+            "zone_code": "F22",
+            "x": 422,
+            "y": 740,
+            "w": 28,
+            "h": 22,
+            "display_name": "58"
+        },
+        {
+            "lot_code": "59",
+            "zone_code": "F22",
+            "x": 422,
+            "y": 766,
+            "w": 28,
+            "h": 22,
+            "display_name": "59"
+        },
+        {
+            "lot_code": "60",
+            "zone_code": "F22",
+            "x": 550,
+            "y": 740,
+            "w": 28,
+            "h": 22,
+            "display_name": "60"
+        },
+        {
+            "lot_code": "59W",
+            "zone_code": "F22",
+            "x": 550,
+            "y": 766,
+            "w": 28,
+            "h": 22,
+            "display_name": "59"
+        },
+        {
+            "lot_code": "66",
+            "zone_code": "F22",
+            "x": 582,
+            "y": 740,
+            "w": 28,
+            "h": 22,
+            "display_name": "66"
+        },
+        {
+            "lot_code": "67",
+            "zone_code": "F22",
+            "x": 582,
+            "y": 766,
+            "w": 28,
+            "h": 22,
+            "display_name": "67"
+        },
+        {
+            "lot_code": "62",
+            "zone_code": "F22",
+            "x": 620,
+            "y": 740,
+            "w": 28,
+            "h": 22,
+            "display_name": "62"
+        },
+        {
+            "lot_code": "61",
+            "zone_code": "F22",
+            "x": 620,
+            "y": 766,
+            "w": 28,
+            "h": 22,
+            "display_name": "61"
+        },
+        {
+            "lot_code": "68",
+            "zone_code": "F22",
+            "x": 652,
+            "y": 740,
+            "w": 28,
+            "h": 22,
+            "display_name": "68"
+        },
+        {
+            "lot_code": "69",
+            "zone_code": "F22",
+            "x": 652,
+            "y": 766,
+            "w": 28,
+            "h": 22,
+            "display_name": "69"
+        },
+        {
+            "lot_code": "64",
+            "zone_code": "F22",
+            "x": 690,
+            "y": 740,
+            "w": 28,
+            "h": 22,
+            "display_name": "64"
+        },
+        {
+            "lot_code": "63",
+            "zone_code": "F22",
+            "x": 690,
+            "y": 766,
+            "w": 28,
+            "h": 22,
+            "display_name": "63"
+        },
+        {
+            "lot_code": "70",
+            "zone_code": "F22",
+            "x": 722,
+            "y": 740,
+            "w": 28,
+            "h": 22,
+            "display_name": "70"
+        },
+        {
+            "lot_code": "71W",
+            "zone_code": "F22",
+            "x": 722,
+            "y": 766,
+            "w": 28,
+            "h": 22,
+            "display_name": "71"
+        },
+        {
+            "lot_code": "26",
+            "zone_code": "F26",
+            "x": 320,
+            "y": 820,
+            "w": 28,
+            "h": 22,
+            "display_name": "26"
+        },
+        {
+            "lot_code": "25",
+            "zone_code": "F26",
+            "x": 320,
+            "y": 846,
+            "w": 28,
+            "h": 22,
+            "display_name": "25"
+        },
+        {
+            "lot_code": "32W",
+            "zone_code": "F26",
+            "x": 352,
+            "y": 820,
+            "w": 28,
+            "h": 22,
+            "display_name": "32"
+        },
+        {
+            "lot_code": "33",
+            "zone_code": "F26",
+            "x": 352,
+            "y": 846,
+            "w": 28,
+            "h": 22,
+            "display_name": "33"
+        },
+        {
+            "lot_code": "28",
+            "zone_code": "F26",
+            "x": 390,
+            "y": 820,
+            "w": 28,
+            "h": 22,
+            "display_name": "28"
+        },
+        {
+            "lot_code": "27",
+            "zone_code": "F26",
+            "x": 390,
+            "y": 846,
+            "w": 28,
+            "h": 22,
+            "display_name": "27"
+        },
+        {
+            "lot_code": "34",
+            "zone_code": "F26",
+            "x": 422,
+            "y": 820,
+            "w": 28,
+            "h": 22,
+            "display_name": "34"
+        },
+        {
+            "lot_code": "35",
+            "zone_code": "F26",
+            "x": 422,
+            "y": 846,
+            "w": 28,
+            "h": 22,
+            "display_name": "35"
+        },
+        {
+            "lot_code": "34W",
+            "zone_code": "F26",
+            "x": 550,
+            "y": 820,
+            "w": 28,
+            "h": 22,
+            "display_name": "34"
+        },
+        {
+            "lot_code": "33W",
+            "zone_code": "F26",
+            "x": 550,
+            "y": 846,
+            "w": 28,
+            "h": 22,
+            "display_name": "33"
+        },
+        {
+            "lot_code": "40",
+            "zone_code": "F26",
+            "x": 582,
+            "y": 820,
+            "w": 28,
+            "h": 22,
+            "display_name": "40"
+        },
+        {
+            "lot_code": "39",
+            "zone_code": "F26",
+            "x": 582,
+            "y": 846,
+            "w": 28,
+            "h": 22,
+            "display_name": "39"
+        },
+        {
+            "lot_code": "36",
+            "zone_code": "F26",
+            "x": 620,
+            "y": 820,
+            "w": 28,
+            "h": 22,
+            "display_name": "36"
+        },
+        {
+            "lot_code": "35W",
+            "zone_code": "F26",
+            "x": 620,
+            "y": 846,
+            "w": 28,
+            "h": 22,
+            "display_name": "35"
+        },
+        {
+            "lot_code": "42W",
+            "zone_code": "F26",
+            "x": 652,
+            "y": 820,
+            "w": 28,
+            "h": 22,
+            "display_name": "42"
+        },
+        {
+            "lot_code": "41",
+            "zone_code": "F26",
+            "x": 652,
+            "y": 846,
+            "w": 28,
+            "h": 22,
+            "display_name": "41"
+        },
+        {
+            "lot_code": "2",
+            "zone_code": "F28",
+            "x": 285,
+            "y": 900,
+            "w": 28,
+            "h": 22,
+            "display_name": "2"
+        },
+        {
+            "lot_code": "1",
+            "zone_code": "F28",
+            "x": 285,
+            "y": 926,
+            "w": 28,
+            "h": 22,
+            "display_name": "1"
+        },
+        {
+            "lot_code": "4",
+            "zone_code": "F28",
+            "x": 317,
+            "y": 900,
+            "w": 28,
+            "h": 22,
+            "display_name": "4"
+        },
+        {
+            "lot_code": "3",
+            "zone_code": "F28",
+            "x": 317,
+            "y": 926,
+            "w": 28,
+            "h": 22,
+            "display_name": "3"
+        },
+        {
+            "lot_code": "6",
+            "zone_code": "F28",
+            "x": 355,
+            "y": 900,
+            "w": 28,
+            "h": 22,
+            "display_name": "6"
+        },
+        {
+            "lot_code": "5",
+            "zone_code": "F28",
+            "x": 355,
+            "y": 926,
+            "w": 28,
+            "h": 22,
+            "display_name": "5"
+        },
+        {
+            "lot_code": "8",
+            "zone_code": "F28",
+            "x": 387,
+            "y": 900,
+            "w": 28,
+            "h": 22,
+            "display_name": "8"
+        },
+        {
+            "lot_code": "7",
+            "zone_code": "F28",
+            "x": 387,
+            "y": 926,
+            "w": 28,
+            "h": 22,
+            "display_name": "7"
+        },
+        {
+            "lot_code": "10",
+            "zone_code": "F28",
+            "x": 425,
+            "y": 900,
+            "w": 28,
+            "h": 22,
+            "display_name": "10"
+        },
+        {
+            "lot_code": "9",
+            "zone_code": "F28",
+            "x": 425,
+            "y": 926,
+            "w": 28,
+            "h": 22,
+            "display_name": "9"
+        },
+        {
+            "lot_code": "12",
+            "zone_code": "F28",
+            "x": 457,
+            "y": 900,
+            "w": 28,
+            "h": 22,
+            "display_name": "12"
+        },
+        {
+            "lot_code": "11",
+            "zone_code": "F28",
+            "x": 457,
+            "y": 926,
+            "w": 28,
+            "h": 22,
+            "display_name": "11"
+        },
+        {
+            "lot_code": "14",
+            "zone_code": "F28",
+            "x": 535,
+            "y": 900,
+            "w": 28,
+            "h": 22,
+            "display_name": "14"
+        },
+        {
+            "lot_code": "13",
+            "zone_code": "F28",
+            "x": 535,
+            "y": 926,
+            "w": 28,
+            "h": 22,
+            "display_name": "13"
+        },
+        {
+            "lot_code": "16",
+            "zone_code": "F28",
+            "x": 567,
+            "y": 900,
+            "w": 28,
+            "h": 22,
+            "display_name": "16"
+        },
+        {
+            "lot_code": "15",
+            "zone_code": "F28",
+            "x": 567,
+            "y": 926,
+            "w": 28,
+            "h": 22,
+            "display_name": "15"
+        },
+        {
+            "lot_code": "18",
+            "zone_code": "F28",
+            "x": 605,
+            "y": 900,
+            "w": 28,
+            "h": 22,
+            "display_name": "18"
+        },
+        {
+            "lot_code": "17",
+            "zone_code": "F28",
+            "x": 605,
+            "y": 926,
+            "w": 28,
+            "h": 22,
+            "display_name": "17"
+        },
+        {
+            "lot_code": "20",
+            "zone_code": "F28",
+            "x": 637,
+            "y": 900,
+            "w": 28,
+            "h": 22,
+            "display_name": "20"
+        },
+        {
+            "lot_code": "19",
+            "zone_code": "F28",
+            "x": 637,
+            "y": 926,
+            "w": 28,
+            "h": 22,
+            "display_name": "19"
+        },
+        {
+            "lot_code": "C",
+            "zone_code": "F28",
+            "x": 425,
+            "y": 1070,
+            "w": 32,
+            "h": 24,
+            "display_name": "C"
+        },
+        {
+            "lot_code": "D",
+            "zone_code": "F28",
+            "x": 465,
+            "y": 1070,
+            "w": 32,
+            "h": 24,
+            "display_name": "D"
+        },
+        {
+            "lot_code": "B",
+            "zone_code": "F28",
+            "x": 425,
+            "y": 1105,
+            "w": 32,
+            "h": 24,
+            "display_name": "B"
+        },
+        {
+            "lot_code": "A",
+            "zone_code": "F28",
+            "x": 465,
+            "y": 1105,
+            "w": 32,
+            "h": 24,
+            "display_name": "A"
+        }
+    ]
+}
