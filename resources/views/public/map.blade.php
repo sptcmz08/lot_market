@@ -320,10 +320,38 @@
                     <text x="0" y="0" font-size="16" font-weight="900" fill="#E2E8F0" letter-spacing="4">ถนนลำลูกกา</text>
                 </g>
 
+                <!-- Building "อาคารกานต์มณี" (Top Center) -->
+                <g transform="translate(520, 90) rotate(-20)">
+                    <!-- Base -->
+                    <rect x="0" y="0" width="160" height="70" fill="#F3F4F6" stroke="#D1D5DB" stroke-width="2" rx="8" />
+                    <!-- Roof -->
+                    <polygon points="0,0 80,-25 160,0" fill="#E5E7EB" stroke="#D1D5DB" stroke-width="2" />
+                    <rect x="30" y="-25" width="100" height="8" fill="#9CA3AF" />
+                    <!-- Sign -->
+                    <rect x="25" y="15" width="110" height="22" fill="#374151" rx="4" />
+                    <text x="80" y="31" text-anchor="middle" fill="#FFFFFF" font-size="10" font-weight="900" letter-spacing="1">อาคารกานต์มณี</text>
+                </g>
+
                 <!-- Beer Yard "ลานเบียร์ช้าง" -->
-                <g transform="translate(520, 240) rotate(-20)">
-                    <rect x="0" y="0" width="150" height="70" fill="#E8F5E9" stroke="#A5D6A7" stroke-width="2" rx="10" />
-                    <text x="75" y="40" text-anchor="middle" fill="#2E7D32" font-size="14" font-weight="900">ลานเบียร์ช้าง</text>
+                <g transform="translate(500, 250) rotate(-20)">
+                    <!-- Green Lawn -->
+                    <rect x="0" y="0" width="160" height="90" fill="#E8F5E9" stroke="#81C784" stroke-width="2" rx="12" />
+                    <!-- Hedge Border -->
+                    <rect x="-4" y="-4" width="168" height="98" fill="none" stroke="#2E7D32" stroke-width="4" rx="14" stroke-dasharray="10 5" opacity="0.6" />
+                    <!-- Text -->
+                    <text x="80" y="25" text-anchor="middle" fill="#1B5E20" font-size="12" font-weight="900" letter-spacing="1">ลานเบียร์ช้าง</text>
+                    
+                    <!-- Tables (small circles) -->
+                    <circle cx="30" cy="50" r="5" fill="#FFF" stroke="#2E7D32" stroke-width="1" />
+                    <circle cx="30" cy="50" r="2" fill="#2E7D32" />
+                    <circle cx="80" cy="50" r="5" fill="#FFF" stroke="#2E7D32" stroke-width="1" />
+                    <circle cx="80" cy="50" r="2" fill="#2E7D32" />
+                    <circle cx="130" cy="50" r="5" fill="#FFF" stroke="#2E7D32" stroke-width="1" />
+                    <circle cx="130" cy="50" r="2" fill="#2E7D32" />
+                    <circle cx="55" cy="72" r="5" fill="#FFF" stroke="#2E7D32" stroke-width="1" />
+                    <circle cx="55" cy="72" r="2" fill="#2E7D32" />
+                    <circle cx="105" cy="72" r="5" fill="#FFF" stroke="#2E7D32" stroke-width="1" />
+                    <circle cx="105" cy="72" r="2" fill="#2E7D32" />
                 </g>
 
                 <!-- Trees -->
@@ -346,19 +374,27 @@
                     $rightBlockCodes = ['GW', 'GX', 'GY', 'GZ'];
                 @endphp
 
-                <!-- Block 1: Left Block (GB to GJ) -->
+                <!-- Block 1: Left Block (GB to GJ) with Walkway Gaps -->
                 <g class="block-group" transform="translate(120, 200) rotate(-20) skewX(20)">
                     @foreach($zones->whereIn('code', $leftBlockCodes) as $zone)
                         @php
                             $cIndex = array_search($zone->code, $leftBlockCodes);
+                            // Add gap of 20px between blocks (GB-GC, GD-GF, GG-GJ)
+                            $offset = 0;
+                            if ($cIndex >= 2 && $cIndex <= 4) {
+                                $offset = 20; // walkway after GC
+                            } elseif ($cIndex >= 5) {
+                                $offset = 40; // walkway after GF
+                            }
+                            $xBase = $cIndex * 34 + $offset;
                         @endphp
                         <g class="zone-group" data-zone-code="{{ $zone->code }}">
                             <!-- Render Zone Label -->
-                            <text x="{{ ($cIndex * 34) + 12 }}" y="-12" class="zone-label" text-anchor="middle" font-size="9" fill="#4B5563" font-weight="bold">{{ $zone->code }}</text>
+                            <text x="{{ $xBase + 12 }}" y="-12" class="zone-label" text-anchor="middle" font-size="9" fill="#4B5563" font-weight="bold">{{ $zone->code }}</text>
                             @foreach($zone->lots as $lot)
                                 @php
                                     $r = (int)substr($lot->lot_code, 2, 2);
-                                    $x = $cIndex * 34;
+                                    $x = $xBase;
                                     $y = ($r - 1) * 26;
                                     $cx = $x + 12;
                                     $cy = $y + 9;
@@ -385,19 +421,27 @@
                     @endforeach
                 </g>
 
-                <!-- Block 2: Bottom Block (GL to GT) -->
+                <!-- Block 2: Bottom Block (GL to GT) with Walkway Gaps -->
                 <g class="block-group" transform="translate(520, 390) rotate(-20) skewX(20)">
                     @foreach($zones->whereIn('code', $bottomBlockCodes) as $zone)
                         @php
                             $cIndex = array_search($zone->code, $bottomBlockCodes);
+                            // Add gap of 20px between blocks (GL-GM, GN-GP, GQ-GT)
+                            $offset = 0;
+                            if ($cIndex >= 2 && $cIndex <= 4) {
+                                $offset = 20; // walkway after GM
+                            } elseif ($cIndex >= 5) {
+                                $offset = 40; // walkway after GP
+                            }
+                            $xBase = $cIndex * 34 + $offset;
                         @endphp
                         <g class="zone-group" data-zone-code="{{ $zone->code }}">
                             <!-- Render Zone Label -->
-                            <text x="{{ ($cIndex * 34) + 12 }}" y="-12" class="zone-label" text-anchor="middle" font-size="9" fill="#4B5563" font-weight="bold">{{ $zone->code }}</text>
+                            <text x="{{ $xBase + 12 }}" y="-12" class="zone-label" text-anchor="middle" font-size="9" fill="#4B5563" font-weight="bold">{{ $zone->code }}</text>
                             @foreach($zone->lots as $lot)
                                 @php
                                     $r = (int)substr($lot->lot_code, 2, 2);
-                                    $x = $cIndex * 34;
+                                    $x = $xBase;
                                     $y = ($r - 1) * 26;
                                     $cx = $x + 12;
                                     $cy = $y + 9;
