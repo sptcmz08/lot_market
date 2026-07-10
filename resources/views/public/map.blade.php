@@ -236,14 +236,17 @@
     .map-viewport {
         position: relative;
         width: 100%;
-        overflow-x: auto;
+        overflow: auto;
         -webkit-overflow-scrolling: touch;
     }
 
     .market-svg {
         display: block;
-        min-width: 1120px;
-        margin: 0 auto;
+        width: auto;
+        height: auto;
+        max-width: none;
+        min-width: 0;
+        margin: 0;
         user-select: none;
     }
 
