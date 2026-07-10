@@ -3,6 +3,8 @@
     $tentW = 32;
     $tentH = 32;
     $tentGap = 3;
+    $lotsPerBlock = 5;
+    $blockGap = 18;
     $rowGap = 8;
     $groupGap = 24;
     $topPad = 58;
@@ -36,10 +38,11 @@
         return $zone ? $zone->lots->values() : collect();
     };
 
-    $zoneWidth = function ($zCode) use ($zoneLots, $tentW, $tentGap) {
+    $zoneWidth = function ($zCode) use ($zoneLots, $tentW, $tentGap, $lotsPerBlock, $blockGap) {
         $count = $zoneLots($zCode)->count();
+        $blocks = $count > 0 ? (int) ceil($count / $lotsPerBlock) : 0;
 
-        return $count > 0 ? ($count * $tentW) + (($count - 1) * $tentGap) : 0;
+        return $count > 0 ? ($count * $tentW) + (($count - 1) * $tentGap) + (max(0, $blocks - 1) * $blockGap) : 0;
     };
 
     $sideWidth = function ($rows) use ($zoneWidth) {
@@ -92,7 +95,7 @@
     $yardY = $topPad + 10;
     $yardH = max(390, $contentH - 20);
 
-    $renderZone = function ($zCode, $labelX, $startX, $startY) use ($zoneLots, $tentImg, $tentW, $tentH, $tentGap) {
+    $renderZone = function ($zCode, $labelX, $startX, $startY) use ($zoneLots, $tentImg, $tentW, $tentH, $tentGap, $lotsPerBlock, $blockGap) {
         $lots = $zoneLots($zCode);
         if ($lots->count() === 0) {
             return '';
@@ -103,7 +106,7 @@
         $markup = '<text x="' . $labelX . '" y="' . $labelY . '" class="zone-label">' . $zoneLabel . '</text>';
 
         foreach ($lots as $index => $lot) {
-            $tx = $startX + ($index * ($tentW + $tentGap));
+            $tx = $startX + ($index * ($tentW + $tentGap)) + (intdiv($index, $lotsPerBlock) * $blockGap);
             $ty = $startY;
             $cx = $tx + ($tentW / 2);
             $cy = $ty + ($tentH / 2);

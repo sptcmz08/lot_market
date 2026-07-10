@@ -47,7 +47,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // 2. Define Zones
-        // Left Block: GB to GJ (10 lots each)
+        // Left Block: GB to GJ (20 lots each)
         $leftCodes = ['GB', 'GC', 'GD', 'GE', 'GF', 'GG', 'GH', 'GI', 'GJ'];
         // Right Block: GL to GT (GL-GS = 14 lots each, GT = 9 lots)
         $rightCodes = ['GL', 'GM', 'GN', 'GO', 'GP', 'GQ', 'GR', 'GS', 'GT'];
@@ -71,10 +71,10 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // 3. Seed Lots for Left Block (GB to GJ) - 10 lots each
+        // 3. Seed Lots for Left Block (GB to GJ) - 20 lots each
         foreach ($leftCodes as $code) {
             $zone = $zones[$code];
-            for ($r = 1; $r <= 10; $r++) {
+            for ($r = 1; $r <= 20; $r++) {
                 $num = str_pad($r, 2, '0', STR_PAD_LEFT);
                 Lot::create([
                     'zone_id' => $zone->id,
