@@ -54,28 +54,28 @@
         return $width;
     };
 
-    $rowsHeight = function ($rows) use ($zoneLots, $tentH, $rowGap, $groupGap) {
-        $rows = 0;
-        $groups = 0;
+    $rowsHeight = function ($rowGroups) use ($zoneLots, $tentH, $rowGap, $groupGap) {
+        $rowCount = 0;
+        $groupCount = 0;
 
-        foreach ($rows as $rowCodes) {
+        foreach ($rowGroups as $rowCodes) {
             $groupHasLots = false;
             foreach ($rowCodes as $zCode) {
                 if ($zoneLots($zCode)->count() > 0) {
-                    $rows++;
+                    $rowCount++;
                     $groupHasLots = true;
                 }
             }
             if ($groupHasLots) {
-                $groups++;
+                $groupCount++;
             }
         }
 
-        if ($rows === 0) {
+        if ($rowCount === 0) {
             return 0;
         }
 
-        return ($rows * $tentH) + (($rows - $groups) * $rowGap) + (max(0, $groups - 1) * $groupGap);
+        return ($rowCount * $tentH) + (($rowCount - $groupCount) * $rowGap) + (max(0, $groupCount - 1) * $groupGap);
     };
 
     $leftW = $sideWidth($leftRows);
