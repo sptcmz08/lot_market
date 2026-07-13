@@ -334,6 +334,14 @@
         cursor: pointer;
     }
 
+    .lot-cell-border {
+        fill: none;
+        stroke: #000000;
+        stroke-width: 0.75px;
+        pointer-events: none;
+        vector-effect: non-scaling-stroke;
+    }
+
     .lot-available { fill: transparent; stroke: transparent; }
     .lot-pending { fill: rgba(255, 225, 125, 0.28); stroke: #D97706; }
     .lot-booked { fill: rgba(255, 163, 163, 0.3); stroke: #EF4444; }

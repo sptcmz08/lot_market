@@ -57,6 +57,9 @@
                       x="{$x}" y="{$y}"
                       width="{$cellW}" height="{$cellH}" rx="0.8" />
                 <image href="{$tentImg}" x="{$imgX}" y="{$imgY}" width="{$imgW}" height="{$imgH}" preserveAspectRatio="xMidYMid meet" style="pointer-events:none" />
+                <rect class="lot-cell-border"
+                      x="{$x}" y="{$y}"
+                      width="{$cellW}" height="{$cellH}" rx="0" />
                 <rect class="lot-hit-area"
                       x="{$x}" y="{$y}"
                       width="{$cellW}" height="{$cellH}" rx="0.8"
