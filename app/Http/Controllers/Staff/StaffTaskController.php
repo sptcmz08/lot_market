@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\DeliveryPhoto;
 use App\Models\DeliveryTask;
+use App\Services\LotOcrService;
 use App\Services\PhotoUploadService;
 use App\Services\StatusLogService;
 use Illuminate\Http\Request;
@@ -14,10 +15,12 @@ use Illuminate\Support\Facades\DB;
 class StaffTaskController extends Controller
 {
     protected $photoUploadService;
+    protected $lotOcrService;
 
-    public function __construct(PhotoUploadService $photoUploadService)
+    public function __construct(PhotoUploadService $photoUploadService, LotOcrService $lotOcrService)
     {
         $this->photoUploadService = $photoUploadService;
+        $this->lotOcrService = $lotOcrService;
     }
 
     public function index()
@@ -89,6 +92,11 @@ class StaffTaskController extends Controller
 
         $path = $this->photoUploadService->upload($request->file('photo'));
 
+        $ocrResult = null;
+        if ($request->photo_type === 'lot_number') {
+            $ocrResult = $this->lotOcrService->verifyPhoto($task, $path);
+        }
+
         $photo = DeliveryPhoto::create([
             'delivery_task_id' => $task->id,
             'photo_type' => $request->photo_type,
@@ -98,7 +106,17 @@ class StaffTaskController extends Controller
             'taken_at' => now(),
             'uploaded_by' => auth()->id(),
             'note' => $request->note,
+            'ocr_text' => $ocrResult['text'] ?? null,
+            'ocr_status' => $ocrResult['status'] ?? null,
+            'ocr_confidence' => $ocrResult['confidence'] ?? null,
         ]);
+
+        if ($request->photo_type === 'lot_number' && ($ocrResult['status'] ?? null) !== 'matched') {
+            $expected = implode(', ', $ocrResult['expected_lots'] ?? []);
+            $detected = implode(', ', $ocrResult['detected_lots'] ?? []) ?: 'อ่านเลขล็อตไม่พบ';
+
+            return back()->with('error', "อัปโหลดรูปแล้ว แต่ OCR ตรวจเลขล็อตไม่ผ่าน: ระบบต้องการ {$expected} / อ่านได้ {$detected}");
+        }
 
         return back()->with('success', 'อัปโหลดรูปภาพสำเร็จแล้ว');
     }
@@ -116,6 +134,10 @@ class StaffTaskController extends Controller
 
         if (!$hasLotNumber || !$hasAfter) {
             return back()->with('error', 'ไม่สามารถส่งงานได้: ต้องถ่ายรูปเลขล็อตอย่างน้อย 1 รูป และรูปหลังติดตั้งอย่างน้อย 1 รูป');
+        }
+
+        if (!$this->lotOcrService->hasPassingLotPhoto($task)) {
+            return back()->with('error', 'ไม่สามารถส่งงานได้: รูปป้ายเลขล็อตยังไม่ผ่าน OCR หรือเลขล็อตไม่ตรงกับรายการจอง กรุณาถ่ายรูปป้ายเลขล็อตใหม่ให้ชัดเจน');
         }
 
         DB::transaction(function () use ($task) {

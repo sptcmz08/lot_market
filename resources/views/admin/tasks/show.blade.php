@@ -113,6 +113,15 @@
                                         @elseif($photo->photo_type === 'problem') ⚠️ พบปัญหา
                                         @endif
                                     </strong>
+
+                                    @if($photo->photo_type === 'lot_number')
+                                        <div style="font-size: 12px; font-weight: 800; color: @if($photo->ocr_status === 'matched') #1E7E34 @else #D35400 @endif;">
+                                            OCR: {{ $photo->ocr_status === 'matched' ? 'ผ่าน' : 'ไม่ผ่าน' }}
+                                        </div>
+                                        @if($photo->ocr_text)
+                                            <div style="color: var(--text-muted); font-size: 11px; word-break: break-word;">{{ $photo->ocr_text }}</div>
+                                        @endif
+                                    @endif
                                     
                                     @if($photo->taken_at)
                                         <div style="color: var(--text-muted); font-size: 11px;">เวลา: {{ $photo->taken_at->format('d/m/Y H:i น.') }}</div>

@@ -94,11 +94,12 @@
                 @php
                     $photos = $task->photos;
                     $hasLotNo = $photos->contains('photo_type', 'lot_number');
+                    $hasOcrLotPass = $photos->contains(fn ($photo) => $photo->photo_type === 'lot_number' && $photo->ocr_status === 'matched');
                     $hasBefore = $photos->contains('photo_type', 'before');
                     $hasAfter = $photos->contains('photo_type', 'after');
                 @endphp
-                <span class="status-badge @if($hasLotNo) status-completed @else status-pending @endif">
-                    <i class="fa-solid @if($hasLotNo) fa-check @else fa-circle-xmark @endif"></i> ป้ายเลขแผง
+                <span class="status-badge @if($hasOcrLotPass) status-completed @elseif($hasLotNo) status-problem @else status-pending @endif">
+                    <i class="fa-solid @if($hasOcrLotPass) fa-check @else fa-circle-xmark @endif"></i> OCR เลขล็อต
                 </span>
                 <span class="status-badge @if($hasBefore) status-completed @else status-blocked @endif">
                     <i class="fa-solid @if($hasBefore) fa-check @else fa-circle @endif"></i> ก่อนติดตั้ง (ถ้ามี)
@@ -190,6 +191,14 @@
                             @elseif($ph->photo_type === 'problem') ⚠️ ปัญหา
                             @endif
                         </div>
+                        @if($ph->photo_type === 'lot_number')
+                            <div style="font-size:10px;padding:0 4px 6px;color:@if($ph->ocr_status === 'matched') #1E7E34 @else #D35400 @endif;font-weight:700;">
+                                OCR: {{ $ph->ocr_status === 'matched' ? 'ผ่าน' : 'ไม่ผ่าน' }}
+                                @if($ph->ocr_text)
+                                    <span style="display:block;color:var(--text-muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $ph->ocr_text }}</span>
+                                @endif
+                            </div>
+                        @endif
                     </div>
                 @endforeach
             </div>

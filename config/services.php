@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'ocr' => [
+        'tesseract_path' => env('OCR_TESSERACT_PATH', 'tesseract'),
+        'language' => env('OCR_LANGUAGE', 'eng'),
+        'timeout' => env('OCR_TIMEOUT', 20),
+    ],
+
 ];
