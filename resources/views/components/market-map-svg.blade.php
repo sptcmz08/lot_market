@@ -45,6 +45,9 @@
         $imgY = $y + 1;
         $imgW = $cellW - 2;
         $imgH = $cellH - 2;
+        $badgeCx = $cellW - 5;
+        $badgeX1 = $cellW - 8;
+        $badgeX2 = $cellW - 2;
 
         return <<<SVG
             <g class="lot-group"
@@ -68,6 +71,11 @@
                 <rect class="lot-cell-border"
                       x="{$x}" y="{$y}"
                       width="{$cellW}" height="{$cellH}" rx="0" />
+                <g class="lot-status-marker" transform="translate({$x} {$y})" pointer-events="none">
+                    <circle class="lot-status-badge" cx="{$badgeCx}" cy="5" r="5" />
+                    <path class="lot-status-x" d="M {$badgeX1} 2 L {$badgeX2} 8 M {$badgeX2} 2 L {$badgeX1} 8" />
+                    <circle class="lot-status-dot" cx="{$badgeCx}" cy="5" r="2.1" />
+                </g>
                 <rect class="lot-hit-area"
                       x="{$x}" y="{$y}"
                       width="{$cellW}" height="{$cellH}" rx="0.8"

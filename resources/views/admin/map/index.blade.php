@@ -322,6 +322,58 @@
         vector-effect: non-scaling-stroke;
     }
 
+    .lot-status-marker {
+        display: none;
+    }
+
+    .lot-status-badge {
+        fill: #EF4444;
+        stroke: #FFFFFF;
+        stroke-width: 1.3px;
+        vector-effect: non-scaling-stroke;
+    }
+
+    .lot-status-x {
+        display: none;
+        fill: none;
+        stroke: #FFFFFF;
+        stroke-width: 1.7px;
+        stroke-linecap: round;
+        vector-effect: non-scaling-stroke;
+    }
+
+    .lot-status-dot {
+        fill: #FFFFFF;
+    }
+
+    .lot-group.status-pending .lot-status-marker,
+    .lot-group.status-booked .lot-status-marker,
+    .lot-group.status-installing .lot-status-marker,
+    .lot-group.status-completed .lot-status-marker,
+    .lot-group.status-problem .lot-status-marker,
+    .lot-group.status-blocked .lot-status-marker {
+        display: block;
+    }
+
+    .lot-group.status-pending .lot-status-badge { fill: #D97706; }
+    .lot-group.status-booked .lot-status-badge { fill: #EF4444; }
+    .lot-group.status-installing .lot-status-badge { fill: #8B5CF6; }
+    .lot-group.status-completed .lot-status-badge { fill: #0284C7; }
+    .lot-group.status-problem .lot-status-badge { fill: #EA580C; }
+    .lot-group.status-blocked .lot-status-badge { fill: #4B5563; }
+
+    .lot-group.status-booked .lot-status-x,
+    .lot-group.status-problem .lot-status-x,
+    .lot-group.status-blocked .lot-status-x {
+        display: block;
+    }
+
+    .lot-group.status-booked .lot-status-dot,
+    .lot-group.status-problem .lot-status-dot,
+    .lot-group.status-blocked .lot-status-dot {
+        display: none;
+    }
+
     .lot-available { fill: transparent; stroke: transparent; }
     .lot-pending { fill: rgba(255, 225, 125, 0.28); stroke: #D97706; }
     .lot-booked { fill: rgba(255, 163, 163, 0.3); stroke: #EF4444; }
@@ -643,6 +695,21 @@
                             el.classList.add(`lot-${lot.status}`);
                             if (currentSelected === lot.lot_code) {
                                 el.classList.add('lot-selected');
+                            }
+                        }
+
+                        const group = document.getElementById(`lot-group-${lot.lot_code}`);
+                        if (group) {
+                            group.classList.remove(
+                                'status-pending',
+                                'status-booked',
+                                'status-installing',
+                                'status-completed',
+                                'status-problem',
+                                'status-blocked'
+                            );
+                            if (lot.status !== 'available') {
+                                group.classList.add(`status-${lot.status}`);
                             }
                         }
                     });
