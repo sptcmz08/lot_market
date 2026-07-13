@@ -250,7 +250,7 @@
 
     .map-card {
         width: min(100%, calc(100vw - 32px));
-        max-width: 1760px;
+        max-width: none;
         margin-left: auto;
         margin-right: auto;
         padding: 14px;
@@ -271,19 +271,21 @@
 
     .market-svg {
         display: block;
-        width: auto;
+        width: 100%;
         height: auto;
-        max-width: none;
-        min-width: 0;
+        max-width: 100%;
+        min-width: 1180px;
         margin: 0 auto;
         user-select: none;
     }
 
     .market-lot {
+        fill: #FFFFFF;
         stroke: #ffffff;
-        stroke-width: 1.5px;
+        stroke-width: 0.8px;
         pointer-events: none;
         transition: all 0.2s ease;
+        vector-effect: non-scaling-stroke;
     }
 
     .lot-group,
@@ -308,6 +310,24 @@
         fill: #2F2F37;
         font-size: 8px;
         font-weight: 850;
+        pointer-events: none;
+        text-anchor: middle;
+        dominant-baseline: middle;
+    }
+
+    .lot-cell-text {
+        fill: #27272A;
+        font-size: 5px;
+        font-weight: 750;
+        pointer-events: none;
+        text-anchor: middle;
+        dominant-baseline: middle;
+    }
+
+    .zone-cell-text {
+        fill: #18181B;
+        font-size: 5px;
+        font-weight: 900;
         pointer-events: none;
         text-anchor: middle;
         dominant-baseline: middle;

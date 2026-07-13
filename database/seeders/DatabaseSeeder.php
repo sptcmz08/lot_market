@@ -19,99 +19,76 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // 1. Seed Users
-        User::create([
-            'name' => 'แอดมินใจดี',
-            'email' => 'admin@example.com',
-            'phone' => '0888888888',
-            'password' => bcrypt('password'),
-            'role' => 'admin',
-            'is_active' => true,
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'แอดมินใจดี',
+                'phone' => '0888888888',
+                'password' => bcrypt('password'),
+                'role' => 'admin',
+                'is_active' => true,
+            ]
+        );
 
-        User::create([
-            'name' => 'พนักงานส่งเต็นท์ A',
-            'email' => 'staff@example.com',
-            'phone' => '0999999999',
-            'password' => bcrypt('password'),
-            'role' => 'staff',
-            'is_active' => true,
-        ]);
+        User::updateOrCreate(
+            ['email' => 'staff@example.com'],
+            [
+                'name' => 'พนักงานส่งเต็นท์ A',
+                'phone' => '0999999999',
+                'password' => bcrypt('password'),
+                'role' => 'staff',
+                'is_active' => true,
+            ]
+        );
 
-        User::create([
-            'name' => 'พนักงานส่งเต็นท์ B',
-            'email' => 'staff2@example.com',
-            'phone' => '0777777777',
-            'password' => bcrypt('password'),
-            'role' => 'staff',
-            'is_active' => true,
-        ]);
+        User::updateOrCreate(
+            ['email' => 'staff2@example.com'],
+            [
+                'name' => 'พนักงานส่งเต็นท์ B',
+                'phone' => '0777777777',
+                'password' => bcrypt('password'),
+                'role' => 'staff',
+                'is_active' => true,
+            ]
+        );
 
-        // 2. Define Zones
-        // Left Block: GB to GJ (20 lots each)
-        $leftCodes = ['GB', 'GC', 'GD', 'GE', 'GF', 'GG', 'GH', 'GI', 'GJ'];
-        // Right Block: GL to GT (GL-GS = 14 lots each, GT = 9 lots)
-        $rightCodes = ['GL', 'GM', 'GN', 'GO', 'GP', 'GQ', 'GR', 'GS', 'GT'];
-
+        // 2. Seed Zones and Lots from the real market layout spreadsheet export.
+        $layoutPath = resource_path('data/market-layout.json');
+        $layout = file_exists($layoutPath) ? json_decode(file_get_contents($layoutPath), true) : ['lots' => []];
         $zones = [];
-        $order = 1;
+        $zoneCodes = array_values(array_unique(array_column($layout['lots'], 'zone')));
 
-        foreach ($leftCodes as $code) {
-            $zones[$code] = Zone::create([
-                'code' => $code,
-                'name' => "โซน {$code}",
-                'sort_order' => $order++
-            ]);
+        foreach ($zoneCodes as $order => $code) {
+            $zones[$code] = Zone::updateOrCreate(
+                ['code' => $code],
+                [
+                    'name' => "โซน {$code}",
+                    'sort_order' => $order + 1,
+                ]
+            );
         }
 
-        foreach ($rightCodes as $code) {
-            $zones[$code] = Zone::create([
-                'code' => $code,
-                'name' => "โซน {$code}",
-                'sort_order' => $order++
-            ]);
-        }
-
-        // 3. Seed Lots for Left Block (GB to GJ) - 20 lots each
-        foreach ($leftCodes as $code) {
-            $zone = $zones[$code];
-            for ($r = 1; $r <= 20; $r++) {
-                $num = str_pad($r, 2, '0', STR_PAD_LEFT);
-                Lot::create([
-                    'zone_id' => $zone->id,
-                    'lot_code' => $code . $num,
-                    'display_name' => $code . $num,
-                    'svg_element_id' => 'lot-' . $code . $num,
-                    'position_x' => 0, 'position_y' => 0,
-                    'width' => 24, 'height' => 18,
+        foreach ($layout['lots'] as $lot) {
+            Lot::updateOrCreate(
+                ['lot_code' => $lot['code']],
+                [
+                    'zone_id' => $zones[$lot['zone']]->id ?? null,
+                    'display_name' => $lot['code'],
+                    'svg_element_id' => 'lot-' . $lot['code'],
+                    'position_x' => $lot['excelCol'],
+                    'position_y' => $lot['excelRow'],
+                    'width' => 1,
+                    'height' => 1,
                     'is_active' => true,
-                    'note' => "แผงค้าฝั่งซ้ายแถวที่ {$r}",
-                ]);
-            }
+                    'note' => 'Imported from actual market layout spreadsheet',
+                ]
+            );
         }
 
-        // 4. Seed Lots for Right Block (GL to GS = 14 lots, GT = 9 lots)
-        foreach ($rightCodes as $code) {
-            $zone = $zones[$code];
-            $maxLots = ($code === 'GT') ? 9 : 14;
-            for ($r = 1; $r <= $maxLots; $r++) {
-                $num = str_pad($r, 2, '0', STR_PAD_LEFT);
-                Lot::create([
-                    'zone_id' => $zone->id,
-                    'lot_code' => $code . $num,
-                    'display_name' => $code . $num,
-                    'svg_element_id' => 'lot-' . $code . $num,
-                    'position_x' => 0, 'position_y' => 0,
-                    'width' => 20, 'height' => 16,
-                    'is_active' => true,
-                    'note' => "แผงค้าฝั่งขวาแถวที่ {$r}",
-                ]);
-            }
-        }
-
-        // 6. Seed Settings
-        Setting::create([
-            'setting_key' => 'show_shop_name_public',
-            'setting_value' => 'true',
-        ]);
+        // 3. Seed Settings
+        Setting::updateOrCreate(
+            ['setting_key' => 'show_shop_name_public'],
+            ['setting_value' => 'true']
+        );
     }
 }
