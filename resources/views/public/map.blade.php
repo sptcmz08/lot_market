@@ -318,9 +318,9 @@
     }
 
     .market-lot {
-        fill: #FFFFFF;
-        stroke: #ffffff;
-        stroke-width: 0.8px;
+        fill: transparent;
+        stroke: transparent;
+        stroke-width: 1.5px;
         pointer-events: none;
         transition: all 0.2s ease;
         vector-effect: non-scaling-stroke;
@@ -331,17 +331,17 @@
         cursor: pointer;
     }
 
-    .lot-available { fill: #A2E8B9; }
-    .lot-pending { fill: #FFE17D; }
-    .lot-booked { fill: #FFA3A3; }
-    .lot-installing { fill: #C7B5FF; }
-    .lot-completed { fill: #8DE5DE; }
-    .lot-problem { fill: #FFC078; }
-    .lot-blocked { fill: #E0E0E0; }
+    .lot-available { fill: transparent; stroke: transparent; }
+    .lot-pending { fill: rgba(255, 225, 125, 0.28); stroke: #D97706; }
+    .lot-booked { fill: rgba(255, 163, 163, 0.3); stroke: #EF4444; }
+    .lot-installing { fill: rgba(199, 181, 255, 0.3); stroke: #8B5CF6; }
+    .lot-completed { fill: rgba(141, 229, 222, 0.28); stroke: #0284C7; }
+    .lot-problem { fill: rgba(255, 192, 120, 0.32); stroke: #EA580C; }
+    .lot-blocked { fill: rgba(156, 163, 175, 0.35); stroke: #4B5563; }
 
     .lot-group:hover .market-lot {
-        filter: brightness(1.15);
-        transform: scale(1.02);
+        stroke: #FF3B70;
+        stroke-width: 2.5px;
     }
 
     .lot-text {
@@ -354,30 +354,15 @@
     }
 
     .lot-cell-text {
-        fill: #27272A;
-        font-size: 7px;
-        font-weight: 750;
-        pointer-events: none;
-        text-anchor: middle;
-        dominant-baseline: middle;
+        display: none;
     }
 
     .zone-cell-text {
-        fill: #18181B;
-        font-size: 7px;
-        font-weight: 900;
-        pointer-events: none;
-        text-anchor: middle;
-        dominant-baseline: middle;
+        display: none;
     }
 
     .map-area-label {
-        fill: #EF4444;
-        font-size: 11px;
-        font-weight: 800;
-        text-anchor: middle;
-        dominant-baseline: middle;
-        pointer-events: none;
+        display: none;
     }
 
     .zone-label {
@@ -503,7 +488,7 @@
             mapViewport.scrollTop = 0;
         }
 
-        applyMapZoom(0.82, false);
+        applyMapZoom(1, false);
         zoomInBtn.addEventListener('click', () => applyMapZoom(mapZoom + 0.12));
         zoomOutBtn.addEventListener('click', () => applyMapZoom(mapZoom - 0.12));
         zoomFitBtn.addEventListener('click', fitMapToViewport);
