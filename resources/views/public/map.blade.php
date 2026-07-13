@@ -365,6 +365,35 @@
         display: none;
     }
 
+    .excel-table-label,
+    .excel-zone-label,
+    .excel-road-label,
+    .excel-place-label {
+        pointer-events: none;
+        text-anchor: middle;
+        dominant-baseline: middle;
+        font-family: 'Prompt', 'Outfit', sans-serif;
+    }
+
+    .excel-table-label {
+        fill: #111827;
+        font-size: 8px;
+        font-weight: 700;
+    }
+
+    .excel-zone-label {
+        fill: #111827;
+        font-size: 12px;
+        font-weight: 900;
+    }
+
+    .excel-road-label,
+    .excel-place-label {
+        fill: #FF0000;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
     .zone-label {
         font-size: 13px;
         font-weight: 900;
