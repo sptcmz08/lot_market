@@ -109,8 +109,10 @@
     <rect x="0" y="0" width="{{ $mapW }}" height="{{ $mapH }}" fill="url(#excel-grid)" />
 
     @foreach(($decor['cells'] ?? []) as $cell)
-        <rect x="{{ $xForCol($cell['col']) }}" y="{{ $yForRow($cell['row']) }}" width="{{ $cellW }}" height="{{ $cellH }}" fill="{{ $cell['fill'] }}" />
+        <rect x="{{ $xForCol($cell['col']) }}" y="{{ $yForRow($cell['row']) }}" width="{{ $cellW }}" height="{{ $cellH }}" fill="{{ $cell['fill'] }}" stroke="#D9D9D9" stroke-width="1" />
     @endforeach
+
+    <rect x="0" y="0" width="{{ $mapW }}" height="{{ $mapH }}" fill="url(#excel-grid)" opacity="0.82" pointer-events="none" />
 
     <polygon points="{{ $cellW * 126 }},{{ $cellH * 12 }} {{ $cellW * 135 }},{{ $cellH * 0 }} {{ $cellW * 144 }},{{ $cellH * 12 }}" fill="#4472C4" stroke="#1F4E79" stroke-width="2" />
     <polygon points="{{ $cellW * 145 }},{{ $cellH * 12 }} {{ $cellW * 154 }},{{ $cellH * 0 }} {{ $cellW * 163 }},{{ $cellH * 12 }}" fill="#4472C4" stroke="#1F4E79" stroke-width="2" />
