@@ -15,6 +15,14 @@
     $xForCol = fn ($col) => max(0, ($col - 1) * $cellW);
     $yForRow = fn ($row) => max(0, ($row - 1) * $cellH);
     $emuToSvg = fn ($emu) => $emu / 9525;
+    $buildingX = $xForCol(60) + $emuToSvg(139700);
+    $buildingY = $yForRow(23) + $emuToSvg(88900);
+    $buildingX2 = $xForCol(82) + $emuToSvg(12700);
+    $buildingY2 = $yForRow(37) + $emuToSvg(146050);
+    $buildingW = $buildingX2 - $buildingX;
+    $buildingH = $buildingY2 - $buildingY;
+    $buildingRoofY = $buildingY + ($buildingH * 0.42);
+    $buildingBodyY = $buildingRoofY;
 
     $zoneColors = [
         'GB' => '#FFF200', 'GC' => '#FF99FF', 'GD' => '#00B0F0', 'GE' => '#92D050',
@@ -114,9 +122,9 @@
 
     <rect x="0" y="0" width="{{ $mapW }}" height="{{ $mapH }}" fill="url(#excel-grid)" opacity="0.82" pointer-events="none" />
 
-    <polygon points="{{ $cellW * 126 }},{{ $cellH * 12 }} {{ $cellW * 135 }},{{ $cellH * 0 }} {{ $cellW * 144 }},{{ $cellH * 12 }}" fill="#4472C4" stroke="#1F4E79" stroke-width="2" />
-    <polygon points="{{ $cellW * 145 }},{{ $cellH * 12 }} {{ $cellW * 154 }},{{ $cellH * 0 }} {{ $cellW * 163 }},{{ $cellH * 12 }}" fill="#4472C4" stroke="#1F4E79" stroke-width="2" />
-    <rect x="{{ $cellW * 127 }}" y="{{ $cellH * 12 }}" width="{{ $cellW * 35 }}" height="{{ $cellH * 12 }}" fill="#4472C4" stroke="#1F4E79" stroke-width="2" />
+    <polygon points="{{ $buildingX }},{{ $buildingRoofY }} {{ $buildingX + ($buildingW * 0.25) }},{{ $buildingY }} {{ $buildingX + ($buildingW * 0.5) }},{{ $buildingRoofY }}" fill="#4472C4" stroke="#1F4E79" stroke-width="2" />
+    <polygon points="{{ $buildingX + ($buildingW * 0.42) }},{{ $buildingRoofY }} {{ $buildingX + ($buildingW * 0.73) }},{{ $buildingY }} {{ $buildingX + $buildingW }},{{ $buildingRoofY }}" fill="#4472C4" stroke="#1F4E79" stroke-width="2" />
+    <rect x="{{ $buildingX + ($buildingW * 0.03) }}" y="{{ $buildingBodyY }}" width="{{ $buildingW * 0.94 }}" height="{{ $buildingH * 0.58 }}" fill="#4472C4" stroke="#1F4E79" stroke-width="2" />
 
     @foreach(($decor['tables'] ?? []) as $tableCell)
         <rect x="{{ $xForCol($tableCell['col']) }}" y="{{ $yForRow($tableCell['row']) }}" width="{{ $cellW }}" height="{{ $cellH }}" fill="#BDD7EE" stroke="#000" stroke-width="1" />
@@ -131,7 +139,8 @@
             $y2 = $yForRow($label['toRow']) + $emuToSvg($label['toRowOffset'] ?? 0);
             $w = max($cellW * 1.8, $x2 - $x);
             $h = max($cellH * 0.9, $y2 - $y);
-            $text = e($label['text']);
+            $displayText = str_replace('อาคารกานต์มณ๊', 'อาคารกานต์มณี', $label['text']);
+            $text = e($displayText);
             $isRoad = str_contains($label['text'], 'ถนน');
             $isVertical = $h > ($w * 1.25);
             $boxClass = match (true) {
