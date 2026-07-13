@@ -253,11 +253,11 @@
         max-width: none;
         margin-left: auto;
         margin-right: auto;
-        padding: 14px;
-        background-color: #fff;
-        border-radius: 24px;
+        padding: 8px;
+        background-color: #F7F7F7;
+        border-radius: 6px;
         overflow: hidden;
-        border: 2px solid var(--border-cute);
+        border: 1px solid #D9D9D9;
         box-sizing: border-box;
     }
 
@@ -265,24 +265,24 @@
         display: flex;
         align-items: center;
         justify-content: flex-end;
-        gap: 8px;
-        margin-bottom: 10px;
+        gap: 6px;
+        margin-bottom: 6px;
         flex-wrap: wrap;
     }
 
     .map-tool-btn {
-        border: 1px solid #E5E7EB;
+        border: 1px solid #D0D7DE;
         background: #FFFFFF;
         color: #374151;
-        width: 36px;
-        height: 34px;
-        border-radius: 10px;
+        width: 32px;
+        height: 30px;
+        border-radius: 4px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         font-weight: 800;
-        box-shadow: 0 2px 8px rgba(47, 47, 55, 0.06);
+        box-shadow: none;
     }
 
     .map-tool-btn:hover {
@@ -302,8 +302,11 @@
         position: relative;
         width: 100%;
         overflow: auto;
-        padding-top: 8px;
+        padding: 0;
         max-height: 72vh;
+        background: #FFFFFF;
+        border: 1px solid #D9D9D9;
+        border-radius: 2px;
         -webkit-overflow-scrolling: touch;
     }
 
@@ -377,7 +380,7 @@
 
     .excel-table-label {
         fill: #111827;
-        font-size: 8px;
+        font-size: 7.5px;
         font-weight: 700;
     }
 
@@ -390,8 +393,30 @@
     .excel-road-label,
     .excel-place-label {
         fill: #FF0000;
-        font-size: 12px;
+        font-size: 10px;
         font-weight: 800;
+    }
+
+    .excel-label-box {
+        fill: #FFFFFF;
+        stroke: #BFBFBF;
+        stroke-width: 1;
+        vector-effect: non-scaling-stroke;
+    }
+
+    .excel-label-booth {
+        stroke: #FF0000;
+        stroke-width: 1.25;
+    }
+
+    .excel-label-shrine {
+        stroke: #7030A0;
+        stroke-width: 1.25;
+    }
+
+    .excel-label-ice {
+        stroke: #00B0F0;
+        stroke-width: 1.25;
     }
 
     .zone-label {

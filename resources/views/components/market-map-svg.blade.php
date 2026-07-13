@@ -14,8 +14,7 @@
     $tentImg = asset('images/tent.png');
     $xForCol = fn ($col) => max(0, ($col - 1) * $cellW);
     $yForRow = fn ($row) => max(0, ($row - 1) * $cellH);
-    $emuToSvgX = fn ($emu) => ($emu / 9525) * ($cellW / 26);
-    $emuToSvgY = fn ($emu) => ($emu / 9525) * ($cellH / 18);
+    $emuToSvg = fn ($emu) => $emu / 9525;
 
     $zoneColors = [
         'GB' => '#FFF200', 'GC' => '#FF99FF', 'GD' => '#00B0F0', 'GE' => '#92D050',
@@ -121,17 +120,26 @@
 
     @foreach(($decor['labels'] ?? []) as $label)
         @php
-            $x = $xForCol($label['fromCol']) + $emuToSvgX($label['fromColOffset'] ?? 0);
-            $y = $yForRow($label['fromRow']) + $emuToSvgY($label['fromRowOffset'] ?? 0);
-            $x2 = $xForCol($label['toCol']) + $emuToSvgX($label['toColOffset'] ?? 0);
-            $y2 = $yForRow($label['toRow']) + $emuToSvgY($label['toRowOffset'] ?? 0);
+            $x = $xForCol($label['fromCol']) + $emuToSvg($label['fromColOffset'] ?? 0);
+            $y = $yForRow($label['fromRow']) + $emuToSvg($label['fromRowOffset'] ?? 0);
+            $x2 = $xForCol($label['toCol']) + $emuToSvg($label['toColOffset'] ?? 0);
+            $y2 = $yForRow($label['toRow']) + $emuToSvg($label['toRowOffset'] ?? 0);
             $w = max($cellW * 1.8, $x2 - $x);
             $h = max($cellH * 0.9, $y2 - $y);
             $text = e($label['text']);
             $isRoad = str_contains($label['text'], 'ถนน');
+            $isVertical = $h > ($w * 1.25);
+            $boxClass = match (true) {
+                str_contains($label['text'], 'ซุ้ม') => 'excel-label-box excel-label-booth',
+                str_contains($label['text'], 'ศาล') => 'excel-label-box excel-label-shrine',
+                str_contains($label['text'], 'ร้านน้ำแข็ง') => 'excel-label-box excel-label-ice',
+                default => 'excel-label-box',
+            };
+            $textClass = $isRoad ? 'excel-road-label' : 'excel-place-label';
+            $textTransform = $isVertical ? ' transform="rotate(-90 ' . ($x + ($w / 2)) . ' ' . ($y + ($h / 2)) . ')"' : '';
         @endphp
-        <rect x="{{ $x }}" y="{{ $y }}" width="{{ $w }}" height="{{ $h }}" fill="#FFFFFF" stroke="#BFBFBF" stroke-width="1" />
-        <text x="{{ $x + ($w / 2) }}" y="{{ $y + ($h / 2) }}" class="{{ $isRoad ? 'excel-road-label' : 'excel-place-label' }}">{{ $text }}</text>
+        <rect x="{{ $x }}" y="{{ $y }}" width="{{ $w }}" height="{{ $h }}" class="{{ $boxClass }}" />
+        <text x="{{ $x + ($w / 2) }}" y="{{ $y + ($h / 2) }}" class="{{ $textClass }}"{!! $textTransform !!}>{{ $text }}</text>
     @endforeach
 
     {!! $renderZoneLabels() !!}
