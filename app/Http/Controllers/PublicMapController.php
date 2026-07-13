@@ -47,7 +47,7 @@ class PublicMapController extends Controller
                 $activeBooking = $lot->bookings->first();
                 if ($activeBooking) {
                     $bookingCode = $activeBooking->booking_code;
-                    $shopName = $showShopName ? $activeBooking->shop_name : 'จองแล้ว';
+                    $shopName = $showShopName ? $activeBooking->shop_name : 'มีคำสั่งจอง';
 
                     switch ($activeBooking->status) {
                         case 'pending_admin':
@@ -84,6 +84,11 @@ class PublicMapController extends Controller
                         'shop_name' => $activeBooking->shop_name,
                         'status' => $activeBooking->status,
                         'lots' => $bookingLots,
+                        'equipment_summary' => $activeBooking->equipmentSummary(),
+                        'tent_size' => $activeBooking->tent_size,
+                        'tent_color' => $activeBooking->tent_color,
+                        'counter_size' => $activeBooking->counter_size,
+                        'counter_color' => $activeBooking->counter_color,
                         'photos' => (object)$photoPaths
                     ];
                 }

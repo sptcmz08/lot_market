@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'แผนผังแผงตลาดสด')
-@section('page_title', 'แผนผังและสถานะแผงตลาด')
+@section('page_title', 'แผนผังและสถานะคำสั่งจองอุปกรณ์')
 
 @section('styles')
 <style>
@@ -513,7 +513,7 @@
                 <div class="legend-container">
                     <div class="legend-item"><div class="legend-color" style="background-color: #A2E8B9;"></div><span>🟢 ว่าง</span></div>
                     <div class="legend-item"><div class="legend-color" style="background-color: #FFE17D;"></div><span>🟡 รอแอดมินยืนยัน</span></div>
-                    <div class="legend-item"><div class="legend-color" style="background-color: #FFA3A3;"></div><span>🔴 จองแล้ว</span></div>
+                    <div class="legend-item"><div class="legend-color" style="background-color: #FFA3A3;"></div><span>🔴 มีคำสั่งจอง</span></div>
                     <div class="legend-item"><div class="legend-color" style="background-color: #C7B5FF;"></div><span>🟣 กำลังติดตั้ง</span></div>
                     <div class="legend-item"><div class="legend-color" style="background-color: #8DE5DE;"></div><span>🔵 ติดตั้งเสร็จแล้ว</span></div>
                     <div class="legend-item"><div class="legend-color" style="background-color: #FFC078;"></div><span>🟠 พบปัญหา</span></div>
@@ -547,12 +547,12 @@
         <div>
             <div class="cute-card" style="position: sticky; top: 20px;">
                 <h3 class="cute-card-title" style="font-size: 18px; border-bottom: 2px solid var(--border-cute); padding-bottom: 10px; margin-bottom: 15px;">
-                    <i class="fa-solid fa-circle-info"></i> ข้อมูลรายละเอียดแผง
+                    <i class="fa-solid fa-circle-info"></i> ข้อมูลรายละเอียดล็อต
                 </h3>
                 
                 <div id="no-selection-panel" style="text-align: center; padding: 40px 10px; color: var(--text-muted);">
                     <i class="fa-solid fa-hand-pointer" style="font-size: 40px; margin-bottom: 12px; display: block; color: var(--border-cute);"></i>
-                    กรุณาคลิกเลือกแผงบนแผนที่ เพื่อดูข้อมูลการจอง
+                    กรุณาคลิกเลือกล็อตบนแผนที่ เพื่อดูข้อมูลคำสั่งจอง
                 </div>
 
                 <div id="detail-panel" style="display: none;">
@@ -570,7 +570,7 @@
                             <i class="fa-solid fa-eye"></i> ดูใบจองนี้
                         </a>
                         <a href="#" class="btn-secondary" id="btn-edit-lot" style="width: 100%;">
-                            <i class="fa-solid fa-gear"></i> ตั้งค่าแผง / พิกัด SVG
+                            <i class="fa-solid fa-gear"></i> ตั้งค่าล็อต / พิกัด SVG
                         </a>
                     </div>
                 </div>
@@ -779,14 +779,14 @@
 
                 if (lot.status === 'available') {
                     html = `
-                        <h3 class="popover-title">แผงยังไม่มีการจอง</h3>
+                        <h3 class="popover-title">ล็อตนี้ยังไม่มีคำสั่งจองอุปกรณ์</h3>
                         <div class="popover-badge-container">
-                            <span class="popover-badge">ล็อค ${code} (ว่าง)</span>
+                            <span class="popover-badge">ล็อต ${code} (ว่าง)</span>
                         </div>
                         <div class="popover-grid">
                             <div class="popover-card">
                                 <span class="popover-card-text">ไม่มีรูปแผง</span>
-                                <span class="popover-card-label" style="position: absolute; bottom: 4px; left: 0; right: 0; text-align: center; background: rgba(0,0,0,0.4); color: white; padding: 2px 0; font-size: 9px;">รูปภาพแผง</span>
+                                <span class="popover-card-label" style="position: absolute; bottom: 4px; left: 0; right: 0; text-align: center; background: rgba(0,0,0,0.4); color: white; padding: 2px 0; font-size: 9px;">รูปภาพหน้าร้าน</span>
                             </div>
                             <div class="popover-card">
                                 <span class="popover-card-text">ไม่มีรูปเมนู</span>
@@ -799,14 +799,14 @@
                     `;
                 } else if (lot.status === 'blocked') {
                     html = `
-                        <h3 class="popover-title">ปิดใช้งานแผงชั่วคราว</h3>
+                        <h3 class="popover-title">ปิดใช้งานล็อตชั่วคราว</h3>
                         <div class="popover-badge-container">
-                            <span class="popover-badge blocked">ล็อค ${code} (ปิดแผง)</span>
+                            <span class="popover-badge blocked">ล็อต ${code} (ปิดใช้งาน)</span>
                         </div>
                         <div class="popover-grid">
                             <div class="popover-card">
                                 <span class="popover-card-text">ไม่มีรูปแผง</span>
-                                <span class="popover-card-label" style="position: absolute; bottom: 4px; left: 0; right: 0; text-align: center; background: rgba(0,0,0,0.4); color: white; padding: 2px 0; font-size: 9px;">รูปภาพแผง</span>
+                                <span class="popover-card-label" style="position: absolute; bottom: 4px; left: 0; right: 0; text-align: center; background: rgba(0,0,0,0.4); color: white; padding: 2px 0; font-size: 9px;">รูปภาพหน้าร้าน</span>
                             </div>
                             <div class="popover-card">
                                 <span class="popover-card-text">ไม่มีรูปเมนู</span>
@@ -820,6 +820,7 @@
                 } else {
                     const shopName = details ? details.shop_name : 'ไม่ระบุชื่อร้าน';
                     const listLots = details && details.lots ? details.lots.join(', ') : code;
+                    const equipmentSummary = details && details.equipment_summary ? details.equipment_summary : 'ยังไม่ระบุรายการอุปกรณ์';
                     
                     let imageHtml1 = `<span class="popover-card-text">ไม่มีรูปแผง</span>`;
                     if (details && details.photos) {
@@ -843,7 +844,7 @@
                     let statusText = '';
                     switch (lot.status) {
                         case 'pending': statusText = 'รอยืนยัน'; break;
-                        case 'booked': statusText = 'จองแล้ว'; break;
+                        case 'booked': statusText = 'ยืนยันคำสั่งจอง'; break;
                         case 'installing': statusText = 'กำลังติดตั้ง'; break;
                         case 'completed': statusText = 'ติดตั้งแล้ว'; break;
                         case 'problem': statusText = 'มีปัญหา'; break;
@@ -852,12 +853,15 @@
                     html = `
                         <h3 class="popover-title">${shopName}</h3>
                         <div class="popover-badge-container">
-                            <span class="${badgeClass}">ล็อค ${listLots} (${statusText})</span>
+                            <span class="${badgeClass}">ล็อต ${listLots} (${statusText})</span>
+                        </div>
+                        <div style="font-weight: 850; color: #2F2F37; text-align: center; margin: -4px 0 10px;">
+                            ${equipmentSummary}
                         </div>
                         <div class="popover-grid">
                             <div class="popover-card">
                                 ${imageHtml1}
-                                <span class="popover-card-label" style="position: absolute; bottom: 4px; left: 0; right: 0; text-align: center; background: rgba(0,0,0,0.4); color: white; padding: 2px 0; font-size: 9px;">รูปภาพแผง</span>
+                                <span class="popover-card-label" style="position: absolute; bottom: 4px; left: 0; right: 0; text-align: center; background: rgba(0,0,0,0.4); color: white; padding: 2px 0; font-size: 9px;">รูปภาพหน้าร้าน</span>
                             </div>
                             <div class="popover-card">
                                 <span class="popover-card-text">ไม่มีรูปเมนู</span>
@@ -920,7 +924,7 @@
             switch (lot.status) {
                 case 'available': badgeText = 'ว่าง'; badgeClass = 'status-badge status-available'; break;
                 case 'pending': badgeText = 'รอยืนยัน'; badgeClass = 'status-badge status-pending'; break;
-                case 'booked': badgeText = 'จองแล้ว'; badgeClass = 'status-badge status-booked'; break;
+                case 'booked': badgeText = 'ยืนยันคำสั่งจอง'; badgeClass = 'status-badge status-booked'; break;
                 case 'installing': badgeText = 'กำลังติดตั้ง'; badgeClass = 'status-badge status-installing'; break;
                 case 'completed': badgeText = 'ติดตั้งเสร็จ'; badgeClass = 'status-badge status-completed'; break;
                 case 'blocked': badgeText = 'ปิดใช้งาน'; badgeClass = 'status-badge status-blocked'; break;
@@ -951,6 +955,10 @@
                         <span style="font-size: 12px; color: var(--text-muted); display:block;">ชื่อร้านค้า:</span>
                         <strong>${lot.shop_name}</strong>
                     </div>
+                    <div style="border-bottom: 1px dashed var(--border-cute); padding-bottom: 8px;">
+                        <span style="font-size: 12px; color: var(--text-muted); display:block;">รายการอุปกรณ์:</span>
+                        <strong>${lot.booking_details && lot.booking_details.equipment_summary ? lot.booking_details.equipment_summary : '-'}</strong>
+                    </div>
                     <div>
                         <span style="font-size: 12px; color: var(--text-muted); display:block;">วันที่จองใช้งาน:</span>
                         <strong>${formatThaiDate(datePicker.value)}</strong>
@@ -960,8 +968,8 @@
                 btnBooking.style.display = 'none';
                 info.innerHTML = `
                     <div>
-                        <span style="font-size: 12px; color: var(--text-muted); display:block;">สถานะแผง:</span>
-                        <strong>${lot.status === 'available' ? 'พร้อมให้บริการสำหรับผู้ต้องการจอง' : 'แอดมินปิดการใช้แผงนี้ชั่วคราว'}</strong>
+                        <span style="font-size: 12px; color: var(--text-muted); display:block;">สถานะล็อต:</span>
+                        <strong>${lot.status === 'available' ? 'ยังไม่มีคำสั่งจองอุปกรณ์ในวันนี้' : 'แอดมินปิดการใช้ล็อตนี้ชั่วคราว'}</strong>
                     </div>
                     <div style="margin-top: 8px;">
                         <span style="font-size: 12px; color: var(--text-muted); display:block;">วันที่ใช้งาน:</span>
@@ -978,7 +986,7 @@
             } else {
                 const url = `${window.location.origin}/?date=${datePicker.value}&lot=${code}`;
                 navigator.clipboard.writeText(url).then(() => {
-                    alert(`คัดลอกลิงก์พิกัดสำหรับล็อค ${code} เรียบร้อยแล้ว!`);
+                    alert(`คัดลอกลิงก์พิกัดสำหรับล็อต ${code} เรียบร้อยแล้ว!`);
                 }).catch(err => {
                     console.error('Could not copy text: ', err);
                 });

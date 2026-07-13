@@ -53,17 +53,56 @@
 
             <div class="form-grid">
                 <div class="cute-input-group">
-                    <label class="cute-label" for="tent_size">ขนาดเต็นท์</label>
-                    <select id="tent_size" name="tent_size" class="cute-select" required>
-                        @foreach ($tentSizes as $size)
-                            <option value="{{ $size }}" {{ old('tent_size', $booking->tent_size) == $size ? 'selected' : '' }}>{{ $size }}</option>
-                        @endforeach
-                    </select>
+                    <label class="cute-label">รายการเต็นท์</label>
+                    <div style="background: var(--bg-page); border: 2px solid var(--border-cute); border-radius: 16px; padding: 14px;">
+                        <label style="display:flex;align-items:center;gap:8px;font-weight:800;margin-bottom:12px;">
+                            <input type="checkbox" name="wants_tent" value="1" style="width:18px;height:18px;accent-color:var(--primary);" {{ old('wants_tent', $booking->tent_size ? 1 : 0) ? 'checked' : '' }}>
+                            <span>จองเต็นท์</span>
+                        </label>
+                        <div style="display:grid;gap:10px;">
+                            <select name="tent_size" class="cute-select">
+                                <option value="">เลือกขนาดเต็นท์</option>
+                                @foreach ($tentSizes as $size)
+                                    <option value="{{ $size }}" {{ old('tent_size', $booking->tent_size) == $size ? 'selected' : '' }}>{{ $size }}</option>
+                                @endforeach
+                            </select>
+                            <select name="tent_color" class="cute-select">
+                                <option value="">เลือกสีเต็นท์</option>
+                                @foreach ($equipmentColors as $color)
+                                    <option value="{{ $color }}" {{ old('tent_color', $booking->tent_color) == $color ? 'selected' : '' }}>{{ $color }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cute-input-group">
+                    <label class="cute-label">รายการเคาน์เตอร์</label>
+                    <div style="background: var(--bg-page); border: 2px solid var(--border-cute); border-radius: 16px; padding: 14px;">
+                        <label style="display:flex;align-items:center;gap:8px;font-weight:800;margin-bottom:12px;">
+                            <input type="checkbox" name="wants_counter" value="1" style="width:18px;height:18px;accent-color:var(--primary);" {{ old('wants_counter', $booking->counter_size ? 1 : 0) ? 'checked' : '' }}>
+                            <span>จองเคาน์เตอร์</span>
+                        </label>
+                        <div style="display:grid;gap:10px;">
+                            <select name="counter_size" class="cute-select">
+                                <option value="">เลือกขนาดเคาน์เตอร์</option>
+                                @foreach ($counterSizes as $size)
+                                    <option value="{{ $size }}" {{ old('counter_size', $booking->counter_size) == $size ? 'selected' : '' }}>{{ $size }}</option>
+                                @endforeach
+                            </select>
+                            <select name="counter_color" class="cute-select">
+                                <option value="">เลือกสีเคาน์เตอร์</option>
+                                @foreach ($equipmentColors as $color)
+                                    <option value="{{ $color }}" {{ old('counter_color', $booking->counter_color) == $color ? 'selected' : '' }}>{{ $color }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="cute-input-group">
-                <label class="cute-label">ล็อตแผงตลาดที่จอง (เลือกได้หลายล็อต)</label>
+                <label class="cute-label">ล็อตของลูกค้า (เลือกได้หลายล็อต)</label>
                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; background-color: var(--bg-page); border: 2px solid var(--border-cute); border-radius: 16px; padding: 15px;">
                     @foreach ($allLots as $lot)
                         <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">

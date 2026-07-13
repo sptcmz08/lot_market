@@ -50,7 +50,7 @@
             <!-- Detail Card -->
             <div class="cute-card">
                 <h3 class="cute-card-title">
-                    <i class="fa-solid fa-circle-info"></i> ข้อมูลการจองแผงตลาด
+                    <i class="fa-solid fa-circle-info"></i> ข้อมูลคำสั่งจองอุปกรณ์
                 </h3>
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px 30px; margin-bottom: 20px;">
@@ -59,7 +59,7 @@
                         <strong style="font-size: 18px; color: var(--primary-hover);">{{ $booking->booking_code }}</strong>
                     </div>
                     <div>
-                        <span style="font-size: 13px; color: var(--text-muted); display: block;">สถานะล็อตตลาด:</span>
+                        <span style="font-size: 13px; color: var(--text-muted); display: block;">สถานะคำสั่งจอง:</span>
                         @php
                             $statusClass = 'status-' . $booking->status;
                             $statusName = 'รอยืนยัน';
@@ -80,7 +80,7 @@
                         <strong>{{ $booking->use_date->format('d/m/Y') }}</strong>
                     </div>
                     <div>
-                        <span style="font-size: 13px; color: var(--text-muted); display: block;">แผงตลาดที่จอง:</span>
+                        <span style="font-size: 13px; color: var(--text-muted); display: block;">ล็อตของลูกค้า:</span>
                         <strong style="color: var(--primary-hover); font-size: 16px;">{{ $booking->lots->pluck('lot_code')->implode(', ') }}</strong>
                     </div>
                     <div>
@@ -92,8 +92,8 @@
                         <strong>{{ $booking->customer_phone }}</strong>
                     </div>
                     <div>
-                        <span style="font-size: 13px; color: var(--text-muted); display: block;">ขนาดเต็นท์:</span>
-                        <strong>{{ $booking->tent_size }}</strong>
+                        <span style="font-size: 13px; color: var(--text-muted); display: block;">รายการอุปกรณ์ที่จอง:</span>
+                        <strong>{{ $booking->equipmentSummary() }}</strong>
                     </div>
                 </div>
 

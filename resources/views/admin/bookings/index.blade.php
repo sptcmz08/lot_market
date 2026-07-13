@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'จัดการรายการจองแผงตลาด')
+@section('title', 'จัดการคำสั่งจองอุปกรณ์')
 @section('page_title', 'รายการจองทั้งหมด')
 
 @section('content')
@@ -27,7 +27,7 @@
             </div>
 
             <div class="cute-input-group" style="margin-bottom: 0; flex: 1; min-width: 140px;">
-                <label class="cute-label" for="date">วันที่ใช้แผง</label>
+                <label class="cute-label" for="date">วันที่ใช้งาน</label>
                 <input type="date" id="date" name="date" class="cute-input" value="{{ request('date') }}">
             </div>
 
@@ -50,7 +50,7 @@
                     <th>รหัสจอง</th>
                     <th>ชื่อร้านค้า / เบอร์โทร</th>
                     <th>ล็อตแผงที่จอง</th>
-                    <th>ขนาดเต็นท์</th>
+                    <th>รายการอุปกรณ์</th>
                     <th>ผู้รับผิดชอบ</th>
                     <th>สถานะ</th>
                     <th>จัดการ</th>
@@ -73,7 +73,7 @@
                             <strong style="color: var(--primary-hover);">{{ $booking->lots->pluck('lot_code')->implode(', ') }}</strong>
                         </td>
                         <td>
-                            <div>เต็นท์: {{ $booking->tent_size }}</div>
+                            <div>{{ $booking->equipmentSummary() }}</div>
                         </td>
                         <td>
                             @if ($booking->deliveryTask && $booking->deliveryTask->staff)

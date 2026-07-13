@@ -28,7 +28,7 @@ class BookingService
 
             if ($alreadyBooked) {
                 throw ValidationException::withMessages([
-                    'lots' => 'ล็อคที่คุณเลือกบางล็อตถูกจองไปแล้วในวันดังกล่าว กรุณาเลือกใหม่อีกครั้ง',
+                    'lots' => 'ล็อคที่เลือกมีคำสั่งจองอุปกรณ์อยู่แล้วในวันดังกล่าว กรุณาตรวจสอบรายการเดิมก่อน',
                 ]);
             }
 
@@ -37,8 +37,10 @@ class BookingService
                 'use_date' => $data['use_date'],
                 'shop_name' => $data['shop_name'],
                 'customer_phone' => $data['customer_phone'],
-                'tent_size' => $data['tent_size'],
-                'counter_size' => null,
+                'tent_size' => $data['wants_tent'] ? ($data['tent_size'] ?? null) : null,
+                'tent_color' => $data['wants_tent'] ? ($data['tent_color'] ?? null) : null,
+                'counter_size' => $data['wants_counter'] ? ($data['counter_size'] ?? null) : null,
+                'counter_color' => $data['wants_counter'] ? ($data['counter_color'] ?? null) : null,
                 'customer_note' => $data['customer_note'] ?? null,
                 'status' => 'pending_admin',
             ]);

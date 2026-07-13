@@ -33,12 +33,14 @@ class PublicBookingController extends Controller
         if (!$this->lotAvailabilityService->isAvailable($lots->pluck('id')->all(), $date)) {
             return redirect()
                 ->route('public.map', ['date' => $date])
-                ->with('error', 'ล็อคที่เลือกถูกจองไปแล้วในวันดังกล่าว กรุณาเลือกใหม่อีกครั้ง');
+                ->with('error', 'ล็อคที่เลือกมีคำสั่งจองอุปกรณ์อยู่แล้วในวันดังกล่าว กรุณาตรวจสอบรายการเดิมก่อน');
         }
 
         $tentSizes = ['1.5', '2x2', '2x3', '3x3', '2.5x2.5', '3x4.5'];
+        $counterSizes = ['1 ล็อค', '2 ล็อค', '3 ล็อค'];
+        $equipmentColors = ['ขาว', 'ดำ', 'น้ำเงิน', 'แดง', 'เขียว', 'เหลือง'];
 
-        return view('public.booking-create', compact('date', 'lots', 'selectedCodes', 'tentSizes'));
+        return view('public.booking-create', compact('date', 'lots', 'selectedCodes', 'tentSizes', 'counterSizes', 'equipmentColors'));
     }
 
     public function store(Request $request)
@@ -49,21 +51,39 @@ class PublicBookingController extends Controller
             'customer_phone' => 'required|string|regex:/^[0-9]{9,10}$/',
             'lots' => 'required|array|min:1',
             'lots.*' => 'required|string|exists:lots,lot_code',
-            'tent_size' => 'required|in:1.5,2x2,2x3,3x3,2.5x2.5,3x4.5',
+            'wants_tent' => 'nullable|boolean',
+            'tent_size' => 'nullable|required_if:wants_tent,1|in:1.5,2x2,2x3,3x3,2.5x2.5,3x4.5',
+            'tent_color' => 'nullable|required_if:wants_tent,1|string|max:50',
+            'wants_counter' => 'nullable|boolean',
+            'counter_size' => 'nullable|required_if:wants_counter,1|in:1 ล็อค,2 ล็อค,3 ล็อค',
+            'counter_color' => 'nullable|required_if:wants_counter,1|string|max:50',
             'customer_note' => 'nullable|string|max:500',
         ], [
             'customer_phone.regex' => 'เบอร์โทรศัพท์ต้องเป็นตัวเลข 9-10 หลัก',
             'use_date.after_or_equal' => 'วันที่จองต้องเป็นวันนี้หรือในอนาคต',
             'shop_name.required' => 'กรุณากรอกชื่อร้าน',
             'customer_phone.required' => 'กรุณากรอกเบอร์โทร',
+            'tent_size.required_if' => 'กรุณาเลือกขนาดเต็นท์',
+            'tent_color.required_if' => 'กรุณาเลือกสีเต็นท์',
+            'counter_size.required_if' => 'กรุณาเลือกขนาดเคาน์เตอร์',
+            'counter_color.required_if' => 'กรุณาเลือกสีเคาน์เตอร์',
         ]);
+
+        $validated['wants_tent'] = $request->boolean('wants_tent');
+        $validated['wants_counter'] = $request->boolean('wants_counter');
+
+        if (!$validated['wants_tent'] && !$validated['wants_counter']) {
+            return back()
+                ->withErrors(['equipment' => 'กรุณาเลือกอย่างน้อย 1 รายการ: เต็นท์ หรือ เคาน์เตอร์'])
+                ->withInput();
+        }
 
         $lots = Lot::whereIn('lot_code', $validated['lots'])->get();
         $lotIds = $lots->pluck('id')->toArray();
 
         // Check availability
         if (!$this->lotAvailabilityService->isAvailable($lotIds, $validated['use_date'])) {
-            return back()->withErrors(['lots' => 'ล็อคที่คุณเลือกบางล็อตถูกจองไปแล้วในวันดังกล่าว กรุณาเลือกใหม่อีกครั้ง'])->withInput();
+            return back()->withErrors(['lots' => 'ล็อคที่เลือกมีคำสั่งจองอุปกรณ์อยู่แล้วในวันดังกล่าว กรุณาตรวจสอบรายการเดิมก่อน'])->withInput();
         }
 
         $booking = $this->bookingService->createBooking($validated, $lotIds);

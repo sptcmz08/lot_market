@@ -91,8 +91,8 @@
                             </strong>
                         </div>
                         <div>
-                            <span style="font-size: 12px; color: var(--text-muted); display: block;">ขนาดเต็นท์:</span>
-                            <strong style="font-size: 15px;">{{ $booking->tent_size }}</strong>
+                            <span style="font-size: 12px; color: var(--text-muted); display: block;">รายการอุปกรณ์:</span>
+                            <strong style="font-size: 15px;">{{ $booking->equipmentSummary() }}</strong>
                         </div>
                     </div>
 

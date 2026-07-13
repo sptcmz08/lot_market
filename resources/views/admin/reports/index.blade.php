@@ -93,7 +93,7 @@
     <!-- selected month stats aggregate cards -->
     <div class="report-card-grid">
         <div class="report-mini-card">
-            <span style="font-size: 13px; color: var(--text-muted); font-weight: 600;">ยอดจองล็อคเดือนนี้</span>
+            <span style="font-size: 13px; color: var(--text-muted); font-weight: 600;">คำสั่งจองอุปกรณ์เดือนนี้</span>
             <span class="mini-card-val" style="color: var(--text-dark);">{{ $monthStats['total'] }} ล็อค</span>
         </div>
         <div class="report-mini-card">
@@ -138,7 +138,7 @@
                 <table class="cute-table">
                     <thead>
                         <tr>
-                            <th>วันที่ใช้แผง</th>
+                            <th>วันที่ใช้งาน</th>
                             <th>จำนวนแผงที่จอง (ยอดจอง)</th>
                             <th>ติดตั้งสำเร็จแล้ว (แผง)</th>
                             <th>พบปัญหาระหว่างติดตั้ง</th>

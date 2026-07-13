@@ -67,8 +67,10 @@ class AdminBookingController extends Controller
         $booking->load('lots');
         $allLots = Lot::where('is_active', true)->get();
         $tentSizes = ['1.5', '2x2', '2x3', '3x3', '2.5x2.5', '3x4.5'];
+        $counterSizes = ['1 ล็อค', '2 ล็อค', '3 ล็อค'];
+        $equipmentColors = ['ขาว', 'ดำ', 'น้ำเงิน', 'แดง', 'เขียว', 'เหลือง'];
 
-        return view('admin.bookings.edit', compact('booking', 'allLots', 'tentSizes'));
+        return view('admin.bookings.edit', compact('booking', 'allLots', 'tentSizes', 'counterSizes', 'equipmentColors'));
     }
 
     public function update(Request $request, Booking $booking)
@@ -77,15 +79,29 @@ class AdminBookingController extends Controller
             'use_date' => 'required|date',
             'shop_name' => 'required|string|max:150',
             'customer_phone' => 'required|string',
-            'tent_size' => 'required|in:1.5,2x2,2x3,3x3,2.5x2.5,3x4.5',
+            'wants_tent' => 'nullable|boolean',
+            'tent_size' => 'nullable|required_if:wants_tent,1|in:1.5,2x2,2x3,3x3,2.5x2.5,3x4.5',
+            'tent_color' => 'nullable|required_if:wants_tent,1|string|max:50',
+            'wants_counter' => 'nullable|boolean',
+            'counter_size' => 'nullable|required_if:wants_counter,1|in:1 ล็อค,2 ล็อค,3 ล็อค',
+            'counter_color' => 'nullable|required_if:wants_counter,1|string|max:50',
             'lots' => 'required|array|min:1',
             'lots.*' => 'required|integer|exists:lots,id',
             'admin_note' => 'nullable|string',
         ]);
 
+        $validated['wants_tent'] = $request->boolean('wants_tent');
+        $validated['wants_counter'] = $request->boolean('wants_counter');
+
+        if (!$validated['wants_tent'] && !$validated['wants_counter']) {
+            return back()
+                ->withErrors(['equipment' => 'กรุณาเลือกอย่างน้อย 1 รายการ: เต็นท์ หรือ เคาน์เตอร์'])
+                ->withInput();
+        }
+
         if (!$this->lotAvailabilityService->isAvailable($validated['lots'], $validated['use_date'], $booking->id)) {
             return back()
-                ->withErrors(['lots' => 'ล็อคที่เลือกมีการจองอยู่แล้วในวันที่ใช้งานนี้ กรุณาเลือกแผงใหม่'])
+                ->withErrors(['lots' => 'ล็อคที่เลือกมีคำสั่งจองอุปกรณ์อยู่แล้วในวันที่ใช้งานนี้ กรุณาตรวจสอบรายการเดิมก่อน'])
                 ->withInput();
         }
 
@@ -94,8 +110,10 @@ class AdminBookingController extends Controller
                 'use_date' => $validated['use_date'],
                 'shop_name' => $validated['shop_name'],
                 'customer_phone' => $validated['customer_phone'],
-                'tent_size' => $validated['tent_size'],
-                'counter_size' => null,
+                'tent_size' => $validated['wants_tent'] ? ($validated['tent_size'] ?? null) : null,
+                'tent_color' => $validated['wants_tent'] ? ($validated['tent_color'] ?? null) : null,
+                'counter_size' => $validated['wants_counter'] ? ($validated['counter_size'] ?? null) : null,
+                'counter_color' => $validated['wants_counter'] ? ($validated['counter_color'] ?? null) : null,
                 'admin_note' => $validated['admin_note'],
             ]);
 

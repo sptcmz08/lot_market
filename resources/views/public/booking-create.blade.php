@@ -1,11 +1,11 @@
 @extends('layouts.public')
 
-@section('title', 'กรอกรายละเอียดการจองแผงตลาด')
+@section('title', 'กรอกรายละเอียดการสั่งจองอุปกรณ์')
 
 @section('content')
     <div class="cute-card">
         <h2 class="cute-card-title">
-            <i class="fa-solid fa-file-invoice"></i> กรอกข้อมูลการจองแผงตลาด
+            <i class="fa-solid fa-file-invoice"></i> กรอกข้อมูลสั่งจองเต็นท์/เคาน์เตอร์
         </h2>
 
         @if ($errors->any())
@@ -31,7 +31,7 @@
             <div style="background-color: var(--bg-page); border: 2px solid var(--border-cute); border-radius: 18px; padding: 15px 20px; margin-bottom: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
                     <div>
-                        <span style="font-size: 13px; color: var(--text-muted); font-weight: 600; display: block;">ล็อตที่เลือกจอง:</span>
+                        <span style="font-size: 13px; color: var(--text-muted); font-weight: 600; display: block;">ล็อตของลูกค้าที่เลือก:</span>
                         <strong style="font-size: 20px; color: var(--primary-hover); font-weight: 800;">
                             {{ implode(', ', $selectedCodes) }}
                         </strong>
@@ -67,13 +67,50 @@
             </div>
 
             <div class="cute-input-group">
-                <label class="cute-label" for="tent_size"><i class="fa-solid fa-tents" style="color:var(--primary);"></i> ขนาดเต็นท์ที่เช่า *</label>
-                <select id="tent_size" name="tent_size" class="cute-select" required>
-                    <option value="" disabled selected>เลือกขนาดเต็นท์</option>
-                    @foreach($tentSizes as $size)
-                        <option value="{{ $size }}" {{ old('tent_size') == $size ? 'selected' : '' }}>{{ $size }}</option>
-                    @endforeach
-                </select>
+                <label class="cute-label"><i class="fa-solid fa-cart-plus" style="color:var(--primary);"></i> รายการที่ต้องการจอง *</label>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
+                    <div style="background: var(--bg-page); border: 2px solid var(--border-cute); border-radius: 16px; padding: 14px;">
+                        <label style="display:flex;align-items:center;gap:8px;font-weight:800;margin-bottom:12px;">
+                            <input type="checkbox" name="wants_tent" value="1" style="width:18px;height:18px;accent-color:var(--primary);" {{ old('wants_tent', old('wants_counter') ? null : true) ? 'checked' : '' }}>
+                            <span>จองเต็นท์</span>
+                        </label>
+                        <div style="display:grid;gap:10px;">
+                            <select name="tent_size" class="cute-select">
+                                <option value="">เลือกขนาดเต็นท์</option>
+                                @foreach($tentSizes as $size)
+                                    <option value="{{ $size }}" {{ old('tent_size') == $size ? 'selected' : '' }}>{{ $size }}</option>
+                                @endforeach
+                            </select>
+                            <select name="tent_color" class="cute-select">
+                                <option value="">เลือกสีเต็นท์</option>
+                                @foreach($equipmentColors as $color)
+                                    <option value="{{ $color }}" {{ old('tent_color') == $color ? 'selected' : '' }}>{{ $color }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-page); border: 2px solid var(--border-cute); border-radius: 16px; padding: 14px;">
+                        <label style="display:flex;align-items:center;gap:8px;font-weight:800;margin-bottom:12px;">
+                            <input type="checkbox" name="wants_counter" value="1" style="width:18px;height:18px;accent-color:var(--primary);" {{ old('wants_counter') ? 'checked' : '' }}>
+                            <span>จองเคาน์เตอร์</span>
+                        </label>
+                        <div style="display:grid;gap:10px;">
+                            <select name="counter_size" class="cute-select">
+                                <option value="">เลือกขนาดเคาน์เตอร์</option>
+                                @foreach($counterSizes as $size)
+                                    <option value="{{ $size }}" {{ old('counter_size') == $size ? 'selected' : '' }}>{{ $size }}</option>
+                                @endforeach
+                            </select>
+                            <select name="counter_color" class="cute-select">
+                                <option value="">เลือกสีเคาน์เตอร์</option>
+                                @foreach($equipmentColors as $color)
+                                    <option value="{{ $color }}" {{ old('counter_color') == $color ? 'selected' : '' }}>{{ $color }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="cute-input-group">
@@ -83,10 +120,10 @@
 
             <div style="display: flex; gap: 12px; margin-top: 30px;">
                 <a href="{{ route('public.map', ['date' => $date]) }}" class="btn-secondary" style="flex: 1;">
-                    <i class="fa-solid fa-arrow-left"></i> ย้อนกลับไปเลือกแผง
+                    <i class="fa-solid fa-arrow-left"></i> ย้อนกลับไปเลือกล็อต
                 </a>
                 <button type="submit" class="btn-primary" style="flex: 2;">
-                    <i class="fa-solid fa-paper-plane"></i> ส่งคำขอจองแผง
+                    <i class="fa-solid fa-paper-plane"></i> ส่งคำสั่งจองอุปกรณ์
                 </button>
             </div>
         </form>

@@ -15,7 +15,9 @@ class Booking extends Model
         'shop_name',
         'customer_phone',
         'tent_size',
+        'tent_color',
         'counter_size',
+        'counter_color',
         'status',
         'admin_note',
         'customer_note',
@@ -41,5 +43,20 @@ class Booking extends Model
     public function confirmedBy()
     {
         return $this->belongsTo(User::class, 'confirmed_by');
+    }
+
+    public function equipmentSummary(): string
+    {
+        $items = [];
+
+        if ($this->tent_size) {
+            $items[] = trim('เต็นท์ ' . $this->tent_size . ($this->tent_color ? ' สี' . $this->tent_color : ''));
+        }
+
+        if ($this->counter_size) {
+            $items[] = trim('เคาน์เตอร์ ' . $this->counter_size . ($this->counter_color ? ' สี' . $this->counter_color : ''));
+        }
+
+        return implode(' / ', $items) ?: '-';
     }
 }
