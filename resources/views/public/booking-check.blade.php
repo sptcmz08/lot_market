@@ -94,6 +94,10 @@
                             <span style="font-size: 12px; color: var(--text-muted); display: block;">รายการอุปกรณ์:</span>
                             <strong style="font-size: 15px;">{{ $booking->equipmentSummary() }}</strong>
                         </div>
+                        <div>
+                            <span style="font-size: 12px; color: var(--text-muted); display: block;">การชำระเงิน:</span>
+                            <strong style="font-size: 15px;">{{ $booking->payment_slip_path ? 'แนบสลิปแล้ว' : ($booking->collect_front_store ? 'เก็บหน้าร้าน' : 'ยังไม่ระบุ') }}</strong>
+                        </div>
                     </div>
 
                     @if ($booking->customer_note)

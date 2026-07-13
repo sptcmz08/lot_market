@@ -41,6 +41,8 @@ class BookingService
                 'tent_color' => $data['wants_tent'] ? ($data['tent_color'] ?? null) : null,
                 'counter_size' => $data['wants_counter'] ? ($data['counter_size'] ?? null) : null,
                 'counter_color' => $data['wants_counter'] ? ($data['counter_color'] ?? null) : null,
+                'payment_slip_path' => $data['payment_slip_path'] ?? null,
+                'collect_front_store' => $data['collect_front_store'] ?? false,
                 'customer_note' => $data['customer_note'] ?? null,
                 'status' => 'pending_admin',
             ]);

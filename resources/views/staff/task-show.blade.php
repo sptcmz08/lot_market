@@ -37,6 +37,12 @@
                 <span class="info-label">รายการอุปกรณ์:</span>
                 <strong class="info-value">{{ $task->booking ? $task->booking->equipmentSummary() : '-' }}</strong>
             </div>
+            <div class="info-row">
+                <span class="info-label">การชำระเงิน:</span>
+                <strong class="info-value">
+                    {{ $task->booking ? ($task->booking->payment_slip_path ? 'แนบสลิปแล้ว' : ($task->booking->collect_front_store ? 'เก็บหน้าร้าน' : 'ยังไม่ระบุ')) : '-' }}
+                </strong>
+            </div>
         </div>
 
         @if ($task->booking && $task->booking->customer_note)

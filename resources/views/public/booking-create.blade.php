@@ -2,10 +2,121 @@
 
 @section('title', 'กรอกรายละเอียดการสั่งจองอุปกรณ์')
 
+@section('styles')
+<style>
+    .booking-paper {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 26px;
+    }
+
+    .booking-paper-title {
+        font-size: 24px;
+        margin-bottom: 22px;
+    }
+
+    .booking-form-grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 16px;
+    }
+
+    .booking-field {
+        grid-column: span 12;
+    }
+
+    .booking-field.half {
+        grid-column: span 6;
+    }
+
+    .booking-field.third {
+        grid-column: span 4;
+    }
+
+    .booking-field.quarter {
+        grid-column: span 3;
+    }
+
+    .booking-line {
+        display: grid;
+        grid-template-columns: 150px minmax(0, 1fr);
+        gap: 12px;
+        align-items: center;
+    }
+
+    .booking-line .cute-label {
+        margin: 0;
+        font-size: 18px;
+        justify-content: flex-start;
+    }
+
+    .equipment-row {
+        border: 2px solid var(--border-cute);
+        background: var(--bg-page);
+        border-radius: 18px;
+        padding: 14px;
+    }
+
+    .equipment-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 900;
+        font-size: 18px;
+        margin-bottom: 12px;
+    }
+
+    .equipment-inputs {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(120px, 160px);
+        gap: 12px;
+    }
+
+    .checkbox-line {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .checkbox-line input {
+        width: 20px;
+        height: 20px;
+        accent-color: var(--primary);
+    }
+
+    .lot-range-grid {
+        display: grid;
+        grid-template-columns: minmax(120px, 180px) minmax(90px, 1fr) auto minmax(90px, 1fr);
+        gap: 10px;
+        align-items: center;
+    }
+
+    @media (max-width: 720px) {
+        .booking-paper {
+            padding: 18px;
+        }
+
+        .booking-field.half,
+        .booking-field.third,
+        .booking-field.quarter {
+            grid-column: span 12;
+        }
+
+        .booking-line,
+        .equipment-inputs,
+        .lot-range-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+@endsection
+
 @section('content')
-    <div class="cute-card">
-        <h2 class="cute-card-title">
-            <i class="fa-solid fa-file-invoice"></i> กรอกข้อมูลสั่งจองเต็นท์/เคาน์เตอร์
+    <div class="cute-card booking-paper">
+        <h2 class="cute-card-title booking-paper-title">
+            <i class="fa-solid fa-file-invoice"></i> แบบฟอร์มจองเต็นท์/เคาน์เตอร์
         </h2>
 
         @if ($errors->any())
@@ -22,59 +133,24 @@
             </div>
         @endif
 
-        <form action="{{ route('public.booking.store') }}" method="POST">
+        <form action="{{ route('public.booking.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
-            
-            <input type="hidden" name="use_date" value="{{ $date }}">
-            
-            <!-- Selected lots summary box -->
-            <div style="background-color: var(--bg-page); border: 2px solid var(--border-cute); border-radius: 18px; padding: 15px 20px; margin-bottom: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                    <div>
-                        <span style="font-size: 13px; color: var(--text-muted); font-weight: 600; display: block;">ล็อตของลูกค้าที่เลือก:</span>
-                        <strong style="font-size: 20px; color: var(--primary-hover); font-weight: 800;">
-                            {{ implode(', ', $selectedCodes) }}
-                        </strong>
-                    </div>
-                    <div style="text-align: right;">
-                        <span style="font-size: 13px; color: var(--text-muted); font-weight: 600; display: block;">วันที่ใช้งาน:</span>
-                        <strong style="font-size: 16px; font-weight: 700;">
-                            @php
-                                $parts = explode('-', $date);
-                                $thaiYear = intval($parts[0]) + 543;
-                                $months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-                                $thaiMonth = $months[intval($parts[1]) - 1];
-                                $thaiDay = intval($parts[2]);
-                                echo "$thaiDay $thaiMonth $thaiYear";
-                            @endphp
-                        </strong>
+
+            <div class="booking-form-grid">
+                <div class="booking-field">
+                    <div class="booking-line">
+                        <label class="cute-label" for="use_date">วันที่ใช้ *</label>
+                        <input type="date" id="use_date" name="use_date" class="cute-input" value="{{ old('use_date', $date) }}" min="{{ date('Y-m-d') }}" required>
                     </div>
                 </div>
-                @foreach($selectedCodes as $code)
-                    <input type="hidden" name="lots[]" value="{{ $code }}">
-                @endforeach
-            </div>
 
-            <div class="cute-input-group">
-                <label class="cute-label" for="shop_name"><i class="fa-solid fa-store" style="color:var(--primary);"></i> ชื่อร้านค้า *</label>
-                <input type="text" id="shop_name" name="shop_name" class="cute-input" value="{{ old('shop_name') }}" placeholder="ตัวอย่าง: หอยแครงลวกเจ๊แก้ว" required>
-            </div>
-
-            <div class="cute-input-group">
-                <label class="cute-label" for="customer_phone"><i class="fa-solid fa-phone" style="color:var(--primary);"></i> เบอร์โทรศัพท์ลูกค้า *</label>
-                <input type="tel" id="customer_phone" name="customer_phone" class="cute-input" value="{{ old('customer_phone') }}" placeholder="ตัวอย่าง: 0812345678" required>
-                <small style="color: var(--text-muted); font-size: 12px;">กรอกเบอร์โทรศัพท์ 9-10 หลัก สำหรับตรวจสอบสถานะงาน</small>
-            </div>
-
-            <div class="cute-input-group">
-                <label class="cute-label"><i class="fa-solid fa-cart-plus" style="color:var(--primary);"></i> รายการที่ต้องการจอง *</label>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px;">
-                    <div style="background: var(--bg-page); border: 2px solid var(--border-cute); border-radius: 16px; padding: 14px;">
-                        <label style="display:flex;align-items:center;gap:8px;font-weight:800;margin-bottom:12px;">
-                            <input type="checkbox" name="wants_tent" value="1" style="width:18px;height:18px;accent-color:var(--primary);" {{ old('wants_tent', old('wants_counter') ? null : true) ? 'checked' : '' }}>
+                <div class="booking-field">
+                    <div class="equipment-row">
+                        <label class="equipment-head">
+                            <input type="checkbox" name="wants_tent" value="1" style="width:20px;height:20px;accent-color:var(--primary);" {{ old('wants_tent', old('wants_counter') ? null : true) ? 'checked' : '' }}>
                             <span>จองเต็นท์</span>
                         </label>
-                        <div style="display:grid;gap:10px;">
+                        <div class="equipment-inputs">
                             <select name="tent_size" class="cute-select">
                                 <option value="">เลือกขนาดเต็นท์</option>
                                 @foreach($tentSizes as $size)
@@ -89,33 +165,70 @@
                             </select>
                         </div>
                     </div>
+                </div>
 
-                    <div style="background: var(--bg-page); border: 2px solid var(--border-cute); border-radius: 16px; padding: 14px;">
-                        <label style="display:flex;align-items:center;gap:8px;font-weight:800;margin-bottom:12px;">
-                            <input type="checkbox" name="wants_counter" value="1" style="width:18px;height:18px;accent-color:var(--primary);" {{ old('wants_counter') ? 'checked' : '' }}>
+                <div class="booking-field">
+                    <div class="equipment-row">
+                        <label class="equipment-head">
+                            <input type="checkbox" name="wants_counter" value="1" style="width:20px;height:20px;accent-color:var(--primary);" {{ old('wants_counter') ? 'checked' : '' }}>
                             <span>จองเคาน์เตอร์</span>
                         </label>
-                        <div style="display:grid;gap:10px;">
+                        <div>
                             <select name="counter_size" class="cute-select">
                                 <option value="">เลือกขนาดเคาน์เตอร์</option>
                                 @foreach($counterSizes as $size)
                                     <option value="{{ $size }}" {{ old('counter_size') == $size ? 'selected' : '' }}>{{ $size }}</option>
                                 @endforeach
                             </select>
-                            <select name="counter_color" class="cute-select">
-                                <option value="">เลือกสีเคาน์เตอร์</option>
-                                @foreach($equipmentColors as $color)
-                                    <option value="{{ $color }}" {{ old('counter_color') == $color ? 'selected' : '' }}>{{ $color }}</option>
-                                @endforeach
-                            </select>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="cute-input-group">
-                <label class="cute-label" for="customer_note"><i class="fa-solid fa-comment-dots" style="color:var(--primary);"></i> หมายเหตุเพิ่มเติม (ระบุตำแหน่งเต็นท์ / สิ่งจำเป็น)</label>
-                <textarea id="customer_note" name="customer_note" class="cute-textarea" rows="3" placeholder="ตัวอย่าง: ต้องการโต๊ะเสริม, ปลั๊กไฟใกล้ๆ หรือ ฝากโน้ตถึงพนักงานติดตั้ง">{{ old('customer_note') }}</textarea>
+                <div class="booking-field half">
+                    <label class="cute-label" for="shop_name"><i class="fa-solid fa-store" style="color:var(--primary);"></i> ชื่อร้าน *</label>
+                    <input type="text" id="shop_name" name="shop_name" class="cute-input" value="{{ old('shop_name') }}" placeholder="ชื่อร้านค้า" required>
+                </div>
+
+                <div class="booking-field half">
+                    <label class="cute-label" for="customer_phone"><i class="fa-solid fa-phone" style="color:var(--primary);"></i> โทร *</label>
+                    <input type="tel" id="customer_phone" name="customer_phone" class="cute-input" value="{{ old('customer_phone') }}" placeholder="0812345678" required>
+                </div>
+
+                <div class="booking-field">
+                    <label class="cute-label"><i class="fa-solid fa-location-dot" style="color:var(--primary);"></i> เลขล็อค *</label>
+                    <div class="lot-range-grid">
+                        <select name="lot_prefix" class="cute-select" required>
+                            <option value="">เลือกอักษรล็อค</option>
+                            @foreach($lotPrefixes as $prefix)
+                                <option value="{{ $prefix }}" {{ old('lot_prefix', $selectedPrefix) == $prefix ? 'selected' : '' }}>{{ $prefix }}</option>
+                            @endforeach
+                        </select>
+                        <input type="number" name="lot_number_from" class="cute-input" value="{{ old('lot_number_from', $selectedFrom) }}" min="1" max="999" placeholder="เลขเริ่ม" required>
+                        <strong style="text-align:center;color:var(--text-dark);">ถึง</strong>
+                        <input type="number" name="lot_number_to" class="cute-input" value="{{ old('lot_number_to', $selectedTo) }}" min="1" max="999" placeholder="เลขสิ้นสุด" required>
+                    </div>
+                    @if(!empty($selectedCodes))
+                        <small style="color: var(--text-muted); font-size: 12px;">เติมจากล็อตที่เลือกบนแผนที่: {{ implode(', ', $selectedCodes) }}</small>
+                    @endif
+                </div>
+
+                <div class="booking-field">
+                    <label class="cute-label" for="payment_slip"><i class="fa-solid fa-image" style="color:var(--primary);"></i> รูปภาพสลิป กรณีลูกค้าชำระแล้ว</label>
+                    <input type="file" id="payment_slip" name="payment_slip" class="cute-input" accept="image/*">
+                    <small style="color: var(--text-muted); font-size: 12px;">รองรับ JPG, PNG, WEBP ขนาดไม่เกิน 5MB</small>
+                </div>
+
+                <div class="booking-field">
+                    <label class="checkbox-line">
+                        <input type="checkbox" name="collect_front_store" value="1" {{ old('collect_front_store') ? 'checked' : '' }}>
+                        <span>ให้เก็บหน้าร้าน</span>
+                    </label>
+                </div>
+
+                <div class="booking-field">
+                    <label class="cute-label" for="customer_note"><i class="fa-solid fa-comment-dots" style="color:var(--primary);"></i> หมายเหตุเพิ่มเติม</label>
+                    <textarea id="customer_note" name="customer_note" class="cute-textarea" rows="3" placeholder="ระบุตำแหน่งเต็นท์ / รายละเอียดเพิ่มเติม">{{ old('customer_note') }}</textarea>
+                </div>
             </div>
 
             <div style="display: flex; gap: 12px; margin-top: 30px;">

@@ -18,6 +18,8 @@ class Booking extends Model
         'tent_color',
         'counter_size',
         'counter_color',
+        'payment_slip_path',
+        'collect_front_store',
         'status',
         'admin_note',
         'customer_note',
@@ -28,6 +30,7 @@ class Booking extends Model
     protected $casts = [
         'use_date' => 'date',
         'confirmed_at' => 'datetime',
+        'collect_front_store' => 'boolean',
     ];
 
     public function lots()

@@ -95,7 +95,20 @@
                         <span style="font-size: 13px; color: var(--text-muted); display: block;">รายการอุปกรณ์ที่จอง:</span>
                         <strong>{{ $booking->equipmentSummary() }}</strong>
                     </div>
+                    <div>
+                        <span style="font-size: 13px; color: var(--text-muted); display: block;">การชำระเงิน:</span>
+                        <strong>{{ $booking->payment_slip_path ? 'แนบสลิปแล้ว' : ($booking->collect_front_store ? 'เก็บหน้าร้าน' : 'ยังไม่ระบุ') }}</strong>
+                    </div>
                 </div>
+
+                @if ($booking->payment_slip_path)
+                    <div style="background-color: var(--bg-page); border: 2px solid var(--border-cute); border-radius: 16px; padding: 15px; margin-top: 15px;">
+                        <strong style="font-size: 14px; display: block; margin-bottom: 10px;"><i class="fa-solid fa-receipt"></i> รูปภาพสลิปชำระเงิน:</strong>
+                        <a href="{{ Storage::url($booking->payment_slip_path) }}" target="_blank" style="display:inline-block;">
+                            <img src="{{ Storage::url($booking->payment_slip_path) }}" alt="สลิปชำระเงิน" style="width: 180px; max-width: 100%; border-radius: 12px; border: 1px solid var(--border-cute); display:block;">
+                        </a>
+                    </div>
+                @endif
 
                 @if ($booking->customer_note)
                     <div style="background-color: var(--bg-page); border: 2px solid var(--border-cute); border-radius: 16px; padding: 15px; margin-top: 15px;">
