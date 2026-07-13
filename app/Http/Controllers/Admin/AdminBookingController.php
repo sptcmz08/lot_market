@@ -66,9 +66,9 @@ class AdminBookingController extends Controller
     {
         $booking->load('lots');
         $allLots = Lot::where('is_active', true)->get();
-        $tentSizes = ['1.5', '2x2', '2x3', '3x3', '2.5x2.5', '3x4.5'];
-        $counterSizes = ['1 ล็อค', '2 ล็อค', '3 ล็อค'];
-        $equipmentColors = ['ขาว', 'ดำ', 'น้ำเงิน', 'แดง', 'เขียว', 'เหลือง'];
+        $tentSizes = ['1.5x1.5', '2x2', '2x3', '2.5x2.5', '3x4.5'];
+        $counterSizes = ['1 ล็อค 70x75 cm. มีหลังคา', '2 ล็อค 140x75 cm.', '3 ล็อค 180x75 cm.'];
+        $equipmentColors = ['แดง', 'ขาว', 'น้ำเงิน', 'เขียว', 'ดำ'];
 
         return view('admin.bookings.edit', compact('booking', 'allLots', 'tentSizes', 'counterSizes', 'equipmentColors'));
     }
@@ -80,11 +80,11 @@ class AdminBookingController extends Controller
             'shop_name' => 'required|string|max:150',
             'customer_phone' => 'required|string',
             'wants_tent' => 'nullable|boolean',
-            'tent_size' => 'nullable|required_if:wants_tent,1|in:1.5,2x2,2x3,3x3,2.5x2.5,3x4.5',
+            'tent_size' => 'nullable|required_if:wants_tent,1|in:1.5x1.5,2x2,2x3,2.5x2.5,3x4.5',
             'tent_color' => 'nullable|required_if:wants_tent,1|string|max:50',
             'wants_counter' => 'nullable|boolean',
-            'counter_size' => 'nullable|required_if:wants_counter,1|in:1 ล็อค,2 ล็อค,3 ล็อค',
-            'counter_color' => 'nullable|required_if:wants_counter,1|string|max:50',
+            'counter_size' => 'nullable|required_if:wants_counter,1|in:1 ล็อค 70x75 cm. มีหลังคา,2 ล็อค 140x75 cm.,3 ล็อค 180x75 cm.',
+            'counter_color' => 'nullable|string|max:50',
             'lots' => 'required|array|min:1',
             'lots.*' => 'required|integer|exists:lots,id',
             'admin_note' => 'nullable|string',

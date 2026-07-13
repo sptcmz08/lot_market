@@ -90,12 +90,6 @@
                                     <option value="{{ $size }}" {{ old('counter_size', $booking->counter_size) == $size ? 'selected' : '' }}>{{ $size }}</option>
                                 @endforeach
                             </select>
-                            <select name="counter_color" class="cute-select">
-                                <option value="">เลือกสีเคาน์เตอร์</option>
-                                @foreach ($equipmentColors as $color)
-                                    <option value="{{ $color }}" {{ old('counter_color', $booking->counter_color) == $color ? 'selected' : '' }}>{{ $color }}</option>
-                                @endforeach
-                            </select>
                         </div>
                     </div>
                 </div>

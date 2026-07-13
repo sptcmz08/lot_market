@@ -40,9 +40,9 @@ class PublicBookingController extends Controller
                 ->with('error', 'ล็อคที่เลือกมีคำสั่งจองอุปกรณ์อยู่แล้วในวันดังกล่าว กรุณาตรวจสอบรายการเดิมก่อน');
         }
 
-        $tentSizes = ['1.5', '2x2', '2x3', '3x3', '2.5x2.5', '3x4.5'];
-        $counterSizes = ['1 ล็อค', '2 ล็อค', '3 ล็อค'];
-        $equipmentColors = ['ขาว', 'ดำ', 'น้ำเงิน', 'แดง', 'เขียว', 'เหลือง'];
+        $tentSizes = ['1.5x1.5', '2x2', '2x3', '2.5x2.5', '3x4.5'];
+        $counterSizes = ['1 ล็อค 70x75 cm. มีหลังคา', '2 ล็อค 140x75 cm.', '3 ล็อค 180x75 cm.'];
+        $equipmentColors = ['แดง', 'ขาว', 'น้ำเงิน', 'เขียว', 'ดำ'];
         $lotPrefixes = Lot::where('is_active', true)
             ->pluck('lot_code')
             ->map(fn ($code) => preg_replace('/\d+$/', '', $code))
@@ -84,10 +84,10 @@ class PublicBookingController extends Controller
             'lot_number_from' => 'nullable|required_without:lots|integer|min:1|max:999',
             'lot_number_to' => 'nullable|required_without:lots|integer|min:1|max:999',
             'wants_tent' => 'nullable|boolean',
-            'tent_size' => 'nullable|required_if:wants_tent,1|in:1.5,2x2,2x3,3x3,2.5x2.5,3x4.5',
+            'tent_size' => 'nullable|required_if:wants_tent,1|in:1.5x1.5,2x2,2x3,2.5x2.5,3x4.5',
             'tent_color' => 'nullable|required_if:wants_tent,1|string|max:50',
             'wants_counter' => 'nullable|boolean',
-            'counter_size' => 'nullable|required_if:wants_counter,1|in:1 ล็อค,2 ล็อค,3 ล็อค',
+            'counter_size' => 'nullable|required_if:wants_counter,1|in:1 ล็อค 70x75 cm. มีหลังคา,2 ล็อค 140x75 cm.,3 ล็อค 180x75 cm.',
             'counter_color' => 'nullable|string|max:50',
             'payment_slip' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
             'collect_front_store' => 'nullable|boolean',
