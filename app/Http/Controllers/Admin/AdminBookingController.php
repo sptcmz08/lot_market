@@ -66,10 +66,9 @@ class AdminBookingController extends Controller
     {
         $booking->load('lots');
         $allLots = Lot::where('is_active', true)->get();
-        $tentSizes = ['1.5', '2x2', '2x3', '2.5', '3x4.5'];
-        $counterSizes = ['ไม่มีเคาน์เตอร์', '1 ล็อค', '2 ล็อค', '3 ล็อค'];
+        $tentSizes = ['1.5', '2x2', '2x3', '3x3', '2.5x2.5', '3x4.5'];
 
-        return view('admin.bookings.edit', compact('booking', 'allLots', 'tentSizes', 'counterSizes'));
+        return view('admin.bookings.edit', compact('booking', 'allLots', 'tentSizes'));
     }
 
     public function update(Request $request, Booking $booking)
@@ -78,8 +77,7 @@ class AdminBookingController extends Controller
             'use_date' => 'required|date',
             'shop_name' => 'required|string|max:150',
             'customer_phone' => 'required|string',
-            'tent_size' => 'required|string',
-            'counter_size' => 'nullable|string',
+            'tent_size' => 'required|in:1.5,2x2,2x3,3x3,2.5x2.5,3x4.5',
             'lots' => 'required|array|min:1',
             'lots.*' => 'required|integer|exists:lots,id',
             'admin_note' => 'nullable|string',
@@ -97,7 +95,7 @@ class AdminBookingController extends Controller
                 'shop_name' => $validated['shop_name'],
                 'customer_phone' => $validated['customer_phone'],
                 'tent_size' => $validated['tent_size'],
-                'counter_size' => $validated['counter_size'],
+                'counter_size' => null,
                 'admin_note' => $validated['admin_note'],
             ]);
 

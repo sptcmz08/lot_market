@@ -117,7 +117,7 @@
                             <th>รหัสจอง</th>
                             <th>ร้านค้า</th>
                             <th>ล็อตที่จอง</th>
-                            <th>เต็นท์/เคาน์เตอร์</th>
+                            <th>ขนาดเต็นท์</th>
                             <th>พนักงานผู้รับผิดชอบ</th>
                             <th>สถานะ</th>
                             <th>จัดการ</th>
@@ -133,10 +133,7 @@
                                 </td>
                                 <td><strong style="color: var(--primary-hover);">{{ $booking->lots->pluck('lot_code')->implode(', ') }}</strong></td>
                                 <td>
-                                    <div>เต็นท์: {{ $booking->tent_size }}ม.</div>
-                                    @if ($booking->counter_size)
-                                        <small style="color: var(--text-muted);">เคาน์เตอร์: {{ $booking->counter_size }}</small>
-                                    @endif
+                                    <div>เต็นท์: {{ $booking->tent_size }}</div>
                                 </td>
                                 <td>
                                     @if ($booking->deliveryTask && $booking->deliveryTask->staff)

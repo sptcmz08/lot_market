@@ -92,11 +92,7 @@
                         </div>
                         <div>
                             <span style="font-size: 12px; color: var(--text-muted); display: block;">ขนาดเต็นท์:</span>
-                            <strong style="font-size: 15px;">{{ $booking->tent_size }} เมตร</strong>
-                        </div>
-                        <div>
-                            <span style="font-size: 12px; color: var(--text-muted); display: block;">เคาน์เตอร์:</span>
-                            <strong style="font-size: 15px;">{{ $booking->counter_size ?: 'ไม่มี' }}</strong>
+                            <strong style="font-size: 15px;">{{ $booking->tent_size }}</strong>
                         </div>
                     </div>
 

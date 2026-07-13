@@ -56,16 +56,7 @@
                     <label class="cute-label" for="tent_size">ขนาดเต็นท์</label>
                     <select id="tent_size" name="tent_size" class="cute-select" required>
                         @foreach ($tentSizes as $size)
-                            <option value="{{ $size }}" {{ old('tent_size', $booking->tent_size) == $size ? 'selected' : '' }}>{{ $size }} เมตร</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="cute-input-group">
-                    <label class="cute-label" for="counter_size">ขนาดเคาน์เตอร์</label>
-                    <select id="counter_size" name="counter_size" class="cute-select">
-                        @foreach ($counterSizes as $size)
-                            <option value="{{ $size }}" {{ old('counter_size', $booking->counter_size) == $size ? 'selected' : '' }}>{{ $size }}</option>
+                            <option value="{{ $size }}" {{ old('tent_size', $booking->tent_size) == $size ? 'selected' : '' }}>{{ $size }}</option>
                         @endforeach
                     </select>
                 </div>

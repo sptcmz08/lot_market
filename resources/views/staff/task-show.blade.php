@@ -35,11 +35,7 @@
             </div>
             <div class="info-row">
                 <span class="info-label">ขนาดเต็นท์เช่า:</span>
-                <strong class="info-value">{{ $task->booking ? $task->booking->tent_size : '-' }} เมตร</strong>
-            </div>
-            <div class="info-row">
-                <span class="info-label">ขนาดเคาน์เตอร์:</span>
-                <strong class="info-value">{{ $task->booking ? ($task->booking->counter_size ?: 'ไม่มี') : '-' }}</strong>
+                <strong class="info-value">{{ $task->booking ? $task->booking->tent_size : '-' }}</strong>
             </div>
         </div>
 

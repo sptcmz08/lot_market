@@ -38,7 +38,7 @@ class BookingService
                 'shop_name' => $data['shop_name'],
                 'customer_phone' => $data['customer_phone'],
                 'tent_size' => $data['tent_size'],
-                'counter_size' => $data['counter_size'] ?? null,
+                'counter_size' => null,
                 'customer_note' => $data['customer_note'] ?? null,
                 'status' => 'pending_admin',
             ]);

@@ -36,11 +36,9 @@ class PublicBookingController extends Controller
                 ->with('error', 'ล็อคที่เลือกถูกจองไปแล้วในวันดังกล่าว กรุณาเลือกใหม่อีกครั้ง');
         }
 
-        // Available tent and counter sizes
-        $tentSizes = ['1.5', '2x2', '2x3', '2.5', '3x4.5'];
-        $counterSizes = ['ไม่มีเคาน์เตอร์', '1 ล็อค', '2 ล็อค', '3 ล็อค'];
+        $tentSizes = ['1.5', '2x2', '2x3', '3x3', '2.5x2.5', '3x4.5'];
 
-        return view('public.booking-create', compact('date', 'lots', 'selectedCodes', 'tentSizes', 'counterSizes'));
+        return view('public.booking-create', compact('date', 'lots', 'selectedCodes', 'tentSizes'));
     }
 
     public function store(Request $request)
@@ -51,8 +49,7 @@ class PublicBookingController extends Controller
             'customer_phone' => 'required|string|regex:/^[0-9]{9,10}$/',
             'lots' => 'required|array|min:1',
             'lots.*' => 'required|string|exists:lots,lot_code',
-            'tent_size' => 'required|string',
-            'counter_size' => 'nullable|string',
+            'tent_size' => 'required|in:1.5,2x2,2x3,3x3,2.5x2.5,3x4.5',
             'customer_note' => 'nullable|string|max:500',
         ], [
             'customer_phone.regex' => 'เบอร์โทรศัพท์ต้องเป็นตัวเลข 9-10 หลัก',

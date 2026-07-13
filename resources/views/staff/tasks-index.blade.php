@@ -42,15 +42,8 @@
 
                     <div class="info-row">
                         <span class="info-label">ขนาดเต็นท์:</span>
-                        <strong class="info-value">{{ $task->booking ? $task->booking->tent_size : '-' }} เมตร</strong>
+                        <strong class="info-value">{{ $task->booking ? $task->booking->tent_size : '-' }}</strong>
                     </div>
-
-                    @if ($task->booking && $task->booking->counter_size)
-                        <div class="info-row">
-                            <span class="info-label">ขนาดเคาน์เตอร์:</span>
-                            <strong class="info-value">{{ $task->booking->counter_size }}</strong>
-                        </div>
-                    @endif
 
                     <div class="info-row">
                         <span class="info-label">สถานะงาน:</span>

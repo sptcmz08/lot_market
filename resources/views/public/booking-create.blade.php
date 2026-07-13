@@ -66,25 +66,14 @@
                 <small style="color: var(--text-muted); font-size: 12px;">กรอกเบอร์โทรศัพท์ 9-10 หลัก สำหรับตรวจสอบสถานะงาน</small>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                <div class="cute-input-group" style="margin-bottom: 0;">
-                    <label class="cute-label" for="tent_size"><i class="fa-solid fa-tents" style="color:var(--primary);"></i> ขนาดเต็นท์ที่เช่า *</label>
-                    <select id="tent_size" name="tent_size" class="cute-select" required>
-                        <option value="" disabled selected>เลือกขนาดเต็นท์</option>
-                        @foreach($tentSizes as $size)
-                            <option value="{{ $size }}" {{ old('tent_size') == $size ? 'selected' : '' }}>{{ $size }} เมตร</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="cute-input-group" style="margin-bottom: 0;">
-                    <label class="cute-label" for="counter_size"><i class="fa-solid fa-table" style="color:var(--primary);"></i> ขนาดเคาน์เตอร์วางของ</label>
-                    <select id="counter_size" name="counter_size" class="cute-select">
-                        @foreach($counterSizes as $size)
-                            <option value="{{ $size }}" {{ old('counter_size') == $size ? 'selected' : '' }}>{{ $size }}</option>
-                        @endforeach
-                    </select>
-                </div>
+            <div class="cute-input-group">
+                <label class="cute-label" for="tent_size"><i class="fa-solid fa-tents" style="color:var(--primary);"></i> ขนาดเต็นท์ที่เช่า *</label>
+                <select id="tent_size" name="tent_size" class="cute-select" required>
+                    <option value="" disabled selected>เลือกขนาดเต็นท์</option>
+                    @foreach($tentSizes as $size)
+                        <option value="{{ $size }}" {{ old('tent_size') == $size ? 'selected' : '' }}>{{ $size }}</option>
+                    @endforeach
+                </select>
             </div>
 
             <div class="cute-input-group">
