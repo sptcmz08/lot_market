@@ -1,4 +1,20 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
+
+    # If the web root is already Laravel's public directory, do not prepend
+    # another /public segment. This prevents /public/public/index.php on Plesk.
+    RewriteCond %{DOCUMENT_ROOT}/../vendor/autoload.php -f
+    RewriteRule ^$ index.php [L]
+
+    RewriteCond %{DOCUMENT_ROOT}/../vendor/autoload.php -f
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [L]
+
+    # If the web root is the project root, forward traffic into /public.
+    RewriteCond %{DOCUMENT_ROOT}/vendor/autoload.php -f
+    RewriteRule ^$ public/index.php [L]
+
+    RewriteCond %{DOCUMENT_ROOT}/vendor/autoload.php -f
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
