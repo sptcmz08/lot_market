@@ -5,12 +5,12 @@
         ->flatMap(fn ($zone) => $zone->lots)
         ->keyBy('lot_code');
 
-    $cellW = 15;
-    $cellH = 12;
-    $leftPad = 42;
-    $topPad = 28;
-    $rightPad = 42;
-    $bottomPad = 34;
+    $cellW = 24;
+    $cellH = 18;
+    $leftPad = 64;
+    $topPad = 42;
+    $rightPad = 64;
+    $bottomPad = 54;
     $mapW = $leftPad + (($layout['cols'] ?? 1) * $cellW) + $rightPad;
     $mapH = $topPad + (($layout['rows'] ?? 1) * $cellH) + $bottomPad;
 
@@ -66,7 +66,23 @@
 @endphp
 
 <svg viewBox="0 0 {{ $mapW }} {{ $mapH }}" width="{{ $mapW }}" height="{{ $mapH }}" class="market-svg" id="market-svg-element">
+    <defs>
+        <pattern id="excel-grid" width="{{ $cellW }}" height="{{ $cellH }}" patternUnits="userSpaceOnUse">
+            <path d="M {{ $cellW }} 0 L 0 0 0 {{ $cellH }}" fill="none" stroke="#EEF0F3" stroke-width="1" />
+        </pattern>
+    </defs>
+
     <rect x="1" y="1" width="{{ $mapW - 2 }}" height="{{ $mapH - 2 }}" rx="12" fill="#FDFDFB" stroke="#D4D4D8" stroke-width="1.5" />
+    <rect x="{{ $leftPad - 18 }}" y="{{ $topPad - 18 }}" width="{{ $mapW - $leftPad - $rightPad + 36 }}" height="{{ $mapH - $topPad - $bottomPad + 36 }}" fill="url(#excel-grid)" opacity="0.85" />
+
+    <rect x="{{ $leftPad - 40 }}" y="{{ $topPad + (21 * $cellH) }}" width="{{ $mapW - $leftPad - $rightPad + 80 }}" height="{{ $cellH * 2.1 }}" fill="#8E8E8E" opacity="0.82" />
+    <rect x="{{ $leftPad + (3 * $cellW) }}" y="{{ $topPad - 24 }}" width="{{ $cellW * 2.5 }}" height="{{ $cellH * 58 }}" fill="#8E8E8E" opacity="0.82" />
+    <rect x="{{ $leftPad + (34 * $cellW) }}" y="{{ $topPad + (23 * $cellH) }}" width="{{ $cellW * 2.4 }}" height="{{ $cellH * 35 }}" fill="#8E8E8E" opacity="0.82" />
+
+    <rect x="{{ $leftPad + (36 * $cellW) }}" y="{{ $topPad + (24 * $cellH) }}" width="{{ $cellW * 28 }}" height="{{ $cellH * 15 }}" fill="#F3A4E9" opacity="0.72" />
+    <text x="{{ $leftPad + (50 * $cellW) }}" y="{{ $topPad + (31.5 * $cellH) }}" class="map-area-label">ลานกิจกรรม</text>
+    <rect x="{{ $leftPad + (36 * $cellW) }}" y="{{ $topPad + (39 * $cellH) }}" width="{{ $cellW * 28 }}" height="{{ $cellH * 15 }}" fill="#A7CBE8" opacity="0.72" />
+    <text x="{{ $leftPad + (50 * $cellW) }}" y="{{ $topPad + (46.5 * $cellH) }}" class="map-area-label">โซนกลางตลาด</text>
 
     @foreach($rowsByZone as $rowKey => $rowLots)
         @php

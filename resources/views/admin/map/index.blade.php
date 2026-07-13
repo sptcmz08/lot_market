@@ -241,21 +241,59 @@
         box-sizing: border-box;
     }
 
+    .map-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+    }
+
+    .map-tool-btn {
+        border: 1px solid #E5E7EB;
+        background: #FFFFFF;
+        color: #374151;
+        width: 36px;
+        height: 34px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-weight: 800;
+        box-shadow: 0 2px 8px rgba(47, 47, 55, 0.06);
+    }
+
+    .map-tool-btn:hover {
+        border-color: var(--primary);
+        color: var(--primary-hover);
+    }
+
+    .map-zoom-readout {
+        min-width: 54px;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--text-muted);
+    }
+
     .map-viewport {
         position: relative;
         width: 100%;
         overflow: auto;
         padding-top: 8px;
+        max-height: 72vh;
         -webkit-overflow-scrolling: touch;
     }
 
     .market-svg {
         display: block;
-        width: 100%;
+        width: auto;
         height: auto;
-        max-width: 100%;
-        min-width: 1180px;
-        margin: 0 auto;
+        max-width: none;
+        min-width: 0;
+        margin: 0;
         user-select: none;
     }
 
@@ -297,7 +335,7 @@
 
     .lot-cell-text {
         fill: #27272A;
-        font-size: 5px;
+        font-size: 7px;
         font-weight: 750;
         pointer-events: none;
         text-anchor: middle;
@@ -306,11 +344,20 @@
 
     .zone-cell-text {
         fill: #18181B;
-        font-size: 5px;
+        font-size: 7px;
         font-weight: 900;
         pointer-events: none;
         text-anchor: middle;
         dominant-baseline: middle;
+    }
+
+    .map-area-label {
+        fill: #EF4444;
+        font-size: 11px;
+        font-weight: 800;
+        text-anchor: middle;
+        dominant-baseline: middle;
+        pointer-events: none;
     }
 
     .zone-label {
@@ -377,6 +424,12 @@
 
             <!-- Map rendering -->
             <div class="map-card">
+                <div class="map-toolbar" aria-label="เครื่องมือแผนที่">
+                    <button type="button" class="map-tool-btn" id="map-zoom-out" title="ย่อแผนที่"><i class="fa-solid fa-minus"></i></button>
+                    <span class="map-zoom-readout" id="map-zoom-readout">100%</span>
+                    <button type="button" class="map-tool-btn" id="map-zoom-in" title="ขยายแผนที่"><i class="fa-solid fa-plus"></i></button>
+                    <button type="button" class="map-tool-btn" id="map-zoom-fit" title="พอดีหน้าจอ"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></button>
+                </div>
                 <div class="map-viewport" id="map-viewport-wrapper">
                     @include('components.market-map-svg', ['zones' => $zones])
 
@@ -439,9 +492,52 @@
         const popoverClose = document.getElementById('popover-close-btn');
         const mapViewport = document.getElementById('map-viewport-wrapper');
         const svgElement = document.getElementById('market-svg-element');
+        const zoomInBtn = document.getElementById('map-zoom-in');
+        const zoomOutBtn = document.getElementById('map-zoom-out');
+        const zoomFitBtn = document.getElementById('map-zoom-fit');
+        const zoomReadout = document.getElementById('map-zoom-readout');
         
         let lotStatuses = {};
         let currentSelected = null;
+        let mapZoom = 1;
+        const naturalWidth = Number(svgElement.getAttribute('width'));
+        const naturalHeight = Number(svgElement.getAttribute('height'));
+
+        function applyMapZoom(nextZoom, keepCenter = true) {
+            const oldZoom = mapZoom;
+            const centerX = mapViewport.scrollLeft + (mapViewport.clientWidth / 2);
+            const centerY = mapViewport.scrollTop + (mapViewport.clientHeight / 2);
+
+            mapZoom = Math.min(1.4, Math.max(0.35, nextZoom));
+            svgElement.style.width = `${naturalWidth * mapZoom}px`;
+            svgElement.style.height = `${naturalHeight * mapZoom}px`;
+            zoomReadout.textContent = `${Math.round(mapZoom * 100)}%`;
+
+            if (keepCenter && oldZoom > 0) {
+                const ratio = mapZoom / oldZoom;
+                mapViewport.scrollLeft = (centerX * ratio) - (mapViewport.clientWidth / 2);
+                mapViewport.scrollTop = (centerY * ratio) - (mapViewport.clientHeight / 2);
+            }
+
+            if (currentSelected) {
+                const selectedGroup = document.getElementById(`lot-group-${currentSelected}`);
+                if (selectedGroup && popover.style.display !== 'none') {
+                    positionPopover(selectedGroup);
+                }
+            }
+        }
+
+        function fitMapToViewport() {
+            const fitZoom = (mapViewport.clientWidth - 20) / naturalWidth;
+            applyMapZoom(fitZoom, false);
+            mapViewport.scrollLeft = 0;
+            mapViewport.scrollTop = 0;
+        }
+
+        applyMapZoom(0.82, false);
+        zoomInBtn.addEventListener('click', () => applyMapZoom(mapZoom + 0.12));
+        zoomOutBtn.addEventListener('click', () => applyMapZoom(mapZoom - 0.12));
+        zoomFitBtn.addEventListener('click', fitMapToViewport);
 
         function getLotAnchor(targetEl) {
             const viewportRect = mapViewport.getBoundingClientRect();
