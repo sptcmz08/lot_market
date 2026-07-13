@@ -3,6 +3,16 @@
 @section('title', 'รายละเอียดการจอง #' . $booking->booking_code)
 @section('page_title', 'รายละเอียดการจอง')
 
+@section('styles')
+<style>
+    @media (max-width: 991px) {
+        .booking-detail-layout {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+@endsection
+
 @section('content')
     <!-- Action buttons row -->
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
@@ -34,13 +44,7 @@
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
-        @media (max-width: 991px) {
-            div[style*="grid-template-columns"] {
-                grid-template-columns: 1fr !important;
-            }
-        }
-        
+    <div class="booking-detail-layout" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
         <!-- Left Side: Details & Photos -->
         <div>
             <!-- Detail Card -->

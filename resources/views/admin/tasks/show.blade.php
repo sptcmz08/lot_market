@@ -3,6 +3,16 @@
 @section('title', 'รายละเอียดงานติดตั้งเต็นท์')
 @section('page_title', 'รายละเอียดงานติดตั้ง')
 
+@section('styles')
+<style>
+    @media (max-width: 991px) {
+        .task-detail-layout {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+@endsection
+
 @section('content')
     <div style="margin-bottom: 20px;">
         <a href="{{ route('admin.tasks.index') }}" class="btn-secondary">
@@ -10,13 +20,7 @@
         </a>
     </div>
 
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
-        @media (max-width: 991px) {
-            div[style*="grid-template-columns"] {
-                grid-template-columns: 1fr !important;
-            }
-        }
-
+    <div class="task-detail-layout" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
         <!-- Left Side: Task details, Installer photos, Problem Note -->
         <div>
             <!-- Detail Card -->
