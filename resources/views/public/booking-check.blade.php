@@ -4,40 +4,89 @@
 
 @section('styles')
 <style>
-    .status-photo-card {
+    .customer-evidence {
+        border-top: 1px dashed var(--border-cute);
+        padding-top: 16px;
+        margin-top: 4px;
+    }
+
+    .customer-evidence-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .customer-evidence-group {
         border: 1px solid var(--border-cute);
         border-radius: 14px;
-        overflow: hidden;
+        padding: 12px;
         background: var(--bg-card-soft);
-        min-height: 148px;
+        min-width: 0;
+    }
+
+    .customer-evidence-title {
         display: flex;
         align-items: center;
-        justify-content: center;
+        gap: 7px;
+        margin-bottom: 10px;
+        color: var(--text-dark);
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .customer-evidence-title i {
+        color: var(--primary);
+    }
+
+    .customer-evidence-photos {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        gap: 8px;
+    }
+
+    .customer-evidence-photo {
+        overflow: hidden;
+        border: 1px solid var(--border-cute);
+        border-radius: 10px;
+        background: var(--bg-card);
+    }
+
+    .customer-evidence-photo button {
+        display: block;
+        width: 100%;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        cursor: zoom-in;
+    }
+
+    .customer-evidence-photo img {
+        display: block;
+        width: 100%;
+        height: 112px;
+        object-fit: cover;
+    }
+
+    .customer-evidence-photo span {
+        display: block;
+        padding: 6px;
+        color: var(--text-dark);
+        font-size: 11px;
+        font-weight: 700;
         text-align: center;
     }
 
-    .status-photo-card img {
-        width: 100%;
-        height: 148px;
-        object-fit: cover;
-        display: block;
-    }
-
-    .status-photo-empty {
+    .customer-evidence-empty {
+        display: flex;
+        min-height: 112px;
+        padding: 14px;
+        align-items: center;
+        justify-content: center;
         color: var(--text-muted);
-        font-size: 13px;
-        font-weight: 700;
-        padding: 16px;
-    }
-
-    .status-photo-caption {
-        display: block;
-        padding: 7px 8px;
         font-size: 12px;
-        font-weight: 800;
-        color: var(--text-dark);
-        border-top: 1px solid var(--border-cute);
-        background: var(--bg-card);
+        font-weight: 700;
+        line-height: 1.5;
+        text-align: center;
     }
 
     @media (max-width: 640px) {
@@ -47,6 +96,10 @@
 
         .booking-result-grid {
             grid-template-columns: 1fr !important;
+        }
+
+        .customer-evidence-grid {
+            grid-template-columns: 1fr;
         }
     }
 </style>
@@ -88,10 +141,18 @@
 
             @foreach ($bookings as $booking)
                 @php
-                    $afterPhotos = $booking->deliveryTask
-                        ? $booking->deliveryTask->photos->where('photo_type', 'after')
+                    $taskPhotos = $booking->deliveryTask
+                        ? $booking->deliveryTask->photos
                         : collect();
-                    $mainAfterPhoto = $afterPhotos->first();
+                    $approvedLotPhotos = $taskPhotos
+                        ->where('photo_type', 'lot_number')
+                        ->where('ocr_status', 'approved');
+                    $pendingLotPhotos = $taskPhotos
+                        ->where('photo_type', 'lot_number')
+                        ->where('ocr_status', 'pending_review');
+                    $afterPhotos = $booking->status === 'completed'
+                        ? $taskPhotos->where('photo_type', 'after')
+                        : collect();
                 @endphp
                 <div class="cute-card" style="padding: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; border-bottom: 2px solid var(--border-cute); padding-bottom: 12px; margin-bottom: 15px;">
@@ -154,31 +215,6 @@
                             <span style="font-size: 12px; color: var(--text-muted); display: block;">การชำระเงิน:</span>
                             <strong style="font-size: 15px;">{{ $booking->payment_slip_path ? 'แนบสลิปแล้ว' : ($booking->collect_front_store ? 'เก็บหน้าร้าน' : 'ยังไม่ระบุ') }}</strong>
                         </div>
-                        <div style="grid-column: span 2;">
-                            <span style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 8px;">
-                                รูปหลังติดตั้ง:
-                            </span>
-                            @if ($mainAfterPhoto && $booking->status === 'completed')
-                                <div class="status-photo-card">
-                                    <button type="button" class="image-lightbox-trigger" data-lightbox-src="{{ route('media.show', ['path' => $mainAfterPhoto->image_path]) }}" data-lightbox-alt="รูปหลังติดตั้ง" style="display:block;width:100%;border:0;padding:0;background:transparent;cursor:zoom-in;">
-                                        <img src="{{ route('media.show', ['path' => $mainAfterPhoto->image_path]) }}" alt="รูปหลังติดตั้ง">
-                                        <span class="status-photo-caption">
-                                            <i class="fa-solid fa-magnifying-glass-plus"></i> กดเพื่อดูรูปหลังติดตั้ง
-                                            @if($afterPhotos->count() > 1)
-                                                ({{ $afterPhotos->count() }} รูป)
-                                            @endif
-                                        </span>
-                                    </button>
-                                </div>
-                            @else
-                                <div class="status-photo-card">
-                                    <div class="status-photo-empty">
-                                        <i class="fa-solid fa-image" style="font-size:26px;display:block;margin-bottom:8px;color:var(--border-cute);"></i>
-                                        ยังไม่มีรูปหลังติดตั้ง
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
                     </div>
 
                     @if ($booking->customer_note)
@@ -188,33 +224,58 @@
                         </div>
                     @endif
 
-                    <!-- Task details and photos -->
                     @if ($booking->deliveryTask)
-                        @if ($booking->deliveryTask->photos->where('photo_type', 'after')->isNotEmpty() && $booking->status === 'completed')
-                            <div style="border-top: 1px dashed var(--border-cute); padding-top: 15px;">
-                                <span style="font-size: 13px; font-weight: 700; color: var(--text-dark); display: block; margin-bottom: 10px;">
-                                    <i class="fa-solid fa-images" style="color: var(--primary);"></i> รูปหลังติดตั้งทั้งหมด:
-                                </span>
-                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;">
-                                    @foreach ($booking->deliveryTask->photos->where('photo_type', 'after') as $photo)
-                                        <div style="border: 2px solid var(--border-cute); border-radius: 14px; overflow: hidden; background-color: var(--bg-page); text-align: center;">
-                                            <button type="button" class="image-lightbox-trigger" data-lightbox-src="{{ route('media.show', ['path' => $photo->image_path]) }}" data-lightbox-alt="ภาพถ่ายติดตั้ง" style="display:block;width:100%;">
-                                                <img src="{{ route('media.show', ['path' => $photo->image_path]) }}" style="width: 100%; height: 100px; object-fit: cover; display: block;" alt="ภาพถ่ายติดตั้ง">
-                                            </button>
-                                            <span style="font-size: 11px; font-weight: 700; padding: 4px; display: block; color: var(--text-dark);">
-                                                ✅ หลังติดตั้ง
-                                            </span>
+                        <div class="customer-evidence">
+                            <div class="customer-evidence-grid">
+                                <section class="customer-evidence-group">
+                                    <div class="customer-evidence-title">
+                                        <i class="fa-solid fa-location-dot"></i>
+                                        <span>รูปยืนยันเลข LOT ({{ $approvedLotPhotos->count() }} รูป)</span>
+                                    </div>
+                                    @if ($approvedLotPhotos->isNotEmpty())
+                                        <div class="customer-evidence-photos">
+                                            @foreach ($approvedLotPhotos as $photo)
+                                                <div class="customer-evidence-photo">
+                                                    <button type="button" class="image-lightbox-trigger" data-lightbox-src="{{ route('media.show', ['path' => $photo->image_path]) }}" data-lightbox-alt="รูปยืนยันเลข LOT">
+                                                        <img src="{{ route('media.show', ['path' => $photo->image_path]) }}" alt="รูปยืนยันเลข LOT">
+                                                        <span><i class="fa-solid fa-circle-check"></i> แอดมินยืนยันแล้ว</span>
+                                                    </button>
+                                                </div>
+                                            @endforeach
                                         </div>
-                                    @endforeach
-                                </div>
+                                    @elseif ($pendingLotPhotos->isNotEmpty())
+                                        <div class="customer-evidence-empty">
+                                            พนักงานส่งรูปเลข LOT แล้ว กำลังรอแอดมินตรวจสอบ
+                                        </div>
+                                    @else
+                                        <div class="customer-evidence-empty">ยังไม่มีรูปยืนยันเลข LOT</div>
+                                    @endif
+                                </section>
+
+                                <section class="customer-evidence-group">
+                                    <div class="customer-evidence-title">
+                                        <i class="fa-solid fa-images"></i>
+                                        <span>รูปส่งงานหลังติดตั้งทั้งหมด ({{ $afterPhotos->count() }} รูป)</span>
+                                    </div>
+                                    @if ($afterPhotos->isNotEmpty())
+                                        <div class="customer-evidence-photos">
+                                            @foreach ($afterPhotos as $photo)
+                                                <div class="customer-evidence-photo">
+                                                    <button type="button" class="image-lightbox-trigger" data-lightbox-src="{{ route('media.show', ['path' => $photo->image_path]) }}" data-lightbox-alt="รูปส่งงานหลังติดตั้ง">
+                                                        <img src="{{ route('media.show', ['path' => $photo->image_path]) }}" alt="รูปส่งงานหลังติดตั้ง">
+                                                        <span><i class="fa-solid fa-circle-check"></i> ส่งงานแล้ว</span>
+                                                    </button>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @elseif ($booking->status === 'completed')
+                                        <div class="customer-evidence-empty">ยังไม่มีรูปส่งงานหลังติดตั้ง</div>
+                                    @else
+                                        <div class="customer-evidence-empty">รูปส่งงานจะแสดงเมื่อติดตั้งเสร็จแล้ว</div>
+                                    @endif
+                                </section>
                             </div>
-                        @else
-                            @if ($booking->status === 'assigned' || $booking->status === 'installing')
-                                <div style="border-top: 1px dashed var(--border-cute); padding-top: 12px; color: var(--text-muted); font-size: 13px;">
-                                    <i class="fa-solid fa-clock"></i> พนักงานกำลังเตรียมเข้าดำเนินงานติดตั้ง หรือยังไม่ได้ทำการบันทึกภาพ
-                                </div>
-                            @endif
-                        @endif
+                        </div>
                     @endif
                 </div>
             @endforeach
