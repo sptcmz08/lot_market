@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>@yield('title', 'ระบบจองเต็นท์ตลาด') - Market Tent Booking</title>
     
     <!-- Google Fonts -->
@@ -49,6 +49,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            -webkit-text-size-adjust: 100%;
         }
 
         .header-bar {
@@ -59,6 +60,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
 
         .brand-title {
@@ -79,6 +83,7 @@
         .main-nav {
             display: flex;
             gap: 15px;
+            align-items: center;
         }
 
         .nav-link {
@@ -88,6 +93,12 @@
             padding: 8px 16px;
             border-radius: 12px;
             transition: all 0.2s ease;
+            min-height: 42px;
+            box-sizing: border-box;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
 
         .nav-link:hover, .nav-link.active {
@@ -222,7 +233,7 @@
             border: 2px solid var(--border-cute);
             border-radius: 16px;
             padding: 12px 16px;
-            font-size: 15px;
+            font-size: 16px;
             font-family: inherit;
             color: var(--text-dark);
             background-color: var(--bg-card);
@@ -278,17 +289,76 @@
         /* Mobile specific fixes */
         @media (max-width: 767px) {
             .header-bar {
-                flex-direction: column;
-                gap: 15px;
-                padding: 15px;
+                gap: 10px;
+                padding: 10px 12px;
+                align-items: stretch;
             }
+
+            .brand-title {
+                justify-content: center;
+                font-size: 17px;
+                line-height: 1.25;
+            }
+
+            .brand-title i {
+                font-size: 21px;
+            }
+
             .main-nav {
                 width: 100%;
-                justify-content: space-around;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
             }
+
+            .main-nav .nav-link:last-child {
+                grid-column: 1 / -1;
+            }
+
             .nav-link {
-                padding: 8px 10px;
+                padding: 9px 10px;
+                font-size: 13px;
+                border: 1px solid var(--border-cute);
+                background: var(--bg-card);
+            }
+
+            .nav-btn {
+                background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+                border: 0;
+            }
+
+            .content-container {
+                padding: 12px 10px 18px;
+            }
+
+            .cute-card {
+                border-radius: 18px;
+                padding: 16px;
+                margin-bottom: 14px;
+            }
+
+            .cute-card-title {
+                font-size: 18px;
+                line-height: 1.35;
+                margin-bottom: 14px;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                min-height: 48px;
+                width: 100%;
+                padding: 12px 14px;
+                font-size: 15px;
+            }
+
+            .alert-cute {
+                align-items: flex-start;
+                padding: 12px 14px;
                 font-size: 14px;
+            }
+
+            footer {
+                padding: 14px 10px calc(14px + env(safe-area-inset-bottom, 0px));
             }
         }
     </style>

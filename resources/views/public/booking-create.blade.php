@@ -95,7 +95,12 @@
 
     @media (max-width: 720px) {
         .booking-paper {
-            padding: 18px;
+            padding: 16px;
+            border-radius: 18px;
+        }
+
+        .booking-paper-title {
+            font-size: 19px;
         }
 
         .booking-field.half,
@@ -108,6 +113,25 @@
         .equipment-inputs,
         .lot-range-grid {
             grid-template-columns: 1fr;
+        }
+
+        .booking-line .cute-label,
+        .equipment-head {
+            font-size: 16px;
+        }
+
+        .equipment-row {
+            padding: 12px;
+            border-radius: 16px;
+        }
+
+        .checkbox-line {
+            min-height: 44px;
+        }
+
+        .booking-form-actions {
+            flex-direction: column-reverse;
+            margin-top: 22px !important;
         }
     }
 </style>
@@ -231,7 +255,7 @@
                 </div>
             </div>
 
-            <div style="display: flex; gap: 12px; margin-top: 30px;">
+            <div class="booking-form-actions" style="display: flex; gap: 12px; margin-top: 30px;">
                 <a href="{{ route('public.map', ['date' => $date]) }}" class="btn-secondary" style="flex: 1;">
                     <i class="fa-solid fa-arrow-left"></i> ย้อนกลับไปเลือกล็อต
                 </a>

@@ -2,6 +2,20 @@
 
 @section('title', 'ตรวจสอบสถานะการจองติดตั้งเต็นท์')
 
+@section('styles')
+<style>
+    @media (max-width: 640px) {
+        .booking-search-form {
+            flex-direction: column;
+        }
+
+        .booking-result-grid {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+@endsection
+
 @section('content')
     <div class="cute-card">
         <h2 class="cute-card-title">
@@ -13,7 +27,7 @@
 
         <form action="{{ route('public.booking.check.submit') }}" method="POST">
             @csrf
-            <div style="display: flex; gap: 10px; align-items: flex-start;">
+            <div class="booking-search-form" style="display: flex; gap: 10px; align-items: flex-start;">
                 <div class="cute-input-group" style="margin-bottom: 0; flex: 1;">
                     <input type="text" name="search_query" class="cute-input" value="{{ $query ?? old('search_query') }}" placeholder="กรอกเบอร์โทร 10 หลัก หรือ รหัสการจอง..." required>
                 </div>
@@ -62,7 +76,7 @@
                         </div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div class="booking-result-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                         <div>
                             <span style="font-size: 12px; color: var(--text-muted); display: block;">ร้านค้า:</span>
                             <strong style="font-size: 15px;">{{ $booking->shop_name }}</strong>
