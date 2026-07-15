@@ -34,6 +34,8 @@
 
     $renderLot = function ($layoutLot) use ($lotsByCode, $cellW, $cellH, $tentImg) {
         $code = e($layoutLot['code']);
+        preg_match('/(\d+)$/', $layoutLot['code'], $numberMatch);
+        $lotNumber = e($numberMatch[1] ?? $layoutLot['code']);
         $dbLot = $lotsByCode->get($layoutLot['code']);
         $lotId = $dbLot?->id ?? '';
         $displayName = e($dbLot?->display_name ?? $layoutLot['code']);
@@ -45,6 +47,8 @@
         $imgY = $y + 1;
         $imgW = $cellW - 2;
         $imgH = $cellH - 2;
+        $labelX = $x + ($cellW / 2);
+        $labelY = $y + $cellH - 3.5;
         $badgeCx = $cellW - 5;
         $badgeX1 = $cellW - 8;
         $badgeX2 = $cellW - 2;
@@ -68,6 +72,7 @@
                       x="{$x}" y="{$y}"
                       width="{$cellW}" height="{$cellH}" rx="0.8" />
                 <image href="{$tentImg}" x="{$imgX}" y="{$imgY}" width="{$imgW}" height="{$imgH}" preserveAspectRatio="xMidYMid meet" style="pointer-events:none" />
+                <text class="lot-number-label" x="{$labelX}" y="{$labelY}">{$lotNumber}</text>
                 <rect class="lot-cell-border"
                       x="{$x}" y="{$y}"
                       width="{$cellW}" height="{$cellH}" rx="0" />

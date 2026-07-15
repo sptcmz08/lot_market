@@ -396,6 +396,19 @@
         dominant-baseline: middle;
     }
 
+    .lot-number-label {
+        fill: #111827;
+        stroke: #FFFFFF;
+        stroke-width: 2.6px;
+        paint-order: stroke;
+        font-size: 7px;
+        font-weight: 900;
+        pointer-events: none;
+        text-anchor: middle;
+        dominant-baseline: central;
+        font-family: 'Prompt', 'Outfit', sans-serif;
+    }
+
     .lot-cell-text {
         display: none;
     }
