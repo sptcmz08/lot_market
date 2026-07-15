@@ -3,6 +3,15 @@
 @section('title', 'รายละเอียดและดำเนินการติดตั้งเต็นท์')
 
 @section('content')
+    @php
+        $photos = $task->photos;
+        $hasLotNo = $photos->contains('photo_type', 'lot_number');
+        $hasApprovedLotNo = $photos->contains(fn ($photo) => $photo->photo_type === 'lot_number' && $photo->ocr_status === 'approved');
+        $hasPendingLotNo = $photos->contains(fn ($photo) => $photo->photo_type === 'lot_number' && $photo->ocr_status === 'pending_review');
+        $hasRejectedLotNo = $photos->contains(fn ($photo) => $photo->photo_type === 'lot_number' && $photo->ocr_status === 'rejected');
+        $hasAfter = $photos->contains('photo_type', 'after');
+    @endphp
+
     <div style="margin-bottom: 15px;">
         <a href="{{ route('staff.tasks.index') }}" style="color: var(--text-dark); text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;">
             <i class="fa-solid fa-arrow-left"></i> กลับหน้ารวมงานวันนี้
@@ -91,14 +100,6 @@
 
             <!-- Show current photo upload counters -->
             <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
-                @php
-                    $photos = $task->photos;
-                    $hasLotNo = $photos->contains('photo_type', 'lot_number');
-                    $hasApprovedLotNo = $photos->contains(fn ($photo) => $photo->photo_type === 'lot_number' && $photo->ocr_status === 'approved');
-                    $hasPendingLotNo = $photos->contains(fn ($photo) => $photo->photo_type === 'lot_number' && $photo->ocr_status === 'pending_review');
-                    $hasBefore = $photos->contains('photo_type', 'before');
-                    $hasAfter = $photos->contains('photo_type', 'after');
-                @endphp
                 <span id="lot-review-badge" class="status-badge @if($hasApprovedLotNo) status-completed @elseif($hasPendingLotNo) status-pending @elseif($hasLotNo) status-problem @else status-pending @endif">
                     <i class="fa-solid @if($hasApprovedLotNo) fa-check @else fa-circle-xmark @endif"></i>
                     @if($hasApprovedLotNo) แอดมินยืนยันเลขล็อตแล้ว
@@ -107,46 +108,68 @@
                     @else ยังไม่มีรูปเลขล็อต
                     @endif
                 </span>
-                <span class="status-badge @if($hasBefore) status-completed @else status-blocked @endif">
-                    <i class="fa-solid @if($hasBefore) fa-check @else fa-circle @endif"></i> ก่อนติดตั้ง (ถ้ามี)
-                </span>
                 <span class="status-badge @if($hasAfter) status-completed @else status-pending @endif">
                     <i class="fa-solid @if($hasAfter) fa-check @else fa-circle-xmark @endif"></i> หลังติดตั้งเสร็จ
                 </span>
             </div>
 
-            <!-- Upload forms -->
-            <form action="{{ route('staff.tasks.upload_photo', $task) }}" method="POST" enctype="multipart/form-data" style="margin-bottom: 25px;">
-                @csrf
-                <!-- GPS coords dynamically injected by JS -->
-                <input type="hidden" name="latitude" class="gps-lat">
-                <input type="hidden" name="longitude" class="gps-lng">
+            @if (!$hasApprovedLotNo)
+                <div id="lot-upload-step">
+                    @if ($hasPendingLotNo)
+                        <div class="alert-cute" style="background:#FFF3CD;color:#856404;margin-bottom:15px;">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                            <div>ส่งรูป LOT ให้แอดมินแล้ว กรุณารออนุมัติ หน้านี้จะเปลี่ยนขั้นตอนให้อัตโนมัติเมื่อผ่าน</div>
+                        </div>
+                    @elseif ($hasRejectedLotNo)
+                        <div class="alert-cute alert-danger" style="margin-bottom:15px;">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                            <div>รูป LOT ถูกตีกลับ กรุณาถ่ายรูป LOT ใหม่ให้เห็นเลขล็อตชัดเจน</div>
+                        </div>
+                    @endif
 
-                <div class="cute-input-group">
-                    <label class="cute-label" for="photo_type">ประเภทรูปภาพถ่าย *</label>
-                    <select id="photo_type" name="photo_type" class="cute-select" required>
-                        <option value="" disabled selected>เลือกชนิดภาพถ่าย</option>
-                        <option value="lot_number">1. ป้ายเลขแผงตลาด (Lot ID)</option>
-                        <option value="before">2. ภาพสภาพสถานที่ก่อนประกอบ (Before)</option>
-                        <option value="after">3. ภาพเต็นท์เสร็จสมบูรณ์ (After)</option>
-                    </select>
+                    <form action="{{ route('staff.tasks.upload_photo', $task) }}" method="POST" enctype="multipart/form-data" class="auto-photo-form" style="margin-bottom: 25px;">
+                        @csrf
+                        <input type="hidden" name="photo_type" value="lot_number">
+                        <input type="hidden" name="latitude" class="gps-lat">
+                        <input type="hidden" name="longitude" class="gps-lng">
+                        <input type="file" id="lot-photo" name="photo" class="auto-upload-photo" accept="image/*" capture="environment" required style="display:none;">
+
+                        <label for="lot-photo" class="btn-large btn-large-primary" style="height: 56px;">
+                            <i class="fa-solid fa-camera"></i> ถ่ายรูป LOT ส่งให้แอดมินตรวจ
+                        </label>
+                        <small style="display:block;text-align:center;color:var(--text-muted);font-size:12px;margin-top:8px;">
+                            หลังเลือกรูป ระบบจะอัปโหลดให้อัตโนมัติ
+                        </small>
+                    </form>
                 </div>
+            @elseif (!$hasAfter)
+                <div id="after-upload-step">
+                    <div class="alert-cute alert-success" style="margin-bottom:15px;">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <div>แอดมินอนุมัติรูป LOT แล้ว ขั้นตอนต่อไปถ่ายรูปหลังติดตั้งเสร็จ</div>
+                    </div>
 
-                <div class="cute-input-group">
-                    <label class="cute-label" for="photo">เลือกรูปภาพ / ถ่ายภาพ *</label>
-                    <input type="file" id="photo" name="photo" class="cute-input" accept="image/*" capture="environment" required>
-                    <small style="color:var(--text-muted);font-size:11px;">* หากใช้งานบนมือถือ ระบบจะเปิดกล้องถ่ายภาพอัตโนมัติ</small>
+                    <form action="{{ route('staff.tasks.upload_photo', $task) }}" method="POST" enctype="multipart/form-data" class="auto-photo-form" style="margin-bottom: 25px;">
+                        @csrf
+                        <input type="hidden" name="photo_type" value="after">
+                        <input type="hidden" name="latitude" class="gps-lat">
+                        <input type="hidden" name="longitude" class="gps-lng">
+                        <input type="file" id="after-photo" name="photo" class="auto-upload-photo" accept="image/*" capture="environment" required style="display:none;">
+
+                        <label for="after-photo" class="btn-large btn-large-secondary" style="height: 56px;">
+                            <i class="fa-solid fa-camera-retro"></i> ถ่ายรูปหลังติดตั้งเสร็จ
+                        </label>
+                        <small style="display:block;text-align:center;color:var(--text-muted);font-size:12px;margin-top:8px;">
+                            หลังเลือกรูป ระบบจะอัปโหลดให้อัตโนมัติ
+                        </small>
+                    </form>
                 </div>
-
-                <div class="cute-input-group">
-                    <label class="cute-label" for="note">บันทึกเพิ่มเติมจากภาพ (ถ้ามี)</label>
-                    <input type="text" id="note" name="note" class="cute-input" placeholder="เช่น กิ๊บล็อคชำรุดเล็กน้อย">
+            @else
+                <div class="alert-cute alert-success" style="margin-bottom:15px;">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <div>รูป LOT ผ่านแล้ว และมีรูปหลังติดตั้งแล้ว สามารถกดส่งงานด้านล่างได้เลย</div>
                 </div>
-
-                <button type="submit" class="btn-large btn-large-secondary" style="height: 48px;">
-                    <i class="fa-solid fa-cloud-arrow-up"></i> อัปโหลดรูปภาพ
-                </button>
-            </form>
+            @endif
         </div>
 
         <!-- Problem Report Section -->
@@ -226,11 +249,12 @@
         <div class="sticky-bottom-bar">
             <form action="{{ route('staff.tasks.complete', $task) }}" method="POST" style="margin: 0; width: 100%;">
                 @csrf
-                <button id="complete-task-btn" type="submit" class="btn-large btn-large-success" style="width: 100%;" @if(!$hasApprovedLotNo) disabled @endif>
+                <button id="complete-task-btn" type="submit" class="btn-large btn-large-success" style="width: 100%;" @if(!$hasApprovedLotNo || !$hasAfter) disabled @endif>
                     <i class="fa-solid fa-circle-check"></i> ส่งงานติดตั้งเสร็จสมบูรณ์
                 </button>
                 <div id="lot-review-message" style="text-align:center;font-size:12px;font-weight:700;margin-top:6px;color:var(--text-muted);">
-                    @if($hasApprovedLotNo) แอดมินยืนยันรูปเลขล็อตแล้ว
+                    @if($hasApprovedLotNo && $hasAfter) พร้อมส่งงานแล้ว
+                    @elseif($hasApprovedLotNo) ถ่ายรูปหลังติดตั้งเสร็จก่อนส่งงาน
                     @elseif($hasPendingLotNo) รอแอดมินตรวจรูปเลขล็อต
                     @else ต้องอัปโหลดรูปเลขล็อตและรอแอดมินยืนยันก่อนส่งงาน
                     @endif
@@ -252,6 +276,22 @@
         const completeBtn = document.getElementById('complete-task-btn');
         const reviewMessage = document.getElementById('lot-review-message');
         const reviewBadge = document.getElementById('lot-review-badge');
+        const hasApprovedLotAtLoad = @json($hasApprovedLotNo);
+        const hasAfterAtLoad = @json($hasAfter);
+
+        document.querySelectorAll('.auto-upload-photo').forEach(input => {
+            input.addEventListener('change', function () {
+                if (this.files && this.files.length > 0) {
+                    const form = this.closest('form');
+                    const label = form ? document.querySelector(`label[for="${this.id}"]`) : null;
+                    if (label) {
+                        label.style.pointerEvents = 'none';
+                        label.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังอัปโหลดรูป...';
+                    }
+                    form.submit();
+                }
+            });
+        });
 
         // Check if browser supports geolocation
         if ("geolocation" in navigator) {
@@ -292,8 +332,13 @@
                 fetch('{{ route('staff.tasks.review_status', $task) }}', { headers: { 'Accept': 'application/json' } })
                     .then(response => response.json())
                     .then(data => {
-                        completeBtn.disabled = !data.can_complete;
-                        reviewMessage.textContent = data.message;
+                        if (data.status === 'approved' && !hasApprovedLotAtLoad) {
+                            window.location.reload();
+                            return;
+                        }
+
+                        completeBtn.disabled = !data.can_complete || !hasAfterAtLoad;
+                        reviewMessage.textContent = data.can_complete && !hasAfterAtLoad ? 'ถ่ายรูปหลังติดตั้งเสร็จก่อนส่งงาน' : data.message;
                         if (reviewBadge) {
                             const badgeClass = data.status === 'approved' ? 'status-completed' : (data.status === 'pending_review' ? 'status-pending' : 'status-problem');
                             const iconClass = data.status === 'approved' ? 'fa-check' : 'fa-circle-xmark';

@@ -155,13 +155,16 @@ class StaffTaskController extends Controller
 
         $task->load('photos');
         $lotPhotos = $task->photos->where('photo_type', 'lot_number');
+        $hasAfterPhoto = $task->photos->contains('photo_type', 'after');
 
         $status = 'none';
         $message = 'ยังไม่ได้อัปโหลดรูปเลขล็อต';
 
         if ($lotPhotos->contains(fn ($photo) => $photo->ocr_status === 'approved')) {
             $status = 'approved';
-            $message = 'แอดมินยืนยันรูปเลขล็อตแล้ว สามารถส่งงานได้';
+            $message = $hasAfterPhoto
+                ? 'พร้อมส่งงานแล้ว'
+                : 'แอดมินยืนยันรูปเลขล็อตแล้ว กรุณาถ่ายรูปหลังติดตั้งเสร็จ';
         } elseif ($lotPhotos->contains(fn ($photo) => $photo->ocr_status === 'pending_review')) {
             $status = 'pending_review';
             $message = 'อัปโหลดรูปเลขล็อตแล้ว กำลังรอแอดมินตรวจสอบ';
@@ -173,7 +176,7 @@ class StaffTaskController extends Controller
         return response()->json([
             'status' => $status,
             'message' => $message,
-            'can_complete' => $status === 'approved',
+            'can_complete' => $status === 'approved' && $hasAfterPhoto,
         ]);
     }
 
