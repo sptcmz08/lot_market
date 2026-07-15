@@ -120,6 +120,16 @@
                     <div>
                         <span style="font-size: 13px; color: var(--text-muted); display: block;">การชำระเงิน:</span>
                         <strong>{{ $booking->payment_slip_path ? 'แนบสลิปแล้ว' : ($booking->collect_front_store ? 'เก็บหน้าร้าน' : 'ยังไม่ระบุ') }}</strong>
+                        @if ($booking->collect_front_store)
+                            @if ($booking->front_store_collected_at)
+                                <small style="display:block;margin-top:4px;color:#1E7E34;font-weight:700;">
+                                    เก็บแล้ว {{ number_format((float) $booking->front_store_collected_amount, 2) }} บาท
+                                    เมื่อ {{ $booking->front_store_collected_at->format('d/m/Y H:i') }} น.
+                                </small>
+                            @else
+                                <small style="display:block;margin-top:4px;color:#856404;font-weight:700;">ยังไม่ได้บันทึกเก็บเงินหน้าร้าน</small>
+                            @endif
+                        @endif
                     </div>
                 </div>
 

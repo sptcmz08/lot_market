@@ -20,6 +20,9 @@ class Booking extends Model
         'counter_color',
         'payment_slip_path',
         'collect_front_store',
+        'front_store_collected_amount',
+        'front_store_collected_at',
+        'front_store_collected_by',
         'status',
         'admin_note',
         'customer_note',
@@ -31,6 +34,8 @@ class Booking extends Model
         'use_date' => 'date',
         'confirmed_at' => 'datetime',
         'collect_front_store' => 'boolean',
+        'front_store_collected_amount' => 'decimal:2',
+        'front_store_collected_at' => 'datetime',
     ];
 
     public function lots()
@@ -46,6 +51,11 @@ class Booking extends Model
     public function confirmedBy()
     {
         return $this->belongsTo(User::class, 'confirmed_by');
+    }
+
+    public function frontStoreCollectedBy()
+    {
+        return $this->belongsTo(User::class, 'front_store_collected_by');
     }
 
     public function equipmentSummary(): string

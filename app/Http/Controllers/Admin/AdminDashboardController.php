@@ -4,15 +4,22 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
-use App\Models\DeliveryTask;
 use App\Models\User;
+use App\Services\StatusLogService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class AdminDashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $today = now()->format('Y-m-d');
+        try {
+            $selectedDate = Carbon::createFromFormat('Y-m-d', $request->query('date', now()->format('Y-m-d')))
+                ->format('Y-m-d');
+        } catch (\Throwable) {
+            $selectedDate = now()->format('Y-m-d');
+        }
 
         // Booking status aggregates for today/general
         $stats = [
@@ -24,15 +31,76 @@ class AdminDashboardController extends Controller
             'problem' => Booking::where('status', 'problem')->count(),
         ];
 
-        // Quick list of active bookings today
-        $todayBookings = Booking::where('use_date', $today)
-            ->with(['lots', 'deliveryTask.staff'])
+        $todayBookings = Booking::whereDate('use_date', $selectedDate)
+            ->with(['lots', 'deliveryTask.staff', 'frontStoreCollectedBy'])
             ->orderBy('created_at', 'desc')
             ->get();
+
+        $activeTodayBookings = $todayBookings->where('status', '!=', 'cancelled');
+        $frontStoreBookings = $activeTodayBookings
+            ->where('collect_front_store', true)
+            ->values();
+        $dailySummary = [
+            'bookings' => $activeTodayBookings->count(),
+            'lots' => $activeTodayBookings->sum(fn (Booking $booking) => $booking->lots->count()),
+            'front_store_pending' => $frontStoreBookings->whereNull('front_store_collected_at')->count(),
+            'front_store_collected_amount' => $frontStoreBookings
+                ->whereNotNull('front_store_collected_at')
+                ->sum(fn (Booking $booking) => (float) $booking->front_store_collected_amount),
+        ];
 
         // Staff count
         $staffCount = User::where('role', 'staff')->where('is_active', true)->count();
 
-        return view('admin.dashboard', compact('stats', 'todayBookings', 'staffCount', 'today'));
+        return view('admin.dashboard', compact(
+            'stats',
+            'todayBookings',
+            'frontStoreBookings',
+            'dailySummary',
+            'staffCount',
+            'selectedDate'
+        ));
+    }
+
+    public function collectFrontStore(Request $request, Booking $booking)
+    {
+        if (!$booking->collect_front_store) {
+            return back()->with('error', 'รายการนี้ไม่ได้เลือกเก็บเงินหน้าร้าน');
+        }
+
+        if ($booking->status === 'cancelled') {
+            return back()->with('error', 'ไม่สามารถบันทึกยอดของรายการที่ยกเลิกแล้ว');
+        }
+
+        $validated = $request->validate([
+            'front_store_collected_amount' => 'required|numeric|min:0.01|max:99999999.99',
+        ], [
+            'front_store_collected_amount.required' => 'กรุณากรอกยอดที่เก็บหน้าร้าน',
+            'front_store_collected_amount.numeric' => 'ยอดเก็บหน้าร้านต้องเป็นตัวเลข',
+            'front_store_collected_amount.min' => 'ยอดเก็บหน้าร้านต้องมากกว่า 0 บาท',
+            'front_store_collected_amount.max' => 'ยอดเก็บหน้าร้านสูงเกินขอบเขตที่ระบบรองรับ',
+        ]);
+
+        DB::transaction(function () use ($booking, $validated) {
+            $wasCollected = $booking->front_store_collected_at !== null;
+
+            $booking->update([
+                'front_store_collected_amount' => $validated['front_store_collected_amount'],
+                'front_store_collected_at' => now(),
+                'front_store_collected_by' => auth()->id(),
+            ]);
+
+            StatusLogService::log(
+                Booking::class,
+                $booking->id,
+                $booking->status,
+                $booking->status,
+                auth()->id(),
+                ($wasCollected ? 'แก้ไขยอดเก็บหน้าร้านเป็น ' : 'บันทึกเก็บเงินหน้าร้าน ') .
+                    number_format((float) $validated['front_store_collected_amount'], 2) . ' บาท'
+            );
+        });
+
+        return back()->with('success', 'บันทึกยอดเก็บหน้าร้านเรียบร้อยแล้ว');
     }
 }
