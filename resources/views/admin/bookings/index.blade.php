@@ -4,6 +4,13 @@
 @section('page_title', 'รายการจองทั้งหมด')
 
 @section('content')
+    @if ($errors->any())
+        <div class="alert-cute alert-danger">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <div>{{ $errors->first() }}</div>
+        </div>
+    @endif
+
     <div class="cute-card">
         <!-- Filter Form -->
         <form action="{{ route('admin.bookings.index') }}" method="GET" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
@@ -99,17 +106,32 @@
                             <span class="status-badge {{ $statusClass }}">{{ $statusName }}</span>
                         </td>
                         <td>
-                            <div style="display: flex; gap: 5px;">
+                            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
                                 <a href="{{ route('admin.bookings.show', $booking) }}" class="btn-secondary" style="padding: 6px 12px; font-size: 13px; border-radius: 10px;" title="เปิดดูรายละเอียด">
                                     <i class="fa-solid fa-eye"></i> ดู
                                 </a>
-                                @if($booking->status === 'pending_admin')
-                                    <form action="{{ route('admin.bookings.confirm', $booking) }}" method="POST" style="margin:0;">
+                                @if (!$booking->payment_slip_path)
+                                    <form action="{{ route('admin.bookings.payment_slip', $booking) }}" method="POST" enctype="multipart/form-data" style="margin:0;">
                                         @csrf
-                                        <button type="submit" class="btn-primary" style="padding: 6px 12px; font-size: 13px; border-radius: 10px;" title="ยืนยันการจอง">
-                                            <i class="fa-solid fa-check"></i> ยืนยัน
-                                        </button>
+                                        <label class="btn-secondary" style="padding:6px 12px;font-size:13px;border-radius:10px;cursor:pointer;margin:0;" title="แนบรูปสลิปการชำระเงิน">
+                                            <i class="fa-solid fa-receipt"></i> แนบสลิป
+                                            <input type="file" name="payment_slip" accept="image/jpeg,image/png,image/webp" required hidden onchange="this.form.submit()">
+                                        </label>
                                     </form>
+                                @endif
+                                @if($booking->status === 'pending_admin')
+                                    @if ($booking->payment_slip_path || $booking->collect_front_store)
+                                        <form action="{{ route('admin.bookings.confirm', $booking) }}" method="POST" style="margin:0;">
+                                            @csrf
+                                            <button type="submit" class="btn-primary" style="padding: 6px 12px; font-size: 13px; border-radius: 10px;" title="ยืนยันการจอง">
+                                                <i class="fa-solid fa-check"></i> ยืนยัน
+                                            </button>
+                                        </form>
+                                    @else
+                                        <button type="button" class="btn-secondary" style="padding:6px 12px;font-size:13px;border-radius:10px;opacity:.6;cursor:not-allowed;" disabled title="กรุณาแนบสลิปก่อนยืนยัน">
+                                            <i class="fa-solid fa-lock"></i> แนบสลิปก่อน
+                                        </button>
+                                    @endif
                                 @endif
                             </div>
                         </td>

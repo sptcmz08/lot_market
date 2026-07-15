@@ -38,6 +38,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('/bookings', AdminBookingController::class)->except(['create', 'store']);
+    Route::post('/bookings/{booking}/payment-slip', [AdminBookingController::class, 'uploadPaymentSlip'])->name('bookings.payment_slip');
     Route::post('/bookings/{booking}/confirm', [AdminBookingController::class, 'confirm'])->name('bookings.confirm');
     Route::post('/bookings/{booking}/cancel', [AdminBookingController::class, 'cancel'])->name('bookings.cancel');
     Route::post('/bookings/{booking}/assign', [AdminBookingController::class, 'assignStaff'])->name('bookings.assign');

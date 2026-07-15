@@ -8,14 +8,18 @@ use App\Models\DeliveryTask;
 use App\Models\Lot;
 use App\Models\User;
 use App\Services\LotAvailabilityService;
+use App\Services\PhotoUploadService;
 use App\Services\StatusLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class AdminBookingController extends Controller
 {
-    public function __construct(private LotAvailabilityService $lotAvailabilityService)
-    {
+    public function __construct(
+        private LotAvailabilityService $lotAvailabilityService,
+        private PhotoUploadService $photoUploadService
+    ) {
     }
 
     public function index(Request $request)
@@ -136,6 +140,10 @@ class AdminBookingController extends Controller
             return back()->with('error', 'ไม่สามารถยืนยันการจองในสถานะนี้ได้');
         }
 
+        if (!$booking->payment_slip_path && !$booking->collect_front_store) {
+            return back()->with('error', 'กรุณาแนบรูปสลิปการชำระเงินก่อนยืนยันการจอง');
+        }
+
         DB::transaction(function () use ($booking) {
             $oldStatus = $booking->status;
             $booking->update([
@@ -157,6 +165,40 @@ class AdminBookingController extends Controller
         });
 
         return back()->with('success', 'ยืนยันการจองเรียบร้อยแล้ว');
+    }
+
+    public function uploadPaymentSlip(Request $request, Booking $booking)
+    {
+        $validated = $request->validate([
+            'payment_slip' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
+        ], [
+            'payment_slip.required' => 'กรุณาเลือกรูปสลิปการชำระเงิน',
+            'payment_slip.image' => 'ไฟล์สลิปต้องเป็นรูปภาพ',
+            'payment_slip.mimes' => 'รองรับรูปสลิปประเภท JPG, PNG และ WEBP เท่านั้น',
+            'payment_slip.max' => 'รูปสลิปต้องมีขนาดไม่เกิน 5MB',
+        ]);
+
+        $oldPath = $booking->payment_slip_path;
+        $newPath = $this->photoUploadService->upload($validated['payment_slip'], 'payment-slips');
+
+        $booking->update(['payment_slip_path' => $newPath]);
+
+        if ($oldPath && $oldPath !== $newPath) {
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        StatusLogService::log(
+            Booking::class,
+            $booking->id,
+            $booking->status,
+            $booking->status,
+            auth()->id(),
+            $oldPath ? 'แอดมินเปลี่ยนรูปสลิปการชำระเงิน' : 'แอดมินแนบรูปสลิปการชำระเงิน'
+        );
+
+        return back()->with('success', $oldPath
+            ? 'เปลี่ยนรูปสลิปการชำระเงินเรียบร้อยแล้ว'
+            : 'แนบรูปสลิปการชำระเงินเรียบร้อยแล้ว สามารถยืนยันการจองต่อได้');
     }
 
     public function cancel(Booking $booking)
