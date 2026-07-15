@@ -4,6 +4,42 @@
 
 @section('styles')
 <style>
+    .status-photo-card {
+        border: 1px solid var(--border-cute);
+        border-radius: 14px;
+        overflow: hidden;
+        background: var(--bg-card-soft);
+        min-height: 148px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .status-photo-card img {
+        width: 100%;
+        height: 148px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .status-photo-empty {
+        color: var(--text-muted);
+        font-size: 13px;
+        font-weight: 700;
+        padding: 16px;
+    }
+
+    .status-photo-caption {
+        display: block;
+        padding: 7px 8px;
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--text-dark);
+        border-top: 1px solid var(--border-cute);
+        background: var(--bg-card);
+    }
+
     @media (max-width: 640px) {
         .booking-search-form {
             flex-direction: column;
@@ -51,6 +87,12 @@
             </h3>
 
             @foreach ($bookings as $booking)
+                @php
+                    $afterPhotos = $booking->deliveryTask
+                        ? $booking->deliveryTask->photos->where('photo_type', 'after')
+                        : collect();
+                    $mainAfterPhoto = $afterPhotos->first();
+                @endphp
                 <div class="cute-card" style="padding: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; border-bottom: 2px solid var(--border-cute); padding-bottom: 12px; margin-bottom: 15px;">
                         <div>
@@ -61,13 +103,13 @@
                             <span style="font-size: 12px; color: var(--text-muted); font-weight: 600; display: block;">สถานะ:</span>
                             @php
                                 $statusClass = 'status-' . $booking->status;
-                                $statusName = 'รอยืนยัน';
+                                $statusName = 'รอส่ง';
                                 switch($booking->status) {
-                                    case 'pending_admin': $statusName = 'รอยืนยัน'; break;
-                                    case 'confirmed': $statusName = 'ยืนยันแล้ว/รอส่ง'; break;
-                                    case 'assigned': $statusName = 'มอบหมายงานพนักงานแล้ว'; break;
+                                    case 'pending_admin': $statusName = 'รอส่ง'; break;
+                                    case 'confirmed': $statusName = 'รอส่ง'; break;
+                                    case 'assigned': $statusName = 'รอส่ง'; break;
                                     case 'installing': $statusName = 'กำลังติดตั้ง'; break;
-                                    case 'completed': $statusName = 'ติดตั้งเสร็จแล้ว'; break;
+                                    case 'completed': $statusName = 'ส่งเสร็จแล้ว'; break;
                                     case 'cancelled': $statusName = 'ยกเลิกการจอง'; break;
                                     case 'problem': $statusName = 'พบปัญหา'; break;
                                 }
@@ -112,6 +154,31 @@
                             <span style="font-size: 12px; color: var(--text-muted); display: block;">การชำระเงิน:</span>
                             <strong style="font-size: 15px;">{{ $booking->payment_slip_path ? 'แนบสลิปแล้ว' : ($booking->collect_front_store ? 'เก็บหน้าร้าน' : 'ยังไม่ระบุ') }}</strong>
                         </div>
+                        <div style="grid-column: span 2;">
+                            <span style="font-size: 12px; color: var(--text-muted); display: block; margin-bottom: 8px;">
+                                รูปหลังติดตั้ง:
+                            </span>
+                            @if ($mainAfterPhoto && $booking->status === 'completed')
+                                <div class="status-photo-card">
+                                    <button type="button" class="image-lightbox-trigger" data-lightbox-src="{{ route('media.show', ['path' => $mainAfterPhoto->image_path]) }}" data-lightbox-alt="รูปหลังติดตั้ง" style="display:block;width:100%;border:0;padding:0;background:transparent;cursor:zoom-in;">
+                                        <img src="{{ route('media.show', ['path' => $mainAfterPhoto->image_path]) }}" alt="รูปหลังติดตั้ง">
+                                        <span class="status-photo-caption">
+                                            <i class="fa-solid fa-magnifying-glass-plus"></i> กดเพื่อดูรูปหลังติดตั้ง
+                                            @if($afterPhotos->count() > 1)
+                                                ({{ $afterPhotos->count() }} รูป)
+                                            @endif
+                                        </span>
+                                    </button>
+                                </div>
+                            @else
+                                <div class="status-photo-card">
+                                    <div class="status-photo-empty">
+                                        <i class="fa-solid fa-image" style="font-size:26px;display:block;margin-bottom:8px;color:var(--border-cute);"></i>
+                                        ยังไม่มีรูปหลังติดตั้ง
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
                     </div>
 
                     @if ($booking->customer_note)
@@ -123,23 +190,19 @@
 
                     <!-- Task details and photos -->
                     @if ($booking->deliveryTask)
-                        @if ($booking->deliveryTask->photos->isNotEmpty())
+                        @if ($booking->deliveryTask->photos->where('photo_type', 'after')->isNotEmpty() && $booking->status === 'completed')
                             <div style="border-top: 1px dashed var(--border-cute); padding-top: 15px;">
                                 <span style="font-size: 13px; font-weight: 700; color: var(--text-dark); display: block; margin-bottom: 10px;">
-                                    <i class="fa-solid fa-images" style="color: var(--primary);"></i> ภาพถ่ายการติดตั้งโดยพนักงาน:
+                                    <i class="fa-solid fa-images" style="color: var(--primary);"></i> รูปหลังติดตั้งทั้งหมด:
                                 </span>
                                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;">
-                                    @foreach ($booking->deliveryTask->photos as $photo)
+                                    @foreach ($booking->deliveryTask->photos->where('photo_type', 'after') as $photo)
                                         <div style="border: 2px solid var(--border-cute); border-radius: 14px; overflow: hidden; background-color: var(--bg-page); text-align: center;">
                                             <button type="button" class="image-lightbox-trigger" data-lightbox-src="{{ route('media.show', ['path' => $photo->image_path]) }}" data-lightbox-alt="ภาพถ่ายติดตั้ง" style="display:block;width:100%;">
                                                 <img src="{{ route('media.show', ['path' => $photo->image_path]) }}" style="width: 100%; height: 100px; object-fit: cover; display: block;" alt="ภาพถ่ายติดตั้ง">
                                             </button>
                                             <span style="font-size: 11px; font-weight: 700; padding: 4px; display: block; color: var(--text-dark);">
-                                                @if($photo->photo_type === 'lot_number') 📝 เลขล็อค
-                                                @elseif($photo->photo_type === 'before') 🛠️ ก่อนติดตั้ง
-                                                @elseif($photo->photo_type === 'after') ✅ หลังติดตั้ง
-                                                @elseif($photo->photo_type === 'problem') ⚠️ แจ้งปัญหา
-                                                @endif
+                                                ✅ หลังติดตั้ง
                                             </span>
                                         </div>
                                     @endforeach
