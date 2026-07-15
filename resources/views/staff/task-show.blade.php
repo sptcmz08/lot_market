@@ -95,7 +95,7 @@
         <!-- 2. STARTED - UPLOAD AND SUBMIT FORMS -->
         <div class="cute-card">
             <h3 class="cute-card-title" style="font-size:16px; margin-bottom:15px;">
-                <i class="fa-solid fa-camera"></i> ถ่ายรูปส่งงานติดตั้ง (ขนาดไม่เกิน 10MB)
+                <i class="fa-solid fa-camera"></i> ถ่ายรูปส่งงานติดตั้ง
             </h3>
 
             <!-- Show current photo upload counters -->

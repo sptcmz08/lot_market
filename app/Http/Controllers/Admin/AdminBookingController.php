@@ -170,12 +170,11 @@ class AdminBookingController extends Controller
     public function uploadPaymentSlip(Request $request, Booking $booking)
     {
         $validated = $request->validate([
-            'payment_slip' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'payment_slip' => 'required|image|mimes:jpg,jpeg,png,webp',
         ], [
             'payment_slip.required' => 'กรุณาเลือกรูปสลิปการชำระเงิน',
             'payment_slip.image' => 'ไฟล์สลิปต้องเป็นรูปภาพ',
             'payment_slip.mimes' => 'รองรับรูปสลิปประเภท JPG, PNG และ WEBP เท่านั้น',
-            'payment_slip.max' => 'รูปสลิปต้องมีขนาดไม่เกิน 5MB',
         ]);
 
         $oldPath = $booking->payment_slip_path;

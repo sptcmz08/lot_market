@@ -52,7 +52,10 @@ class StaffMultipleAfterPhotoUploadTest extends TestCase
 
         $response = $this->actingAs($staff)->post(route('staff.tasks.upload_photo', $task), [
             'photo_type' => 'after',
-            'photos' => [$this->fakePhoto('after-1.png'), $this->fakePhoto('after-2.png')],
+            'photos' => [
+                $this->fakePhoto('after-1.png')->size(25 * 1024),
+                $this->fakePhoto('after-2.png'),
+            ],
         ]);
 
         $response->assertRedirect()

@@ -111,7 +111,7 @@ class PublicBookingController extends Controller
             'wants_counter' => 'nullable|boolean',
             'counter_size' => 'nullable|required_if:wants_counter,1|in:1 ล็อค 70x75 cm. มีหลังคา,2 ล็อค 140x75 cm.,3 ล็อค 180x75 cm.',
             'counter_color' => 'nullable|string|max:50',
-            'payment_slip' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'payment_slip' => 'nullable|image|mimes:jpg,jpeg,png,webp',
             'collect_front_store' => 'nullable|boolean',
             'customer_note' => 'nullable|string|max:500',
         ], [
@@ -126,7 +126,6 @@ class PublicBookingController extends Controller
             'tent_color.required_if' => 'กรุณาเลือกสีเต็นท์',
             'counter_size.required_if' => 'กรุณาเลือกขนาดเคาน์เตอร์',
             'payment_slip.image' => 'ไฟล์สลิปต้องเป็นรูปภาพ',
-            'payment_slip.max' => 'รูปสลิปต้องมีขนาดไม่เกิน 5MB',
         ]);
 
         $validated['wants_tent'] = $request->boolean('wants_tent');

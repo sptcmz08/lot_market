@@ -402,7 +402,7 @@
                 <div class="booking-field">
                     <label class="cute-label" for="payment_slip"><i class="fa-solid fa-image" style="color:var(--primary);"></i> รูปภาพสลิป กรณีลูกค้าชำระแล้ว</label>
                     <input type="file" id="payment_slip" name="payment_slip" class="cute-input" accept="image/*">
-                    <small style="color: var(--text-muted); font-size: 12px;">รองรับ JPG, PNG, WEBP ขนาดไม่เกิน 5MB</small>
+                    <small style="color: var(--text-muted); font-size: 12px;">รองรับไฟล์รูปภาพ JPG, PNG และ WEBP</small>
                 </div>
 
                 <div class="booking-field">

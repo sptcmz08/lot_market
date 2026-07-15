@@ -81,9 +81,9 @@ class StaffTaskController extends Controller
 
         $validated = $request->validate([
             'photo_type' => 'required|in:lot_number,before,after,problem',
-            'photo' => 'nullable|required_without:photos|image|max:10240',
+            'photo' => 'nullable|required_without:photos|image',
             'photos' => 'nullable|required_without:photo|array|min:1|max:10',
-            'photos.*' => 'required|image|max:10240',
+            'photos.*' => 'required|image',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
             'note' => 'nullable|string|max:250',
@@ -91,8 +91,6 @@ class StaffTaskController extends Controller
             'photo.required_without' => 'กรุณาเลือกรูปภาพ',
             'photos.required_without' => 'กรุณาเลือกรูปภาพ',
             'photos.max' => 'อัปโหลดรูปได้ครั้งละไม่เกิน 10 รูป',
-            'photo.max' => 'รูปภาพแต่ละรูปต้องมีขนาดไม่เกิน 10MB',
-            'photos.*.max' => 'รูปภาพแต่ละรูปต้องมีขนาดไม่เกิน 10MB',
         ]);
 
         $files = $request->hasFile('photos')
@@ -202,7 +200,7 @@ class StaffTaskController extends Controller
 
         $request->validate([
             'problem_note' => 'required|string|min:5',
-            'problem_photo' => 'nullable|image|max:10240',
+            'problem_photo' => 'nullable|image',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
         ]);

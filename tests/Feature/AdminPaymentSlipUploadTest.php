@@ -32,7 +32,7 @@ class AdminPaymentSlipUploadTest extends TestCase
 
         $response = $this->actingAs($admin)->post(
             route('admin.bookings.payment_slip', $booking),
-            ['payment_slip' => $this->fakePaymentSlip()]
+            ['payment_slip' => $this->fakePaymentSlip()->size(20 * 1024)]
         );
 
         $response->assertRedirect()
