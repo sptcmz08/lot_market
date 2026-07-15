@@ -3,6 +3,52 @@
 @section('title', 'จัดการคำสั่งจองอุปกรณ์')
 @section('page_title', 'รายการจองทั้งหมด')
 
+@section('styles')
+<style>
+    .payment-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .payment-summary-item {
+        padding: 15px 16px;
+        border: 1px solid var(--border-cute);
+        border-left: 4px solid #f59e0b;
+        border-radius: 10px;
+        background: var(--bg-card);
+    }
+
+    .payment-summary-item:nth-child(2) { border-left-color: #22c55e; }
+    .payment-summary-item:nth-child(3) { border-left-color: #ef4444; }
+
+    .payment-summary-item span {
+        display: block;
+        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .payment-summary-item strong {
+        display: block;
+        margin-top: 4px;
+        color: var(--text-dark);
+        font-size: 23px;
+    }
+
+    .payment-method-detail {
+        min-width: 145px;
+    }
+
+    @media (max-width: 640px) {
+        .payment-summary-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+@endsection
+
 @section('content')
     @if ($errors->any())
         <div class="alert-cute alert-danger">
@@ -10,6 +56,21 @@
             <div>{{ $errors->first() }}</div>
         </div>
     @endif
+
+    <div class="payment-summary-grid">
+        <div class="payment-summary-item">
+            <span><i class="fa-solid fa-cash-register"></i> เก็บเงินหน้าร้าน</span>
+            <strong>{{ number_format($paymentSummary['front_store']) }} รายการ</strong>
+        </div>
+        <div class="payment-summary-item">
+            <span><i class="fa-solid fa-receipt"></i> แนบสลิปแล้ว</span>
+            <strong>{{ number_format($paymentSummary['slip_attached']) }} รายการ</strong>
+        </div>
+        <div class="payment-summary-item">
+            <span><i class="fa-solid fa-clock"></i> รอแนบสลิป</span>
+            <strong>{{ number_format($paymentSummary['slip_pending']) }} รายการ</strong>
+        </div>
+    </div>
 
     <div class="cute-card">
         <!-- Filter Form -->
@@ -30,6 +91,16 @@
                     <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>ติดตั้งสำเร็จ</option>
                     <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>ยกเลิก</option>
                     <option value="problem" {{ request('status') == 'problem' ? 'selected' : '' }}>มีปัญหา</option>
+                </select>
+            </div>
+
+            <div class="cute-input-group" style="margin-bottom: 0; flex: 1; min-width: 140px;">
+                <label class="cute-label" for="payment_method">วิธีชำระเงิน</label>
+                <select id="payment_method" name="payment_method" class="cute-select">
+                    <option value="">ทั้งหมด</option>
+                    <option value="front_store" {{ request('payment_method') === 'front_store' ? 'selected' : '' }}>เก็บเงินหน้าร้าน</option>
+                    <option value="slip_attached" {{ request('payment_method') === 'slip_attached' ? 'selected' : '' }}>แนบสลิปแล้ว</option>
+                    <option value="slip_pending" {{ request('payment_method') === 'slip_pending' ? 'selected' : '' }}>รอแนบสลิป</option>
                 </select>
             </div>
 
@@ -59,6 +130,7 @@
                     <th>ล็อตแผงที่จอง</th>
                     <th>รายการอุปกรณ์</th>
                     <th>ผู้รับผิดชอบ</th>
+                    <th>การชำระเงิน</th>
                     <th>สถานะ</th>
                     <th>จัดการ</th>
                 </tr>
@@ -91,6 +163,25 @@
                                 <span style="color: var(--text-muted); font-style: italic;">ยังไม่ระบุ</span>
                             @endif
                         </td>
+                        <td class="payment-method-detail">
+                            @if ($booking->collect_front_store)
+                                <span class="status-badge status-pending_admin"><i class="fa-solid fa-cash-register"></i> เก็บหน้าร้าน</span>
+                                @if ($booking->front_store_collected_at)
+                                    <small style="display:block;margin-top:5px;color:#15803d;font-weight:700;">
+                                        เก็บแล้ว {{ number_format((float) $booking->front_store_collected_amount, 2) }} บาท
+                                    </small>
+                                @else
+                                    <small style="display:block;margin-top:5px;color:var(--text-muted);">ยังไม่ได้เก็บเงิน</small>
+                                @endif
+                            @elseif ($booking->payment_slip_path)
+                                <span class="status-badge status-completed"><i class="fa-solid fa-receipt"></i> แนบสลิปแล้ว</span>
+                                <button type="button" class="image-lightbox-trigger" data-lightbox-src="{{ route('media.show', ['path' => $booking->payment_slip_path]) }}" data-lightbox-alt="สลิป {{ $booking->booking_code }}" style="display:block;margin-top:6px;color:var(--primary-hover);font-weight:700;font-size:12px;">
+                                    <i class="fa-solid fa-magnifying-glass"></i> ดูสลิป
+                                </button>
+                            @else
+                                <span class="status-badge status-problem"><i class="fa-solid fa-clock"></i> รอแนบสลิป</span>
+                            @endif
+                        </td>
                         <td>
                             @php
                                 $statusClass = 'status-' . $booking->status;
@@ -112,7 +203,7 @@
                                 <a href="{{ route('admin.bookings.show', $booking) }}" class="btn-secondary" style="padding: 6px 12px; font-size: 13px; border-radius: 10px;" title="เปิดดูรายละเอียด">
                                     <i class="fa-solid fa-eye"></i> ดู
                                 </a>
-                                @if (!$booking->payment_slip_path)
+                                @if (!$booking->collect_front_store && !$booking->payment_slip_path)
                                     <form action="{{ route('admin.bookings.payment_slip', $booking) }}" method="POST" enctype="multipart/form-data" style="margin:0;">
                                         @csrf
                                         <label class="btn-secondary" style="padding:6px 12px;font-size:13px;border-radius:10px;cursor:pointer;margin:0;" title="แนบรูปสลิปการชำระเงิน">
@@ -140,7 +231,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                        <td colspan="9" style="text-align: center; padding: 40px; color: var(--text-muted);">
                             <i class="fa-solid fa-box-open" style="font-size: 40px; margin-bottom: 10px; display: block; color: var(--border-cute);"></i>
                             ไม่พบข้อมูลการจองในระบบ
                         </td>
@@ -154,4 +245,6 @@
     <div class="pagination-cute">
         {{ $bookings->links() }}
     </div>
+
+    @include('components.image-lightbox')
 @endsection

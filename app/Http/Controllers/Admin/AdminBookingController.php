@@ -46,9 +46,35 @@ class AdminBookingController extends Controller
             $query->whereDate('use_date', $request->date);
         }
 
+        $paymentSummaryQuery = clone $query;
+        $paymentSummary = [
+            'front_store' => (clone $paymentSummaryQuery)->where('collect_front_store', true)->count(),
+            'slip_attached' => (clone $paymentSummaryQuery)
+                ->where(fn ($q) => $q->where('collect_front_store', false)->orWhereNull('collect_front_store'))
+                ->whereNotNull('payment_slip_path')
+                ->count(),
+            'slip_pending' => (clone $paymentSummaryQuery)
+                ->where(fn ($q) => $q->where('collect_front_store', false)->orWhereNull('collect_front_store'))
+                ->whereNull('payment_slip_path')
+                ->count(),
+        ];
+
+        if ($request->filled('payment_method')) {
+            match ($request->payment_method) {
+                'front_store' => $query->where('collect_front_store', true),
+                'slip_attached' => $query
+                    ->where(fn ($q) => $q->where('collect_front_store', false)->orWhereNull('collect_front_store'))
+                    ->whereNotNull('payment_slip_path'),
+                'slip_pending' => $query
+                    ->where(fn ($q) => $q->where('collect_front_store', false)->orWhereNull('collect_front_store'))
+                    ->whereNull('payment_slip_path'),
+                default => null,
+            };
+        }
+
         $bookings = $query->orderBy('use_date', 'desc')->paginate(15)->withQueryString();
 
-        return view('admin.bookings.index', compact('bookings'));
+        return view('admin.bookings.index', compact('bookings', 'paymentSummary'));
     }
 
     public function show(Booking $booking)
@@ -158,6 +184,10 @@ class AdminBookingController extends Controller
 
     public function uploadPaymentSlip(Request $request, Booking $booking)
     {
+        if ($booking->collect_front_store) {
+            return back()->with('error', 'รายการนี้เลือกเก็บเงินหน้าร้าน จึงไม่ต้องแนบสลิป');
+        }
+
         $validated = $request->validate([
             'payment_slip' => 'required|image|mimes:jpg,jpeg,png,webp',
         ], [

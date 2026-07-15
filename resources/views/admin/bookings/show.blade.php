@@ -27,14 +27,16 @@
             <i class="fa-solid fa-arrow-left"></i> กลับไปรายการจอง
         </a>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <form action="{{ route('admin.bookings.payment_slip', $booking) }}" method="POST" enctype="multipart/form-data" style="margin:0;">
-                @csrf
-                <label class="btn-secondary" style="cursor:pointer;margin:0;" title="{{ $booking->payment_slip_path ? 'เปลี่ยนรูปสลิปการชำระเงิน' : 'แนบรูปสลิปการชำระเงิน' }}">
-                    <i class="fa-solid fa-receipt"></i>
-                    {{ $booking->payment_slip_path ? 'เปลี่ยนสลิป' : 'แนบสลิป' }}
-                    <input type="file" name="payment_slip" accept="image/jpeg,image/png,image/webp" required hidden onchange="this.form.submit()">
-                </label>
-            </form>
+            @if (!$booking->collect_front_store)
+                <form action="{{ route('admin.bookings.payment_slip', $booking) }}" method="POST" enctype="multipart/form-data" style="margin:0;">
+                    @csrf
+                    <label class="btn-secondary" style="cursor:pointer;margin:0;" title="{{ $booking->payment_slip_path ? 'เปลี่ยนรูปสลิปการชำระเงิน' : 'แนบรูปสลิปการชำระเงิน' }}">
+                        <i class="fa-solid fa-receipt"></i>
+                        {{ $booking->payment_slip_path ? 'เปลี่ยนสลิป' : 'แนบสลิป' }}
+                        <input type="file" name="payment_slip" accept="image/jpeg,image/png,image/webp" required hidden onchange="this.form.submit()">
+                    </label>
+                </form>
+            @endif
 
             <a href="{{ route('admin.bookings.edit', $booking) }}" class="btn-secondary" style="border-color: var(--accent); color: var(--text-dark);">
                 <i class="fa-solid fa-pen-to-square"></i> แก้ไขข้อมูลการจอง
@@ -119,7 +121,7 @@
                     </div>
                     <div>
                         <span style="font-size: 13px; color: var(--text-muted); display: block;">การชำระเงิน:</span>
-                        <strong>{{ $booking->payment_slip_path ? 'แนบสลิปแล้ว' : ($booking->collect_front_store ? 'เก็บหน้าร้าน' : 'ยังไม่ระบุ') }}</strong>
+                        <strong>{{ $booking->collect_front_store ? 'เก็บหน้าร้าน' : ($booking->payment_slip_path ? 'แนบสลิปแล้ว' : 'รอแนบสลิป') }}</strong>
                         @if ($booking->collect_front_store)
                             @if ($booking->front_store_collected_at)
                                 <small style="display:block;margin-top:4px;color:#1E7E34;font-weight:700;">
