@@ -142,32 +142,34 @@
                         </small>
                     </form>
                 </div>
-            @elseif (!$hasAfter)
+            @else
                 <div id="after-upload-step">
-                    <div class="alert-cute alert-success" style="margin-bottom:15px;">
-                        <i class="fa-solid fa-circle-check"></i>
-                        <div>แอดมินอนุมัติรูป LOT แล้ว ขั้นตอนต่อไปถ่ายรูปหลังติดตั้งเสร็จ</div>
-                    </div>
+                    @if ($hasAfter)
+                        <div class="alert-cute alert-success" style="margin-bottom:15px;">
+                            <i class="fa-solid fa-images"></i>
+                            <div>มีรูปหลังติดตั้งแล้ว {{ $photos->where('photo_type', 'after')->count() }} รูป สามารถถ่ายเพิ่ม หรือกดส่งงานด้านล่างได้</div>
+                        </div>
+                    @else
+                        <div class="alert-cute alert-success" style="margin-bottom:15px;">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <div>แอดมินอนุมัติรูป LOT แล้ว ขั้นตอนต่อไปถ่ายรูปหลังติดตั้งเสร็จ</div>
+                        </div>
+                    @endif
 
                     <form action="{{ route('staff.tasks.upload_photo', $task) }}" method="POST" enctype="multipart/form-data" class="auto-photo-form" style="margin-bottom: 25px;">
                         @csrf
                         <input type="hidden" name="photo_type" value="after">
                         <input type="hidden" name="latitude" class="gps-lat">
                         <input type="hidden" name="longitude" class="gps-lng">
-                        <input type="file" id="after-photo" name="photo" class="auto-upload-photo" accept="image/*" capture="environment" required style="display:none;">
+                        <input type="file" id="after-photo" name="photos[]" class="auto-upload-photo" accept="image/*" capture="environment" multiple required style="display:none;">
 
                         <label for="after-photo" class="btn-large btn-large-secondary" style="height: 56px;">
-                            <i class="fa-solid fa-camera-retro"></i> ถ่ายรูปหลังติดตั้งเสร็จ
+                            <i class="fa-solid fa-camera-retro"></i> {{ $hasAfter ? 'เพิ่มรูปหลังติดตั้ง' : 'ถ่ายรูปหลังติดตั้งเสร็จ' }}
                         </label>
                         <small style="display:block;text-align:center;color:var(--text-muted);font-size:12px;margin-top:8px;">
-                            หลังเลือกรูป ระบบจะอัปโหลดให้อัตโนมัติ
+                            เลือกได้หลายรูปพร้อมกัน หรือถ่ายเพิ่มทีละรูป ระบบจะอัปโหลดให้อัตโนมัติ
                         </small>
                     </form>
-                </div>
-            @else
-                <div class="alert-cute alert-success" style="margin-bottom:15px;">
-                    <i class="fa-solid fa-circle-check"></i>
-                    <div>รูป LOT ผ่านแล้ว และมีรูปหลังติดตั้งแล้ว สามารถกดส่งงานด้านล่างได้เลย</div>
                 </div>
             @endif
         </div>

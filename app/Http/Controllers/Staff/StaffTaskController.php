@@ -79,33 +79,47 @@ class StaffTaskController extends Controller
             abort(403, 'Unauthorized.');
         }
 
-        $request->validate([
+        $validated = $request->validate([
             'photo_type' => 'required|in:lot_number,before,after,problem',
-            'photo' => 'required|image|max:10240', // Limit to 10MB before compression
+            'photo' => 'nullable|required_without:photos|image|max:10240',
+            'photos' => 'nullable|required_without:photo|array|min:1|max:10',
+            'photos.*' => 'required|image|max:10240',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
             'note' => 'nullable|string|max:250',
+        ], [
+            'photo.required_without' => 'กรุณาเลือกรูปภาพ',
+            'photos.required_without' => 'กรุณาเลือกรูปภาพ',
+            'photos.max' => 'อัปโหลดรูปได้ครั้งละไม่เกิน 10 รูป',
+            'photo.max' => 'รูปภาพแต่ละรูปต้องมีขนาดไม่เกิน 10MB',
+            'photos.*.max' => 'รูปภาพแต่ละรูปต้องมีขนาดไม่เกิน 10MB',
         ]);
 
-        $path = $this->photoUploadService->upload($request->file('photo'));
+        $files = $request->hasFile('photos')
+            ? $request->file('photos')
+            : [$request->file('photo')];
 
-        $photo = DeliveryPhoto::create([
-            'delivery_task_id' => $task->id,
-            'photo_type' => $request->photo_type,
-            'image_path' => $path,
-            'latitude' => $request->latitude,
-            'longitude' => $request->longitude,
-            'taken_at' => now(),
-            'uploaded_by' => auth()->id(),
-            'note' => $request->note,
-            'ocr_status' => $request->photo_type === 'lot_number' ? 'pending_review' : null,
-        ]);
+        foreach ($files as $file) {
+            $path = $this->photoUploadService->upload($file);
 
-        if ($request->photo_type === 'lot_number') {
+            DeliveryPhoto::create([
+                'delivery_task_id' => $task->id,
+                'photo_type' => $validated['photo_type'],
+                'image_path' => $path,
+                'latitude' => $validated['latitude'] ?? null,
+                'longitude' => $validated['longitude'] ?? null,
+                'taken_at' => now(),
+                'uploaded_by' => auth()->id(),
+                'note' => $validated['note'] ?? null,
+                'ocr_status' => $validated['photo_type'] === 'lot_number' ? 'pending_review' : null,
+            ]);
+        }
+
+        if ($validated['photo_type'] === 'lot_number') {
             return back()->with('success', 'อัปโหลดรูปเลขล็อตสำเร็จแล้ว รอแอดมินตรวจสอบยืนยัน');
         }
 
-        return back()->with('success', 'อัปโหลดรูปภาพสำเร็จแล้ว');
+        return back()->with('success', 'อัปโหลดรูปหลังติดตั้งสำเร็จ ' . count($files) . ' รูป สามารถเพิ่มรูปหรือกดส่งงานได้');
     }
 
     public function complete(DeliveryTask $task)
