@@ -207,8 +207,8 @@
                 </button>
             </form>
 
-            <a href="{{ route('public.map') }}" class="back-link">
-                <i class="fa-solid fa-arrow-left-long"></i> กลับไปยังหน้าแผนที่ตลาด
+            <a href="{{ route('public.booking.create') }}" class="back-link">
+                <i class="fa-solid fa-arrow-left-long"></i> กลับไปยังหน้าจองอุปกรณ์
             </a>
         </div>
     </div>

@@ -10,12 +10,12 @@
         z-index: 2000;
         width: 360px;
         max-width: 90vw;
-        background: rgba(255, 255, 255, 0.88);
+        background: rgba(17, 24, 39, 0.94);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        border: 1px solid var(--border-cute);
+        border-radius: 18px;
+        box-shadow: none;
         padding: 18px;
         transform: translate(-50%, -100%) translateY(-25px);
         transition: opacity 0.2s ease, transform 0.2s ease;
@@ -35,7 +35,7 @@
         transform: translateX(-50%);
         border-width: 10px 10px 0;
         border-style: solid;
-        border-color: rgba(255, 255, 255, 0.88) transparent;
+        border-color: rgba(17, 24, 39, 0.94) transparent;
         display: block;
         width: 0;
     }
@@ -44,7 +44,7 @@
         top: -10px;
         bottom: auto;
         border-width: 0 10px 10px;
-        border-color: rgba(255, 255, 255, 0.88) transparent;
+        border-color: rgba(17, 24, 39, 0.94) transparent;
     }
 
     .popover-close {
@@ -54,20 +54,20 @@
         background: none;
         border: none;
         font-size: 20px;
-        color: #999;
+        color: var(--text-muted);
         cursor: pointer;
         transition: color 0.15s ease;
         line-height: 1;
     }
 
     .popover-close:hover {
-        color: #333;
+        color: var(--text-dark);
     }
 
     .popover-title {
         font-size: 18px;
         font-weight: 800;
-        color: #111;
+        color: var(--text-dark);
         margin: 0 0 4px 0;
         text-align: center;
         padding-right: 15px;
@@ -84,38 +84,38 @@
         font-weight: 700;
         padding: 4px 12px;
         border-radius: 20px;
-        background-color: #E2F9EB;
-        color: #10B981;
+        background-color: #064E3B;
+        color: #A7F3D0;
     }
 
     .popover-badge.pending {
-        background-color: #FEF3C7;
-        color: #D97706;
+        background-color: #78350F;
+        color: #FDE68A;
     }
 
     .popover-badge.booked {
-        background-color: #FEE2E2;
-        color: #EF4444;
+        background-color: #7F1D1D;
+        color: #FECACA;
     }
 
     .popover-badge.installing {
-        background-color: #F3E8FF;
-        color: #8B5CF6;
+        background-color: #4C1D95;
+        color: #DDD6FE;
     }
 
     .popover-badge.completed {
-        background-color: #E0F2FE;
-        color: #0284C7;
+        background-color: #164E63;
+        color: #BAE6FD;
     }
 
     .popover-badge.problem {
-        background-color: #FFEDD5;
-        color: #EA580C;
+        background-color: #7C2D12;
+        color: #FED7AA;
     }
 
     .popover-badge.blocked {
-        background-color: #F3F4F6;
-        color: #4B5563;
+        background-color: #374151;
+        color: #E5E7EB;
     }
 
     .popover-grid {
@@ -126,8 +126,8 @@
     }
 
     .popover-card {
-        background: rgba(243, 244, 246, 0.85);
-        border: 1px solid rgba(229, 231, 235, 0.7);
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid var(--border-cute);
         border-radius: 12px;
         aspect-ratio: 1.2;
         display: flex;
@@ -146,7 +146,7 @@
 
     .popover-card-label {
         font-size: 11px;
-        color: #888;
+        color: var(--text-muted);
         margin-top: 4px;
         font-weight: 500;
     }
@@ -154,7 +154,7 @@
     .popover-card-text {
         font-size: 12px;
         font-weight: 700;
-        color: #777;
+        color: var(--text-muted);
     }
 
     .popover-btn-share {
@@ -162,7 +162,7 @@
         align-items: center;
         justify-content: center;
         gap: 8px;
-        background-color: #4B5563;
+        background-color: #334155;
         color: white;
         border: none;
         border-radius: 12px;
@@ -175,7 +175,7 @@
     }
 
     .popover-btn-share:hover {
-        background-color: #374151;
+        background-color: #475569;
     }
 
     .popover-btn-book {
@@ -183,8 +183,8 @@
         align-items: center;
         justify-content: center;
         gap: 8px;
-        background-color: #10B981;
-        color: white;
+        background-color: var(--secondary);
+        color: #042F2E;
         border: none;
         border-radius: 12px;
         padding: 10px;
@@ -197,7 +197,7 @@
     }
 
     .popover-btn-book:hover {
-        background-color: #059669;
+        background-color: #14B8A6;
     }
 
     .date-select-container {
@@ -254,10 +254,10 @@
         margin-left: auto;
         margin-right: auto;
         padding: 8px;
-        background-color: #F7F7F7;
+        background-color: #0B1220;
         border-radius: 6px;
         overflow: hidden;
-        border: 1px solid #D9D9D9;
+        border: 1px solid var(--border-cute);
         box-sizing: border-box;
     }
 
@@ -271,14 +271,14 @@
         position: sticky;
         top: 0;
         z-index: 15;
-        background: rgba(247, 247, 247, 0.96);
+        background: rgba(11, 18, 32, 0.96);
         padding: 2px 0 6px;
     }
 
     .map-tool-btn {
-        border: 1px solid #D0D7DE;
-        background: #FFFFFF;
-        color: #374151;
+        border: 1px solid var(--border-cute);
+        background: #111827;
+        color: var(--text-dark);
         width: 38px;
         height: 36px;
         border-radius: 4px;
@@ -310,7 +310,7 @@
         padding: 0;
         max-height: 72vh;
         background: #FFFFFF;
-        border: 1px solid #D9D9D9;
+        border: 1px solid var(--border-cute);
         border-radius: 2px;
         -webkit-overflow-scrolling: touch;
         touch-action: pan-x pan-y;
@@ -468,7 +468,7 @@
             font-size: 12px;
             padding: 6px 8px;
             background: #FFFFFF;
-            border: 1px solid #F1DDE5;
+            border: 1px solid var(--border-cute);
             border-radius: 10px;
         }
 
@@ -970,7 +970,7 @@
                         <div class="popover-badge-container">
                             <span class="${badgeClass}">ล็อต ${listLots} (${statusText})</span>
                         </div>
-                        <div style="font-weight: 850; color: #2F2F37; text-align: center; margin: -4px 0 10px;">
+                        <div style="font-weight: 850; color: var(--text-dark); text-align: center; margin: -4px 0 10px;">
                             ${equipmentSummary}
                         </div>
                         <div class="popover-grid">

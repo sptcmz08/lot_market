@@ -36,7 +36,7 @@ class PublicBookingController extends Controller
 
         if ($lots->isNotEmpty() && !$this->lotAvailabilityService->isAvailable($lots->pluck('id')->all(), $date)) {
             return redirect()
-                ->route('public.map', ['date' => $date])
+                ->route('public.booking.create', ['date' => $date])
                 ->with('error', 'ล็อคที่เลือกมีคำสั่งจองอุปกรณ์อยู่แล้วในวันดังกล่าว กรุณาตรวจสอบรายการเดิมก่อน');
         }
 

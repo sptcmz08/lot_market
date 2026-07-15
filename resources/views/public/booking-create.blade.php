@@ -140,8 +140,11 @@
 @section('content')
     <div class="cute-card booking-paper">
         <h2 class="cute-card-title booking-paper-title">
-            <i class="fa-solid fa-file-invoice"></i> แบบฟอร์มจองเต็นท์/เคาน์เตอร์
+            <i class="fa-solid fa-file-invoice"></i> จองเต็นท์/เคาน์เตอร์
         </h2>
+        <p style="margin:-8px 0 20px;color:var(--text-muted);font-size:14px;">
+            กรอกเลขล็อคของร้านได้เลย ไม่จำเป็นต้องเลือกผ่านแผนผัง
+        </p>
 
         @if ($errors->any())
             <div class="alert-cute alert-danger">
@@ -257,7 +260,7 @@
 
             <div class="booking-form-actions" style="display: flex; gap: 12px; margin-top: 30px;">
                 <a href="{{ route('public.map', ['date' => $date]) }}" class="btn-secondary" style="flex: 1;">
-                    <i class="fa-solid fa-arrow-left"></i> ย้อนกลับไปเลือกล็อต
+                    <i class="fa-solid fa-map-location-dot"></i> ดูแผนผัง
                 </a>
                 <button type="submit" class="btn-primary" style="flex: 2;">
                     <i class="fa-solid fa-paper-plane"></i> ส่งคำสั่งจองอุปกรณ์

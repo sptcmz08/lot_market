@@ -12,7 +12,7 @@
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#FF8FB1">
+    <meta name="theme-color" content="#0F172A">
     
     <!-- FontAwesome for cute icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -20,15 +20,16 @@
     <!-- Custom CSS style matches Mood & Tone -->
     <style>
         :root {
-            --primary: #FF8FB1;
-            --primary-hover: #ff769d;
-            --secondary: #8BD3DD;
-            --accent: #FFD166;
-            --bg-page: #FFF7FA;
-            --bg-card: #FFFFFF;
-            --text-dark: #2F2F37;
-            --text-muted: #7A7A85;
-            --border-cute: #F1DDE5;
+            --primary: #38BDF8;
+            --primary-hover: #0EA5E9;
+            --secondary: #2DD4BF;
+            --accent: #F59E0B;
+            --bg-page: #0F172A;
+            --bg-card: #111827;
+            --bg-card-soft: #1F2937;
+            --text-dark: #F8FAFC;
+            --text-muted: #CBD5E1;
+            --border-cute: #334155;
             
             /* Statuses colors */
             --available: #6FD08C;
@@ -54,9 +55,9 @@
 
         .header-bar {
             background-color: var(--bg-card);
-            border-bottom: 2px solid var(--border-cute);
+            border-bottom: 1px solid var(--border-cute);
             padding: 15px 20px;
-            box-shadow: 0 4px 15px rgba(255, 143, 177, 0.08);
+            box-shadow: none;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -102,14 +103,14 @@
         }
 
         .nav-link:hover, .nav-link.active {
-            background-color: var(--border-cute);
-            color: var(--primary-hover);
+            background-color: var(--bg-card-soft);
+            color: var(--primary);
         }
 
         .nav-btn {
             background: linear-gradient(135deg, var(--primary), var(--primary-hover));
-            color: white !important;
-            box-shadow: 0 4px 12px rgba(255, 143, 177, 0.25);
+            color: #08111F !important;
+            box-shadow: none;
         }
 
         .content-container {
@@ -124,9 +125,9 @@
         /* Cute common components */
         .cute-card {
             background-color: var(--bg-card);
-            border-radius: 24px;
+            border-radius: 18px;
             padding: 25px;
-            box-shadow: 0 10px 30px rgba(47, 47, 55, 0.06);
+            box-shadow: none;
             border: 1px solid var(--border-cute);
             margin-bottom: 20px;
         }
@@ -156,9 +157,9 @@
             padding: 14px 22px;
             font-size: 16px;
             font-weight: 700;
-            color: white;
+            color: #08111F;
             background: linear-gradient(135deg, var(--primary), var(--primary-hover));
-            box-shadow: 0 8px 20px rgba(255, 143, 177, 0.25);
+            box-shadow: none;
             cursor: pointer;
             transition: all 0.2s ease;
             text-decoration: none;
@@ -167,7 +168,7 @@
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(255, 143, 177, 0.35);
+            box-shadow: none;
         }
 
         .btn-primary:active {
@@ -185,7 +186,7 @@
             font-size: 16px;
             font-weight: 700;
             color: var(--text-dark);
-            background-color: var(--bg-card);
+            background-color: var(--bg-card-soft);
             cursor: pointer;
             transition: all 0.2s ease;
             text-decoration: none;
@@ -193,9 +194,9 @@
         }
 
         .btn-secondary:hover {
-            background-color: var(--bg-page);
+            background-color: #0B1220;
             border-color: var(--primary);
-            color: var(--primary-hover);
+            color: var(--primary);
         }
 
         .status-badge {
@@ -208,13 +209,13 @@
             font-weight: 700;
         }
 
-        .status-available { background-color: #E2F9E9; color: #1E7E34; }
-        .status-pending { background-color: #FFF3CD; color: #856404; }
-        .status-booked { background-color: #F8D7DA; color: #721C24; }
-        .status-installing { background-color: #EBE3FC; color: #5B21B6; }
-        .status-completed { background-color: #D1ECF1; color: #0C5460; }
-        .status-blocked { background-color: #E2E3E5; color: #383D41; }
-        .status-problem { background-color: #FFE6D2; color: #D35400; }
+        .status-available { background-color: #064E3B; color: #A7F3D0; }
+        .status-pending { background-color: #78350F; color: #FDE68A; }
+        .status-booked { background-color: #7F1D1D; color: #FECACA; }
+        .status-installing { background-color: #4C1D95; color: #DDD6FE; }
+        .status-completed { background-color: #164E63; color: #BAE6FD; }
+        .status-blocked { background-color: #374151; color: #E5E7EB; }
+        .status-problem { background-color: #7C2D12; color: #FED7AA; }
 
         .cute-input-group {
             margin-bottom: 20px;
@@ -259,22 +260,22 @@
         }
 
         .alert-success {
-            background-color: #E2F9E9;
-            color: #1E7E34;
-            border-color: #C3E6CB;
+            background-color: #052E2B;
+            color: #99F6E4;
+            border-color: #115E59;
         }
 
         .alert-danger {
-            background-color: #F8D7DA;
-            color: #721C24;
-            border-color: #F5C6CB;
+            background-color: #450A0A;
+            color: #FECACA;
+            border-color: #991B1B;
         }
 
         footer {
             text-align: center;
             padding: 20px;
             background-color: var(--bg-card);
-            border-top: 2px solid var(--border-cute);
+            border-top: 1px solid var(--border-cute);
             color: var(--text-muted);
             font-size: 13px;
             margin-top: auto;
@@ -367,13 +368,16 @@
 <body>
 
     <header class="header-bar">
-        <a href="{{ route('public.map') }}" class="brand-title">
+        <a href="{{ route('public.booking.create') }}" class="brand-title">
             <i class="fa-solid fa-campground"></i>
-            <span>เช่าเต็นท์ตลาดหวานแหวว</span>
+            <span>จองเต็นท์และเคาน์เตอร์ตลาด</span>
         </a>
         <nav class="main-nav">
+            <a href="{{ route('public.booking.create') }}" class="nav-link {{ Route::is('public.booking.create') ? 'active' : '' }}">
+                <i class="fa-solid fa-file-signature"></i> จองอุปกรณ์
+            </a>
             <a href="{{ route('public.map') }}" class="nav-link {{ Route::is('public.map') ? 'active' : '' }}">
-                <i class="fa-solid fa-map-location-dot"></i> แผนที่จอง
+                <i class="fa-solid fa-map-location-dot"></i> ดูแผนผัง
             </a>
             <a href="{{ route('public.booking.check') }}" class="nav-link {{ Route::is('public.booking.check') || Route::is('public.booking.check.submit') ? 'active' : '' }}">
                 <i class="fa-solid fa-search"></i> ตรวจสถานะ

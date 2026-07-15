@@ -19,9 +19,10 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 // Public Routes
-Route::get('/', [PublicMapController::class, 'index'])->name('public.map');
+Route::get('/', [PublicBookingController::class, 'create'])->name('public.booking.create');
+Route::get('/map', [PublicMapController::class, 'index'])->name('public.map');
 Route::get('/lots/status', [PublicMapController::class, 'lotStatus'])->name('public.lots.status');
-Route::get('/booking/create', [PublicBookingController::class, 'create'])->name('public.booking.create');
+Route::redirect('/booking/create', '/');
 Route::post('/booking', [PublicBookingController::class, 'store'])->name('public.booking.store');
 Route::get('/booking/check', [PublicBookingController::class, 'checkForm'])->name('public.booking.check');
 Route::post('/booking/check', [PublicBookingController::class, 'check'])->name('public.booking.check.submit');
