@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\MediaController;
 use App\Http\Controllers\PublicMapController;
 use App\Http\Controllers\PublicBookingController;
 use App\Http\Controllers\SystemCommandController;
@@ -24,6 +25,7 @@ Route::get('/booking/create', [PublicBookingController::class, 'create'])->name(
 Route::post('/booking', [PublicBookingController::class, 'store'])->name('public.booking.store');
 Route::get('/booking/check', [PublicBookingController::class, 'checkForm'])->name('public.booking.check');
 Route::post('/booking/check', [PublicBookingController::class, 'check'])->name('public.booking.check.submit');
+Route::get('/media/{path}', [MediaController::class, 'show'])->where('path', '.*')->name('media.show');
 
 // Auth Routes
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');

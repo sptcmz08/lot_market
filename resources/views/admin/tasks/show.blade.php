@@ -102,8 +102,8 @@
                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
                         @foreach ($task->photos as $photo)
                             <div style="border: 2px solid var(--border-cute); border-radius: 18px; overflow: hidden; background-color: var(--bg-page); display: flex; flex-direction: column;">
-                                <a href="{{ Storage::url($photo->image_path) }}" target="_blank">
-                                    <img src="{{ Storage::url($photo->image_path) }}" style="width: 100%; height: 150px; object-fit: cover; display: block;" alt="รูปติดตั้ง">
+                                <a href="{{ route('media.show', ['path' => $photo->image_path]) }}" target="_blank">
+                                    <img src="{{ route('media.show', ['path' => $photo->image_path]) }}" style="width: 100%; height: 150px; object-fit: cover; display: block;" alt="รูปติดตั้ง">
                                 </a>
                                 <div style="padding: 12px; font-size: 13px; display: flex; flex-direction: column; gap: 4px; flex: 1;">
                                     <strong style="color: var(--text-dark);">

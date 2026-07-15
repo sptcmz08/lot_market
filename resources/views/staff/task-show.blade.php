@@ -187,8 +187,8 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px;">
                 @foreach ($task->photos as $ph)
                     <div style="border: 2px solid var(--border-cute); border-radius: 14px; overflow:hidden; background-color: var(--bg-page); text-align: center;">
-                        <a href="{{ Storage::url($ph->image_path) }}" target="_blank">
-                            <img src="{{ Storage::url($ph->image_path) }}" style="width:100%; height:90px; object-fit:cover; display:block;" alt="ภาพประวัติ">
+                        <a href="{{ route('media.show', ['path' => $ph->image_path]) }}" target="_blank">
+                            <img src="{{ route('media.show', ['path' => $ph->image_path]) }}" style="width:100%; height:90px; object-fit:cover; display:block;" alt="ภาพประวัติ">
                         </a>
                         <div style="font-size: 11px; padding: 4px; font-weight:700;">
                             @if($ph->photo_type === 'lot_number') 📝 ป้ายแผง

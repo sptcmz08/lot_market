@@ -75,7 +75,7 @@ class PublicMapController extends Controller
                     $photoPaths = [];
                     if ($activeBooking->deliveryTask && $activeBooking->deliveryTask->photos) {
                         foreach ($activeBooking->deliveryTask->photos as $p) {
-                            $photoPaths[$p->photo_type] = asset('storage/' . $p->image_path);
+                            $photoPaths[$p->photo_type] = route('media.show', ['path' => $p->image_path]);
                         }
                     }
 

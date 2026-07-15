@@ -24,8 +24,8 @@
                 $expectedLots = $booking ? $booking->lots->pluck('lot_code')->implode(', ') : '-';
             @endphp
             <div class="cute-card review-card" style="display:grid;grid-template-columns:minmax(220px,340px) minmax(0,1fr);gap:20px;align-items:start;">
-                <a href="{{ Storage::url($photo->image_path) }}" target="_blank" style="display:block;border-radius:18px;overflow:hidden;border:2px solid var(--border-cute);background:var(--bg-page);">
-                    <img src="{{ Storage::url($photo->image_path) }}" alt="รูปเลขล็อต" style="width:100%;height:260px;object-fit:cover;display:block;">
+                <a href="{{ route('media.show', ['path' => $photo->image_path]) }}" target="_blank" style="display:block;border-radius:18px;overflow:hidden;border:2px solid var(--border-cute);background:var(--bg-page);">
+                    <img src="{{ route('media.show', ['path' => $photo->image_path]) }}" alt="รูปเลขล็อต" style="width:100%;height:260px;object-fit:cover;display:block;">
                 </a>
 
                 <div>
