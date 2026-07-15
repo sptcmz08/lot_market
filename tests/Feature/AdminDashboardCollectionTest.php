@@ -75,6 +75,7 @@ class AdminDashboardCollectionTest extends TestCase
             'front_store_collected_amount' => 750,
             'front_store_collected_at' => now(),
             'front_store_collected_by' => $admin->id,
+            'shop_name' => "ร้านทดสอบ\x01อักขระ",
         ]);
         $lot = Lot::firstOrCreate(
             ['lot_code' => 'GB20'],
@@ -90,12 +91,29 @@ class AdminDashboardCollectionTest extends TestCase
 
         $zip = new ZipArchive();
         $this->assertTrue($zip->open($response->getFile()->getPathname()) === true);
+        $requiredParts = [
+            '[Content_Types].xml',
+            '_rels/.rels',
+            'docProps/app.xml',
+            'docProps/core.xml',
+            'xl/workbook.xml',
+            'xl/_rels/workbook.xml.rels',
+            'xl/styles.xml',
+            'xl/worksheets/sheet1.xml',
+        ];
+        foreach ($requiredParts as $part) {
+            $xml = $zip->getFromName($part);
+            $this->assertIsString($xml, $part.' must exist in the XLSX package');
+            $document = new \DOMDocument();
+            $this->assertTrue($document->loadXML($xml), $part.' must contain valid XML');
+        }
         $worksheet = $zip->getFromName('xl/worksheets/sheet1.xml');
         $zip->close();
 
         $this->assertStringContainsString('BKEXPORT001', $worksheet);
         $this->assertStringContainsString('GB20', $worksheet);
-        $this->assertStringContainsString('ร้านเก็บเงินหน้าร้าน', $worksheet);
+        $this->assertStringContainsString('ร้านทดสอบอักขระ', $worksheet);
+        $this->assertStringNotContainsString("\x01", $worksheet);
         $this->assertStringContainsString('<v>750</v>', $worksheet);
     }
 
