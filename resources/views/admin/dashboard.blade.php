@@ -123,6 +123,76 @@
         padding: 7px 10px;
     }
 
+    .workflow-table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--border-cute);
+        border-radius: 12px;
+    }
+
+    .workflow-table {
+        min-width: 1180px;
+        margin: 0;
+    }
+
+    .workflow-table th {
+        white-space: nowrap;
+        text-align: center;
+    }
+
+    .workflow-table td {
+        vertical-align: top;
+    }
+
+    .workflow-equipment {
+        min-width: 145px;
+    }
+
+    .workflow-equipment small {
+        display: block;
+        margin-top: 4px;
+        color: var(--text-muted);
+    }
+
+    .workflow-photo-list,
+    .workflow-approve-list {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+        min-width: 135px;
+    }
+
+    .workflow-photo-button,
+    .workflow-approve-button {
+        width: 100%;
+        min-height: 36px;
+        padding: 7px 10px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .workflow-photo-button {
+        color: var(--text-dark);
+        border: 1px solid var(--border-cute);
+        background: var(--bg-card);
+    }
+
+    .workflow-approve-button {
+        color: #ffffff;
+        border: 0;
+        background: #16a34a;
+        cursor: pointer;
+    }
+
+    .workflow-status-stack {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        min-width: 125px;
+    }
+
     @media (max-width: 767px) {
         .daily-summary-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -312,85 +382,115 @@
                 ไม่มีงานติดตั้งเต็นท์ที่นัดหมายใช้แผงในวันนี้
             </div>
         @else
-            <div class="cute-table-container">
-                <table class="cute-table">
+            <div class="workflow-table-wrap">
+                <table class="cute-table workflow-table">
                     <thead>
                         <tr>
-                            <th>รหัสจอง</th>
-                            <th>ร้านค้า</th>
-                            <th>ล็อตที่จอง</th>
-                            <th>งานเต็นท์</th>
-                            <th>งานเคาน์เตอร์</th>
-                            <th>งานอุปกรณ์อื่น</th>
-                            <th>สถานะ</th>
-                            <th>จัดการ</th>
+                            <th>วันที่ใช้งาน</th>
+                            <th>เลขล็อค</th>
+                            <th>เต็นท์</th>
+                            <th>เคาน์เตอร์</th>
+                            <th>อื่น ๆ</th>
+                            <th>รูปภาพ</th>
+                            <th>สถานะยืนยัน</th>
+                            <th>แอดมิน</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($todayBookings as $booking)
                             @php
                                 $tasksByType = $booking->deliveryTasks->keyBy('task_type');
+                                $lotPhotos = $booking->deliveryTasks->flatMap->photos->where('photo_type', 'lot_number');
+                                $pendingLotPhotos = $lotPhotos->where('ocr_status', 'pending_review');
+                                $approvedLotPhotos = $lotPhotos->where('ocr_status', 'approved');
+                                $rejectedLotPhotos = $lotPhotos->where('ocr_status', 'rejected');
                             @endphp
                             <tr>
-                                <td><strong>{{ $booking->booking_code }}</strong></td>
                                 <td>
-                                    <div><strong>{{ $booking->shop_name }}</strong></div>
-                                    <small style="color: var(--text-muted);">โทร: {{ $booking->customer_phone }}</small>
+                                    <strong>{{ $booking->use_date->format('d/m/Y') }}</strong>
+                                    <small style="display:block;color:var(--text-muted);">{{ $booking->booking_code }}</small>
                                 </td>
-                                <td><strong style="color: var(--primary-hover);">{{ $booking->lots->pluck('lot_code')->implode(', ') }}</strong></td>
-                                <td style="min-width:150px;">
+                                <td>
+                                    <strong style="color:var(--primary-hover);">{{ $booking->lots->pluck('lot_code')->implode(', ') }}</strong>
+                                    <small style="display:block;margin-top:4px;color:var(--text-muted);">{{ $booking->shop_name }}</small>
+                                </td>
+                                <td class="workflow-equipment">
                                     @if ($booking->tent_size)
-                                        <strong>เต็นท์ {{ $booking->tent_size }} สี{{ $booking->tent_color }}</strong>
-                                        <small style="display:block;margin-top:4px;color:var(--text-muted);">
-                                            <i class="fa-solid fa-user-check"></i> {{ $tasksByType->get('tent')?->staff?->name ?? 'ยังไม่มอบหมาย' }}<br>
-                                            {{ $tasksByType->get('tent')?->statusLabel() ?? 'รอมอบหมาย' }}
-                                        </small>
+                                        <strong>{{ $booking->tent_size }} สี{{ $booking->tent_color }}</strong>
+                                        <small><i class="fa-solid fa-user"></i> {{ $tasksByType->get('tent')?->staff?->name ?? 'ยังไม่มอบหมาย' }}</small>
+                                        <small>{{ $tasksByType->get('tent')?->statusLabel() ?? 'รอมอบหมาย' }}</small>
                                     @else
                                         <span style="color:var(--text-muted);">-</span>
                                     @endif
                                 </td>
-                                <td style="min-width:170px;">
+                                <td class="workflow-equipment">
                                     @if ($booking->counter_size)
                                         <strong>{{ $booking->counter_size }}</strong>
-                                        <small style="display:block;margin-top:4px;color:var(--text-muted);">
-                                            <i class="fa-solid fa-user-check"></i> {{ $tasksByType->get('counter')?->staff?->name ?? 'ยังไม่มอบหมาย' }}<br>
-                                            {{ $tasksByType->get('counter')?->statusLabel() ?? 'รอมอบหมาย' }}
-                                        </small>
+                                        <small><i class="fa-solid fa-user"></i> {{ $tasksByType->get('counter')?->staff?->name ?? 'ยังไม่มอบหมาย' }}</small>
+                                        <small>{{ $tasksByType->get('counter')?->statusLabel() ?? 'รอมอบหมาย' }}</small>
                                     @else
                                         <span style="color:var(--text-muted);">-</span>
                                     @endif
                                 </td>
-                                <td style="min-width:150px;">
+                                <td class="workflow-equipment">
                                     @if ($tasksByType->get('other'))
                                         <strong>{{ $tasksByType->get('other')->equipmentSummary() }}</strong>
-                                        <small style="display:block;margin-top:4px;color:var(--text-muted);">
-                                            <i class="fa-solid fa-user-check"></i> {{ $tasksByType->get('other')?->staff?->name ?? 'ยังไม่มอบหมาย' }}<br>
-                                            {{ $tasksByType->get('other')?->statusLabel() ?? 'รอมอบหมาย' }}
-                                        </small>
+                                        <small><i class="fa-solid fa-user"></i> {{ $tasksByType->get('other')?->staff?->name ?? 'ยังไม่มอบหมาย' }}</small>
+                                        <small>{{ $tasksByType->get('other')?->statusLabel() ?? 'รอมอบหมาย' }}</small>
                                     @else
                                         <span style="color:var(--text-muted);">-</span>
                                     @endif
                                 </td>
                                 <td>
-                                    @php
-                                        $statusClass = 'status-' . $booking->status;
-                                        $statusName = 'รอยืนยัน';
-                                        switch($booking->status) {
-                                            case 'pending_admin': $statusName = 'รอยืนยัน'; break;
-                                            case 'confirmed': $statusName = 'ยืนยันแล้ว/รอส่ง'; break;
-                                            case 'assigned': $statusName = 'มอบหมายพนักงาน'; break;
-                                            case 'installing': $statusName = 'กำลังติดตั้ง'; break;
-                                            case 'completed': $statusName = 'ติดตั้งเสร็จแล้ว'; break;
-                                            case 'cancelled': $statusName = 'ยกเลิก'; break;
-                                            case 'problem': $statusName = 'มีปัญหา'; break;
-                                        }
-                                    @endphp
-                                    <span class="status-badge {{ $statusClass }}">{{ $statusName }}</span>
+                                    <div class="workflow-photo-list">
+                                        @forelse ($lotPhotos as $photo)
+                                            @php
+                                                $photoTask = $booking->deliveryTasks->firstWhere('id', $photo->delivery_task_id);
+                                            @endphp
+                                            <button type="button" class="image-lightbox-trigger workflow-photo-button" data-lightbox-src="{{ route('media.show', ['path' => $photo->image_path]) }}" data-lightbox-alt="รูป LOT - {{ $photoTask?->typeLabel() ?? 'งานจัดส่ง' }}">
+                                                <i class="fa-solid fa-image"></i> {{ $photoTask?->typeLabel() ?? 'ดูรูป LOT' }}
+                                            </button>
+                                        @empty
+                                            <span style="color:var(--text-muted);">ยังไม่มีรูป</span>
+                                        @endforelse
+                                    </div>
                                 </td>
                                 <td>
-                                    <a href="{{ route('admin.bookings.show', $booking) }}" class="btn-secondary" style="padding: 6px 12px; font-size: 13px; border-radius: 10px;">
-                                        <i class="fa-solid fa-eye"></i> ดูรายละเอียด
-                                    </a>
+                                    <div class="workflow-status-stack">
+                                        @if ($pendingLotPhotos->isNotEmpty())
+                                            <span class="status-badge status-pending_admin">ส่งแล้ว / รอตรวจ {{ $pendingLotPhotos->count() }} รูป</span>
+                                        @elseif ($approvedLotPhotos->isNotEmpty())
+                                            <span class="status-badge status-completed">ยืนยันแล้ว {{ $approvedLotPhotos->count() }} รูป</span>
+                                        @elseif ($rejectedLotPhotos->isNotEmpty())
+                                            <span class="status-badge status-problem">ไม่ผ่าน / รอส่งใหม่</span>
+                                        @else
+                                            <span class="status-badge status-confirmed">รอพนักงานส่งรูป</span>
+                                        @endif
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="workflow-approve-list">
+                                        @forelse ($pendingLotPhotos as $photo)
+                                            @php
+                                                $photoTask = $booking->deliveryTasks->firstWhere('id', $photo->delivery_task_id);
+                                            @endphp
+                                            <form action="{{ route('admin.lot_photo_reviews.approve', $photo) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="workflow-approve-button">
+                                                    <i class="fa-solid fa-circle-check"></i> Approve {{ $photoTask?->typeLabel() ?? '' }}
+                                                </button>
+                                            </form>
+                                        @empty
+                                            @if ($approvedLotPhotos->isNotEmpty())
+                                                <span style="color:#15803d;font-weight:800;"><i class="fa-solid fa-check"></i> Approved</span>
+                                            @else
+                                                <span style="color:var(--text-muted);">รอรูปภาพ</span>
+                                            @endif
+                                        @endforelse
+                                        <a href="{{ route('admin.bookings.show', $booking) }}" class="btn-secondary" style="padding:7px 9px;font-size:12px;border-radius:8px;text-align:center;">
+                                            <i class="fa-solid fa-eye"></i> รายละเอียด
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
@@ -399,5 +499,7 @@
             </div>
         @endif
     </div>
+
+    @include('components.image-lightbox')
 
 @endsection

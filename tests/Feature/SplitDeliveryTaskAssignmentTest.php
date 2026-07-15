@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Booking;
+use App\Models\DeliveryPhoto;
 use App\Models\DeliveryTask;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -80,12 +81,29 @@ class SplitDeliveryTaskAssignmentTest extends TestCase
             ->assertSee('เต็นท์ 2x2 สีขาว')
             ->assertDontSee('งานเคาน์เตอร์');
 
+        $tentTask = $booking->deliveryTasks()->where('task_type', 'tent')->firstOrFail();
+        $lotPhoto = DeliveryPhoto::create([
+            'delivery_task_id' => $tentTask->id,
+            'photo_type' => 'lot_number',
+            'image_path' => 'delivery-photos/test-lot.jpg',
+            'ocr_status' => 'pending_review',
+            'uploaded_by' => $tentStaff->id,
+        ]);
+
         $dashboard = $this->actingAs($admin)->get(route('admin.dashboard'));
         $dashboard->assertOk()
             ->assertSee('คนส่งเต็นท์')
             ->assertSee('คนส่งเคาน์เตอร์')
             ->assertSee('คนส่งอุปกรณ์')
-            ->assertSee('ถุงทรายและเชือก');
+            ->assertSee('ถุงทรายและเชือก')
+            ->assertSee('ส่งแล้ว / รอตรวจ 1 รูป')
+            ->assertSee('Approve งานเต็นท์')
+            ->assertSee(route('admin.lot_photo_reviews.approve', $lotPhoto), false);
+
+        $this->actingAs($admin)
+            ->post(route('admin.lot_photo_reviews.approve', $lotPhoto))
+            ->assertSessionHas('success');
+        $this->assertSame('approved', $lotPhoto->fresh()->ocr_status);
     }
 
     public function test_booking_completes_only_after_every_split_task_is_completed(): void

@@ -33,7 +33,7 @@ class AdminDashboardController extends Controller
         ];
 
         $todayBookings = Booking::whereDate('use_date', $selectedDate)
-            ->with(['lots', 'deliveryTasks.staff', 'frontStoreCollectedBy'])
+            ->with(['lots', 'deliveryTasks.staff', 'deliveryTasks.photos', 'frontStoreCollectedBy'])
             ->orderBy('created_at', 'desc')
             ->get();
 
