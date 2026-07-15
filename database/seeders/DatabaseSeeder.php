@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'admin@example.com'],
             [
                 'name' => 'แอดมินใจดี',
+                'username' => 'admin',
                 'phone' => '0888888888',
                 'password' => bcrypt('password'),
                 'role' => 'admin',
@@ -34,6 +35,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'staff@example.com'],
             [
                 'name' => 'พนักงานส่งเต็นท์ A',
+                'username' => 'staff',
                 'phone' => '0999999999',
                 'password' => bcrypt('password'),
                 'role' => 'staff',
@@ -45,6 +47,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'staff2@example.com'],
             [
                 'name' => 'พนักงานส่งเต็นท์ B',
+                'username' => 'staff2',
                 'phone' => '0777777777',
                 'password' => bcrypt('password'),
                 'role' => 'staff',

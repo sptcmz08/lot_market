@@ -28,10 +28,17 @@
 
             <div class="form-grid">
                 <div class="cute-input-group">
-                    <label class="cute-label" for="name">ชื่อผู้ใช้ / พนักงาน *</label>
+                    <label class="cute-label" for="name">ชื่อพนักงาน *</label>
                     <input type="text" id="name" name="name" class="cute-input" value="{{ old('name') }}" placeholder="ตัวอย่าง: สมชาย ขยันดี" required>
                 </div>
                 
+                <div class="cute-input-group">
+                    <label class="cute-label" for="username">Username สำหรับล็อกอิน *</label>
+                    <input type="text" id="username" name="username" class="cute-input" value="{{ old('username') }}" placeholder="เช่น staff3" required>
+                </div>
+            </div>
+
+            <div class="form-grid">
                 <div class="cute-input-group">
                     <label class="cute-label" for="role">บทบาท / ตำแหน่ง *</label>
                     <select id="role" name="role" class="cute-select" required>
@@ -40,9 +47,7 @@
                         <option value="viewer" {{ old('role') == 'viewer' ? 'selected' : '' }}>ผู้เข้าชมดูข้อมูลการจอง (Viewer)</option>
                     </select>
                 </div>
-            </div>
 
-            <div class="form-grid">
                 <div class="cute-input-group">
                     <label class="cute-label" for="email">อีเมล (ถ้ามี)</label>
                     <input type="email" id="email" name="email" class="cute-input" value="{{ old('email') }}" placeholder="ตัวอย่าง: staff@example.com">

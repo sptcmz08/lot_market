@@ -21,49 +21,48 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => 'required|string', // Support email or username
+            'login' => 'required|string',
             'password' => 'required|string',
         ]);
 
-        // Attempt login using email or phone/name as key
-        $loginField = filter_var($credentials['email'], FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
+        $login = $credentials['login'];
+        $loginField = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
         
         $attempt = [
-            $loginField => $credentials['email'],
+            $loginField => $login,
             'password' => $credentials['password'],
             'is_active' => true,
         ];
 
         if (Auth::attempt($attempt, $request->boolean('remember'))) {
-            $request->session()->regenerate();
-            
-            $user = Auth::user();
-            if ($user->role === 'admin') {
-                return redirect()->intended(route('admin.dashboard'));
-            }
-            return redirect()->intended(route('staff.tasks.index'));
+            return $this->redirectAfterLogin($request);
         }
 
-        // Fallback to name-based login just in case
-        if ($loginField === 'phone') {
-            $attemptName = [
-                'name' => $credentials['email'],
+        foreach (['phone', 'name'] as $fallbackField) {
+            if (Auth::attempt([
+                $fallbackField => $login,
                 'password' => $credentials['password'],
                 'is_active' => true,
-            ];
-            if (Auth::attempt($attemptName, $request->boolean('remember'))) {
-                $request->session()->regenerate();
-                $user = Auth::user();
-                if ($user->role === 'admin') {
-                    return redirect()->intended(route('admin.dashboard'));
-                }
-                return redirect()->intended(route('staff.tasks.index'));
+            ], $request->boolean('remember'))) {
+                return $this->redirectAfterLogin($request);
             }
         }
 
         return back()->withErrors([
-            'email' => 'ข้อมูลประจำตัวไม่ถูกต้อง หรือผู้ใช้ถูกระงับการใช้งาน',
-        ])->onlyInput('email');
+            'login' => 'ข้อมูลประจำตัวไม่ถูกต้อง หรือผู้ใช้ถูกระงับการใช้งาน',
+        ])->onlyInput('login');
+    }
+
+    private function redirectAfterLogin(Request $request)
+    {
+        $request->session()->regenerate();
+        $user = Auth::user();
+
+        if ($user->role === 'admin') {
+            return redirect()->intended(route('admin.dashboard'));
+        }
+
+        return redirect()->intended(route('staff.tasks.index'));
     }
 
     public function logout(Request $request)

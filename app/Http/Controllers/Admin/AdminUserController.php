@@ -24,12 +24,16 @@ class AdminUserController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:150',
+            'username' => 'required|string|max:80|alpha_dash|unique:users,username',
             'email' => 'nullable|email|max:150|unique:users,email',
             'phone' => 'nullable|string|max:30|unique:users,phone',
             'password' => 'required|string|min:6|confirmed',
             'role' => 'required|in:admin,staff,viewer',
             'is_active' => 'required|boolean',
         ], [
+            'username.required' => 'กรุณากรอก username',
+            'username.alpha_dash' => 'username ใช้ได้เฉพาะตัวอักษร ตัวเลข ขีดกลาง และขีดล่าง',
+            'username.unique' => 'username นี้ถูกใช้งานแล้ว',
             'email.unique' => 'อีเมลนี้ถูกใช้งานแล้ว',
             'phone.unique' => 'เบอร์โทรนี้ถูกใช้งานแล้ว',
             'password.min' => 'รหัสผ่านต้องมีความยาวไม่ต่ำกว่า 6 ตัวอักษร',
@@ -52,12 +56,16 @@ class AdminUserController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:150',
+            'username' => 'required|string|max:80|alpha_dash|unique:users,username,' . $user->id,
             'email' => 'nullable|email|max:150|unique:users,email,' . $user->id,
             'phone' => 'nullable|string|max:30|unique:users,phone,' . $user->id,
             'password' => 'nullable|string|min:6|confirmed',
             'role' => 'required|in:admin,staff,viewer',
             'is_active' => 'required|boolean',
         ], [
+            'username.required' => 'กรุณากรอก username',
+            'username.alpha_dash' => 'username ใช้ได้เฉพาะตัวอักษร ตัวเลข ขีดกลาง และขีดล่าง',
+            'username.unique' => 'username นี้ถูกใช้งานแล้ว',
             'email.unique' => 'อีเมลนี้ถูกใช้งานแล้ว',
             'phone.unique' => 'เบอร์โทรนี้ถูกใช้งานแล้ว',
             'password.min' => 'รหัสผ่านต้องมีความยาวไม่ต่ำกว่า 6 ตัวอักษร',

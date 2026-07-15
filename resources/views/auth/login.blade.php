@@ -186,8 +186,8 @@
             <form action="{{ route('login') }}" method="POST">
                 @csrf
                 <div class="cute-input-group">
-                    <label class="cute-label" for="email">อีเมล / ชื่อผู้ใช้ / เบอร์โทร</label>
-                    <input type="text" id="email" name="email" class="cute-input" value="{{ old('email') }}" required placeholder="กรอกข้อมูลลงทะเบียน..." autofocus>
+                    <label class="cute-label" for="login">Username / เบอร์โทร</label>
+                    <input type="text" id="login" name="login" class="cute-input" value="{{ old('login') }}" required placeholder="เช่น admin หรือ staff" autofocus>
                 </div>
 
                 <div class="cute-input-group">

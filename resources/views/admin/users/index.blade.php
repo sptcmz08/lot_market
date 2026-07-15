@@ -16,8 +16,9 @@
         <table class="cute-table">
             <thead>
                 <tr>
-                    <th>ชื่อผู้ใช้ / พนักงาน</th>
-                    <th>อีเมลที่ใช้ล็อกอิน</th>
+                    <th>ชื่อพนักงาน</th>
+                    <th>Username</th>
+                    <th>อีเมล</th>
                     <th>เบอร์โทรศัพท์</th>
                     <th>ตำแหน่ง / บทบาท</th>
                     <th>สถานะบัญชี</th>
@@ -31,6 +32,7 @@
                         <td>
                             <strong style="font-size: 15px; color: var(--text-dark);">{{ $user->name }}</strong>
                         </td>
+                        <td><strong style="color: var(--primary-hover);">{{ $user->username ?: '-' }}</strong></td>
                         <td>{{ $user->email ?: '-' }}</td>
                         <td>{{ $user->phone ?: '-' }}</td>
                         <td>
@@ -79,7 +81,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                        <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted);">
                             <i class="fa-solid fa-users-slash" style="font-size: 40px; margin-bottom: 10px; display: block; color: var(--border-cute);"></i>
                             ไม่มีประวัติข้อมูลผู้ใช้ระบบ
                         </td>
