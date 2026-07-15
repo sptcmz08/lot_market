@@ -42,6 +42,11 @@
                     </div>
                     
                     <div>
+                        <span style="font-size: 13px; color: var(--text-muted); display: block;">ประเภทงาน / อุปกรณ์:</span>
+                        <strong>{{ $task->typeLabel() }}: {{ $task->equipmentSummary() }}</strong>
+                    </div>
+
+                    <div>
                         <span style="font-size: 13px; color: var(--text-muted); display: block;">สถานะงานติดตั้ง:</span>
                         @php
                             $statusClass = 'status-' . $task->status;

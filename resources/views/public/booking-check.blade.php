@@ -141,9 +141,7 @@
 
             @foreach ($bookings as $booking)
                 @php
-                    $taskPhotos = $booking->deliveryTask
-                        ? $booking->deliveryTask->photos
-                        : collect();
+                    $taskPhotos = $booking->deliveryTasks->flatMap->photos;
                     $approvedLotPhotos = $taskPhotos
                         ->where('photo_type', 'lot_number')
                         ->where('ocr_status', 'approved');
@@ -224,7 +222,7 @@
                         </div>
                     @endif
 
-                    @if ($booking->deliveryTask)
+                    @if ($booking->deliveryTasks->isNotEmpty())
                         <div class="customer-evidence">
                             <div class="customer-evidence-grid">
                                 <section class="customer-evidence-group">

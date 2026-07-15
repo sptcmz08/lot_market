@@ -9,9 +9,15 @@ class DeliveryTask extends Model
 {
     use HasFactory;
 
+    public const TYPE_TENT = 'tent';
+    public const TYPE_COUNTER = 'counter';
+    public const TYPE_OTHER = 'other';
+
     protected $fillable = [
         'booking_id',
         'staff_id',
+        'task_type',
+        'equipment_note',
         'task_date',
         'status',
         'started_at',
@@ -38,5 +44,44 @@ class DeliveryTask extends Model
     public function photos()
     {
         return $this->hasMany(DeliveryPhoto::class);
+    }
+
+    public function typeLabel(): string
+    {
+        return match ($this->task_type) {
+            self::TYPE_TENT => 'งานเต็นท์',
+            self::TYPE_COUNTER => 'งานเคาน์เตอร์',
+            self::TYPE_OTHER => 'งานอุปกรณ์อื่น',
+            default => 'งานจัดส่ง',
+        };
+    }
+
+    public function equipmentSummary(): string
+    {
+        if (!$this->booking) {
+            return $this->equipment_note ?: '-';
+        }
+
+        return match ($this->task_type) {
+            self::TYPE_TENT => $this->booking->tent_size
+                ? trim('เต็นท์ '.$this->booking->tent_size.($this->booking->tent_color ? ' สี'.$this->booking->tent_color : ''))
+                : '-',
+            self::TYPE_COUNTER => $this->booking->counter_size
+                ? trim('เคาน์เตอร์ '.$this->booking->counter_size.($this->booking->counter_color ? ' สี'.$this->booking->counter_color : ''))
+                : '-',
+            self::TYPE_OTHER => $this->equipment_note ?: 'อุปกรณ์อื่น',
+            default => $this->booking->equipmentSummary(),
+        };
+    }
+
+    public function statusLabel(): string
+    {
+        return match ($this->status) {
+            'waiting' => 'รอเริ่มงาน',
+            'started', 'photo_uploaded' => 'กำลังดำเนินการ',
+            'completed' => 'เสร็จแล้ว',
+            'problem' => 'พบปัญหา',
+            default => $this->status,
+        };
     }
 }

@@ -21,6 +21,10 @@ class AdminDeliveryTaskController extends Controller
             $query->where('staff_id', $request->staff_id);
         }
 
+        if ($request->filled('task_type')) {
+            $query->where('task_type', $request->task_type);
+        }
+
         if ($request->filled('date')) {
             $query->whereDate('task_date', $request->date);
         }

@@ -83,8 +83,10 @@
                             <div>{{ $booking->equipmentSummary() }}</div>
                         </td>
                         <td>
-                            @if ($booking->deliveryTask && $booking->deliveryTask->staff)
-                                <i class="fa-solid fa-user-check" style="color: var(--secondary);"></i> {{ $booking->deliveryTask->staff->name }}
+                            @if ($booking->deliveryTasks->whereNotNull('staff_id')->isNotEmpty())
+                                @foreach ($booking->deliveryTasks->whereNotNull('staff_id') as $task)
+                                    <small style="display:block;"><strong>{{ $task->typeLabel() }}:</strong> {{ $task->staff?->name }} ({{ $task->statusLabel() }})</small>
+                                @endforeach
                             @else
                                 <span style="color: var(--text-muted); font-style: italic;">ยังไม่ระบุ</span>
                             @endif

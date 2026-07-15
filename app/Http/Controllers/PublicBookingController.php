@@ -243,7 +243,7 @@ class PublicBookingController extends Controller
             $q->where('booking_code', 'like', "%{$query}%")
               ->orWhere('customer_phone', 'like', "%{$query}%");
         })
-        ->with(['lots', 'deliveryTask.photos'])
+        ->with(['lots', 'deliveryTasks.photos'])
         ->orderBy('use_date', 'desc')
         ->get();
 

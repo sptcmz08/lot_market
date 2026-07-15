@@ -33,7 +33,7 @@ class AdminDashboardController extends Controller
         ];
 
         $todayBookings = Booking::whereDate('use_date', $selectedDate)
-            ->with(['lots', 'deliveryTask.staff', 'frontStoreCollectedBy'])
+            ->with(['lots', 'deliveryTasks.staff', 'frontStoreCollectedBy'])
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -117,17 +117,18 @@ class AdminDashboardController extends Controller
         $bookings = Booking::whereDate('use_date', $selectedDate)
             ->where('collect_front_store', true)
             ->where('status', '!=', 'cancelled')
-            ->with(['lots', 'frontStoreCollectedBy'])
+            ->with(['lots', 'deliveryTasks.staff', 'frontStoreCollectedBy'])
             ->orderBy('shop_name')
             ->get();
 
         $rows = [
-            ['รายการเก็บเงินหน้าร้าน วันที่ '.Carbon::parse($selectedDate)->format('d/m/Y'), '', '', '', '', '', '', '', '', ''],
-            ['', '', '', '', '', '', '', '', '', ''],
-            ['ลำดับ', 'รหัสจอง', 'วันที่ใช้', 'เลข LOT', 'ร้านค้า', 'เบอร์โทร', 'รายการอุปกรณ์', 'สถานะเก็บเงิน', 'ยอดเงิน (บาท)', 'ผู้บันทึก / เวลา'],
+            ['รายการเก็บเงินหน้าร้าน วันที่ '.Carbon::parse($selectedDate)->format('d/m/Y'), '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+            ['', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+            ['ลำดับ', 'รหัสจอง', 'วันที่ใช้', 'เลข LOT', 'ร้านค้า', 'เบอร์โทร', 'งานเต็นท์', 'คนส่งเต็นท์', 'งานเคาน์เตอร์', 'คนส่งเคาน์เตอร์', 'อุปกรณ์อื่น', 'คนส่งอุปกรณ์อื่น', 'สถานะเก็บเงิน', 'ยอดเงิน (บาท)', 'ผู้บันทึก / เวลา'],
         ];
 
         foreach ($bookings as $index => $booking) {
+            $tasks = $booking->deliveryTasks->keyBy('task_type');
             $rows[] = [
                 $index + 1,
                 $booking->booking_code,
@@ -135,7 +136,12 @@ class AdminDashboardController extends Controller
                 $booking->lots->pluck('lot_code')->implode(', '),
                 $booking->shop_name,
                 $booking->customer_phone,
-                $booking->equipmentSummary(),
+                $tasks->get('tent')?->equipmentSummary() ?? '-',
+                $tasks->get('tent')?->staff?->name ?? '',
+                $tasks->get('counter')?->equipmentSummary() ?? '-',
+                $tasks->get('counter')?->staff?->name ?? '',
+                $tasks->get('other')?->equipmentSummary() ?? '-',
+                $tasks->get('other')?->staff?->name ?? '',
                 $booking->front_store_collected_at ? 'เก็บแล้ว' : 'รอเก็บ',
                 $booking->front_store_collected_at ? (float) $booking->front_store_collected_amount : '',
                 $booking->front_store_collected_at
@@ -144,9 +150,9 @@ class AdminDashboardController extends Controller
             ];
         }
 
-        $rows[] = ['', '', '', '', '', '', '', 'รวมยอดที่เก็บแล้ว', (float) $bookings->whereNotNull('front_store_collected_at')->sum('front_store_collected_amount'), ''];
+        $rows[] = ['', '', '', '', '', '', '', '', '', '', '', '', 'รวมยอดที่เก็บแล้ว', (float) $bookings->whereNotNull('front_store_collected_at')->sum('front_store_collected_amount'), ''];
 
-        $path = $writer->create($rows, [8, 24, 14, 24, 24, 16, 32, 18, 18, 30], [8]);
+        $path = $writer->create($rows, [8, 24, 14, 24, 24, 16, 26, 20, 30, 20, 26, 20, 18, 18, 30], [13]);
 
         return response()->download(
             $path,

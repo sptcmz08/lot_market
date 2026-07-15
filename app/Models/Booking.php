@@ -48,6 +48,37 @@ class Booking extends Model
         return $this->hasOne(DeliveryTask::class);
     }
 
+    public function deliveryTasks()
+    {
+        return $this->hasMany(DeliveryTask::class)->orderByRaw("CASE task_type WHEN 'tent' THEN 1 WHEN 'counter' THEN 2 ELSE 3 END");
+    }
+
+    public function refreshDeliveryStatus(): string
+    {
+        if (in_array($this->status, ['pending_admin', 'cancelled'], true)) {
+            return $this->status;
+        }
+
+        $tasks = $this->deliveryTasks()->get();
+        $status = 'confirmed';
+
+        if ($tasks->contains('status', 'problem')) {
+            $status = 'problem';
+        } elseif ($tasks->isNotEmpty() && $tasks->every(fn (DeliveryTask $task) => $task->status === 'completed')) {
+            $status = 'completed';
+        } elseif ($tasks->contains(fn (DeliveryTask $task) => in_array($task->status, ['started', 'photo_uploaded', 'completed'], true))) {
+            $status = 'installing';
+        } elseif ($tasks->contains(fn (DeliveryTask $task) => $task->staff_id !== null)) {
+            $status = 'assigned';
+        }
+
+        if ($this->status !== $status) {
+            $this->update(['status' => $status]);
+        }
+
+        return $status;
+    }
+
     public function confirmedBy()
     {
         return $this->belongsTo(User::class, 'confirmed_by');

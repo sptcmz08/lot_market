@@ -43,8 +43,13 @@
                 </strong>
             </div>
             <div class="info-row">
+                <span class="info-label">ประเภทงาน:</span>
+                <strong class="info-value">{{ $task->typeLabel() }}</strong>
+            </div>
+
+            <div class="info-row">
                 <span class="info-label">รายการอุปกรณ์:</span>
-                <strong class="info-value">{{ $task->booking ? $task->booking->equipmentSummary() : '-' }}</strong>
+                <strong class="info-value">{{ $task->equipmentSummary() }}</strong>
             </div>
             <div class="info-row">
                 <span class="info-label">การชำระเงิน:</span>

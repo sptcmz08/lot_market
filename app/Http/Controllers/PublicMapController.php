@@ -28,7 +28,7 @@ class PublicMapController extends Controller
             'bookings' => function ($query) use ($date) {
                 $query->where('use_date', $date)
                       ->where('status', '!=', 'cancelled')
-                      ->with(['lots', 'deliveryTask.photos']);
+                      ->with(['lots', 'deliveryTasks.photos']);
             },
             'zone'
         ])->get();
@@ -73,8 +73,8 @@ class PublicMapController extends Controller
                     // Detailed booking info for the popover/tooltip
                     $bookingLots = $activeBooking->lots->pluck('lot_code')->toArray();
                     $photoPaths = [];
-                    if ($activeBooking->deliveryTask && $activeBooking->deliveryTask->photos) {
-                        foreach ($activeBooking->deliveryTask->photos as $p) {
+                    foreach ($activeBooking->deliveryTasks as $deliveryTask) {
+                        foreach ($deliveryTask->photos as $p) {
                             $photoPaths[$p->photo_type] = route('media.show', ['path' => $p->image_path]);
                         }
                     }

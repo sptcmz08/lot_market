@@ -64,10 +64,10 @@ class StaffTaskController extends Controller
 
             $booking = $task->booking;
             $oldBookingStatus = $booking->status;
-            $booking->update(['status' => 'installing']);
+            $newBookingStatus = $booking->refreshDeliveryStatus();
 
-            StatusLogService::log(DeliveryTask::class, $task->id, $oldTaskStatus, 'started', auth()->id(), 'เริ่มการติดตั้งเต็นท์');
-            StatusLogService::log(Booking::class, $booking->id, $oldBookingStatus, 'installing', auth()->id(), 'เริ่มการติดตั้งเต็นท์');
+            StatusLogService::log(DeliveryTask::class, $task->id, $oldTaskStatus, 'started', auth()->id(), 'เริ่ม'.$task->typeLabel());
+            StatusLogService::log(Booking::class, $booking->id, $oldBookingStatus, $newBookingStatus, auth()->id(), 'เริ่ม'.$task->typeLabel());
         });
 
         return back()->with('success', 'เริ่มงานติดตั้งเรียบร้อยแล้ว!');
@@ -150,13 +150,13 @@ class StaffTaskController extends Controller
 
             $booking = $task->booking;
             $oldBookingStatus = $booking->status;
-            $booking->update(['status' => 'completed']);
+            $newBookingStatus = $booking->refreshDeliveryStatus();
 
             StatusLogService::log(DeliveryTask::class, $task->id, $oldTaskStatus, 'completed', auth()->id(), 'ส่งงานติดตั้งเสร็จสิ้น');
-            StatusLogService::log(Booking::class, $booking->id, $oldBookingStatus, 'completed', auth()->id(), 'ติดตั้งเต็นท์เรียบร้อยแล้ว');
+            StatusLogService::log(Booking::class, $booking->id, $oldBookingStatus, $newBookingStatus, auth()->id(), $task->typeLabel().'เสร็จเรียบร้อยแล้ว');
         });
 
-        return redirect()->route('staff.tasks.index')->with('success', 'ส่งงานติดตั้งเต็นท์เสร็จเรียบร้อย! เก่งมาก!');
+        return redirect()->route('staff.tasks.index')->with('success', 'ส่ง'.$task->typeLabel().'เสร็จเรียบร้อยแล้ว');
     }
 
     public function reviewStatus(DeliveryTask $task)
@@ -215,7 +215,7 @@ class StaffTaskController extends Controller
 
             $booking = $task->booking;
             $oldBookingStatus = $booking->status;
-            $booking->update(['status' => 'problem']);
+            $newBookingStatus = $booking->refreshDeliveryStatus();
 
             if ($request->hasFile('problem_photo')) {
                 $path = $this->photoUploadService->upload($request->file('problem_photo'));
@@ -232,7 +232,7 @@ class StaffTaskController extends Controller
             }
 
             StatusLogService::log(DeliveryTask::class, $task->id, $oldTaskStatus, 'problem', auth()->id(), 'รายงานปัญหา: ' . $request->problem_note);
-            StatusLogService::log(Booking::class, $booking->id, $oldBookingStatus, 'problem', auth()->id(), 'มีปัญหาการติดตั้ง: ' . $request->problem_note);
+            StatusLogService::log(Booking::class, $booking->id, $oldBookingStatus, $newBookingStatus, auth()->id(), 'มีปัญหา'.$task->typeLabel().': ' . $request->problem_note);
         });
 
         return redirect()->route('staff.tasks.index')->with('success', 'รายงานปัญหาไปยังผู้ดูแลระบบแล้ว');

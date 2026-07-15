@@ -163,9 +163,9 @@
                     <i class="fa-solid fa-camera-retro"></i> ภาพถ่ายตรวจสอบหน้างาน
                 </h3>
                 
-                @if ($booking->deliveryTask && $booking->deliveryTask->photos->isNotEmpty())
+                @if ($booking->deliveryTasks->flatMap->photos->isNotEmpty())
                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px;">
-                        @foreach ($booking->deliveryTask->photos as $photo)
+                        @foreach ($booking->deliveryTasks->flatMap->photos as $photo)
                             <div style="border: 2px solid var(--border-cute); border-radius: 18px; overflow: hidden; background-color: var(--bg-page); text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
                                 <button type="button" class="image-lightbox-trigger" data-lightbox-src="{{ route('media.show', ['path' => $photo->image_path]) }}" data-lightbox-alt="ภาพถ่ายยืนยัน" style="display:block;width:100%;">
                                     <img src="{{ route('media.show', ['path' => $photo->image_path]) }}" style="width: 100%; height: 140px; object-fit: cover; display: block;" alt="ภาพถ่ายยืนยัน">
@@ -215,22 +215,56 @@
                     <h3 class="cute-card-title">
                         <i class="fa-solid fa-truck-pickup"></i> มอบหมายพนักงาน
                     </h3>
-                    
+                    @php
+                        $tasksByType = $booking->deliveryTasks->keyBy('task_type');
+                    @endphp
                     <form action="{{ route('admin.bookings.assign', $booking) }}" method="POST">
                         @csrf
+                        @if ($booking->tent_size)
                         <div class="cute-input-group">
-                            <label class="cute-label" for="staff_id">เลือกพนักงานรับงาน:</label>
-                            <select id="staff_id" name="staff_id" class="cute-select" required>
-                                <option value="" disabled selected>เลือกพนักงานติดตั้ง</option>
+                            <label class="cute-label" for="tent_staff_id"><i class="fa-solid fa-tents"></i> งานเต็นท์: {{ $booking->tent_size }} สี{{ $booking->tent_color }}</label>
+                            <select id="tent_staff_id" name="tent_staff_id" class="cute-select">
+                                <option value="">ยังไม่มอบหมาย</option>
                                 @foreach ($staffMembers as $staff)
-                                    <option value="{{ $staff->id }}" {{ ($booking->deliveryTask && $booking->deliveryTask->staff_id == $staff->id) ? 'selected' : '' }}>
+                                    <option value="{{ $staff->id }}" {{ old('tent_staff_id', $tasksByType->get('tent')?->staff_id) == $staff->id ? 'selected' : '' }}>
+                                        {{ $staff->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @endif
+
+                        @if ($booking->counter_size)
+                        <div class="cute-input-group">
+                            <label class="cute-label" for="counter_staff_id"><i class="fa-solid fa-shop"></i> งานเคาน์เตอร์: {{ $booking->counter_size }}</label>
+                            <select id="counter_staff_id" name="counter_staff_id" class="cute-select">
+                                <option value="">ยังไม่มอบหมาย</option>
+                                @foreach ($staffMembers as $staff)
+                                    <option value="{{ $staff->id }}" {{ old('counter_staff_id', $tasksByType->get('counter')?->staff_id) == $staff->id ? 'selected' : '' }}>
+                                        {{ $staff->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @endif
+
+                        <div class="cute-input-group">
+                            <label class="cute-label" for="other_equipment_note"><i class="fa-solid fa-boxes-stacked"></i> รายละเอียดอุปกรณ์อื่น</label>
+                            <input id="other_equipment_note" name="other_equipment_note" class="cute-input" maxlength="255" value="{{ old('other_equipment_note', $tasksByType->get('other')?->equipment_note) }}" placeholder="เช่น ถุงทราย เชือก ไฟ หรืออุปกรณ์เสริม">
+                        </div>
+                        <div class="cute-input-group">
+                            <label class="cute-label" for="other_staff_id">พนักงานส่งอุปกรณ์อื่น</label>
+                            <select id="other_staff_id" name="other_staff_id" class="cute-select">
+                                <option value="">ยังไม่มีงานอุปกรณ์อื่น</option>
+                                @foreach ($staffMembers as $staff)
+                                    <option value="{{ $staff->id }}" {{ old('other_staff_id', $tasksByType->get('other')?->staff_id) == $staff->id ? 'selected' : '' }}>
                                         {{ $staff->name }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
                         <button type="submit" class="btn-primary" style="width: 100%;">
-                            <i class="fa-solid fa-user-plus"></i> บันทึกมอบหมายงาน
+                            <i class="fa-solid fa-users-gear"></i> บันทึกการแบ่งงาน
                         </button>
                     </form>
                 </div>

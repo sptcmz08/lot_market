@@ -43,6 +43,10 @@
                             <strong style="color:var(--primary-hover);">{{ $expectedLots }}</strong>
                         </div>
                         <div>
+                            <span style="display:block;font-size:12px;color:var(--text-muted);">ประเภทงาน:</span>
+                            <strong>{{ $task?->typeLabel() ?? '-' }}</strong>
+                        </div>
+                        <div>
                             <span style="display:block;font-size:12px;color:var(--text-muted);">คนส่ง:</span>
                             <strong>{{ $task?->staff?->name ?? $photo->uploadedBy?->name ?? '-' }}</strong>
                         </div>

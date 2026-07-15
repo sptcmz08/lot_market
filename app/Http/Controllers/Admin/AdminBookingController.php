@@ -24,7 +24,7 @@ class AdminBookingController extends Controller
 
     public function index(Request $request)
     {
-        $query = Booking::with(['lots', 'deliveryTask.staff']);
+        $query = Booking::with(['lots', 'deliveryTasks.staff']);
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -53,7 +53,7 @@ class AdminBookingController extends Controller
 
     public function show(Booking $booking)
     {
-        $booking->load(['lots', 'deliveryTask.staff', 'deliveryTask.photos']);
+        $booking->load(['lots', 'deliveryTasks.staff', 'deliveryTasks.photos']);
         $staffMembers = User::where('role', 'staff')->where('is_active', true)->get();
         
         // Fetch status logs
@@ -123,12 +123,8 @@ class AdminBookingController extends Controller
 
             $booking->lots()->sync($validated['lots']);
 
-            // Update task date if exists
-            if ($booking->deliveryTask) {
-                $booking->deliveryTask->update([
-                    'task_date' => $validated['use_date']
-                ]);
-            }
+            $booking->deliveryTasks()->update(['task_date' => $validated['use_date']]);
+            $this->ensureEquipmentTasks($booking);
         });
 
         return redirect()->route('admin.bookings.show', $booking)->with('success', 'แก้ไขข้อมูลการจองเรียบร้อยแล้ว');
@@ -152,14 +148,7 @@ class AdminBookingController extends Controller
                 'confirmed_at' => now(),
             ]);
 
-            // Create empty delivery task
-            DeliveryTask::firstOrCreate(
-                ['booking_id' => $booking->id],
-                [
-                    'task_date' => $booking->use_date,
-                    'status' => 'waiting'
-                ]
-            );
+            $this->ensureEquipmentTasks($booking);
 
             StatusLogService::log(Booking::class, $booking->id, $oldStatus, 'confirmed', auth()->id(), 'แอดมินยืนยันการจอง');
         });
@@ -210,10 +199,7 @@ class AdminBookingController extends Controller
             $oldStatus = $booking->status;
             $booking->update(['status' => 'cancelled']);
 
-            // Cancel associated delivery task if exists
-            if ($booking->deliveryTask) {
-                $booking->deliveryTask->delete();
-            }
+            $booking->deliveryTasks()->delete();
 
             StatusLogService::log(Booking::class, $booking->id, $oldStatus, 'cancelled', auth()->id(), 'ยกเลิกการจอง');
         });
@@ -224,44 +210,95 @@ class AdminBookingController extends Controller
     public function assignStaff(Request $request, Booking $booking)
     {
         $validated = $request->validate([
-            'staff_id' => 'required|integer|exists:users,id',
+            'tent_staff_id' => 'nullable|integer|exists:users,id',
+            'counter_staff_id' => 'nullable|integer|exists:users,id',
+            'other_staff_id' => 'nullable|integer|exists:users,id',
+            'other_equipment_note' => 'nullable|string|max:255|required_with:other_staff_id',
         ]);
 
         DB::transaction(function () use ($booking, $validated) {
             $oldStatus = $booking->status;
-            
-            // Check if user is staff
-            $staff = User::where('id', $validated['staff_id'])->where('role', 'staff')->firstOrFail();
 
-            // Set booking status to assigned
-            $booking->update(['status' => 'assigned']);
+            $this->ensureEquipmentTasks($booking);
+            $assignments = [
+                DeliveryTask::TYPE_TENT => $validated['tent_staff_id'] ?? null,
+                DeliveryTask::TYPE_COUNTER => $validated['counter_staff_id'] ?? null,
+            ];
 
-            // Create or update task
-            $task = DeliveryTask::updateOrCreate(
-                ['booking_id' => $booking->id],
-                [
-                    'staff_id' => $staff->id,
+            $otherStaffId = $validated['other_staff_id'] ?? null;
+            $otherNote = trim($validated['other_equipment_note'] ?? '');
+            $otherTask = $booking->deliveryTasks()->where('task_type', DeliveryTask::TYPE_OTHER)->first();
+
+            if (!$otherStaffId && $otherNote === '' && $otherTask && $otherTask->status === 'waiting' && !$otherTask->photos()->exists()) {
+                $otherTask->delete();
+            } elseif ($otherStaffId || $otherNote !== '' || $otherTask) {
+                $otherTask ??= DeliveryTask::create([
+                    'booking_id' => $booking->id,
+                    'task_type' => DeliveryTask::TYPE_OTHER,
                     'task_date' => $booking->use_date,
-                    'status' => 'waiting'
-                ]
-            );
+                    'status' => 'waiting',
+                ]);
+                $otherTask->update(['equipment_note' => $otherNote ?: $otherTask->equipment_note]);
+                $assignments[DeliveryTask::TYPE_OTHER] = $otherStaffId;
+            }
 
-            StatusLogService::log(Booking::class, $booking->id, $oldStatus, 'assigned', auth()->id(), "มอบหมายงานให้: {$staff->name}");
-            StatusLogService::log(DeliveryTask::class, $task->id, null, 'waiting', auth()->id(), "มอบหมายงานสำเร็จ");
+            $assignedNames = [];
+            foreach ($assignments as $taskType => $staffId) {
+                $task = $booking->deliveryTasks()->where('task_type', $taskType)->first();
+                if (!$task) {
+                    continue;
+                }
+
+                $staff = $staffId
+                    ? User::where('id', $staffId)->where('role', 'staff')->where('is_active', true)->firstOrFail()
+                    : null;
+                $task->update(['staff_id' => $staff?->id]);
+
+                if ($staff) {
+                    $assignedNames[] = $task->typeLabel().': '.$staff->name;
+                    StatusLogService::log(DeliveryTask::class, $task->id, $task->status, $task->status, auth()->id(), 'มอบหมายให้ '.$staff->name);
+                }
+            }
+
+            $newStatus = $booking->refreshDeliveryStatus();
+            StatusLogService::log(
+                Booking::class,
+                $booking->id,
+                $oldStatus,
+                $newStatus,
+                auth()->id(),
+                $assignedNames ? 'มอบหมายงาน: '.implode(', ', $assignedNames) : 'อัปเดตการมอบหมายงาน'
+            );
         });
 
-        return back()->with('success', 'มอบหมายงานให้พนักงานเรียบร้อยแล้ว');
+        return back()->with('success', 'บันทึกการแบ่งงานและมอบหมายพนักงานเรียบร้อยแล้ว');
     }
 
     public function destroy(Booking $booking)
     {
         DB::transaction(function () use ($booking) {
-            if ($booking->deliveryTask) {
-                $booking->deliveryTask->delete();
-            }
+            $booking->deliveryTasks()->delete();
             $booking->delete();
         });
 
         return redirect()->route('admin.bookings.index')->with('success', 'ลบข้อมูลการจองเรียบร้อยแล้ว');
+    }
+
+    private function ensureEquipmentTasks(Booking $booking): void
+    {
+        $types = [];
+        if ($booking->tent_size) {
+            $types[] = DeliveryTask::TYPE_TENT;
+        }
+        if ($booking->counter_size) {
+            $types[] = DeliveryTask::TYPE_COUNTER;
+        }
+
+        foreach ($types as $type) {
+            DeliveryTask::firstOrCreate(
+                ['booking_id' => $booking->id, 'task_type' => $type],
+                ['task_date' => $booking->use_date, 'status' => 'waiting']
+            );
+        }
     }
 }

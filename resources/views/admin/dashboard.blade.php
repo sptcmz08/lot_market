@@ -319,14 +319,18 @@
                             <th>รหัสจอง</th>
                             <th>ร้านค้า</th>
                             <th>ล็อตที่จอง</th>
-                            <th>รายการอุปกรณ์</th>
-                            <th>พนักงานผู้รับผิดชอบ</th>
+                            <th>งานเต็นท์</th>
+                            <th>งานเคาน์เตอร์</th>
+                            <th>งานอุปกรณ์อื่น</th>
                             <th>สถานะ</th>
                             <th>จัดการ</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($todayBookings as $booking)
+                            @php
+                                $tasksByType = $booking->deliveryTasks->keyBy('task_type');
+                            @endphp
                             <tr>
                                 <td><strong>{{ $booking->booking_code }}</strong></td>
                                 <td>
@@ -334,14 +338,37 @@
                                     <small style="color: var(--text-muted);">โทร: {{ $booking->customer_phone }}</small>
                                 </td>
                                 <td><strong style="color: var(--primary-hover);">{{ $booking->lots->pluck('lot_code')->implode(', ') }}</strong></td>
-                                <td>
-                                    <div>{{ $booking->equipmentSummary() }}</div>
-                                </td>
-                                <td>
-                                    @if ($booking->deliveryTask && $booking->deliveryTask->staff)
-                                        <strong><i class="fa-solid fa-user-check" style="color: var(--secondary);"></i> {{ $booking->deliveryTask->staff->name }}</strong>
+                                <td style="min-width:150px;">
+                                    @if ($booking->tent_size)
+                                        <strong>เต็นท์ {{ $booking->tent_size }} สี{{ $booking->tent_color }}</strong>
+                                        <small style="display:block;margin-top:4px;color:var(--text-muted);">
+                                            <i class="fa-solid fa-user-check"></i> {{ $tasksByType->get('tent')?->staff?->name ?? 'ยังไม่มอบหมาย' }}<br>
+                                            {{ $tasksByType->get('tent')?->statusLabel() ?? 'รอมอบหมาย' }}
+                                        </small>
                                     @else
-                                        <span style="color: var(--text-muted); font-style: italic;">ยังไม่ได้มอบหมาย</span>
+                                        <span style="color:var(--text-muted);">-</span>
+                                    @endif
+                                </td>
+                                <td style="min-width:170px;">
+                                    @if ($booking->counter_size)
+                                        <strong>{{ $booking->counter_size }}</strong>
+                                        <small style="display:block;margin-top:4px;color:var(--text-muted);">
+                                            <i class="fa-solid fa-user-check"></i> {{ $tasksByType->get('counter')?->staff?->name ?? 'ยังไม่มอบหมาย' }}<br>
+                                            {{ $tasksByType->get('counter')?->statusLabel() ?? 'รอมอบหมาย' }}
+                                        </small>
+                                    @else
+                                        <span style="color:var(--text-muted);">-</span>
+                                    @endif
+                                </td>
+                                <td style="min-width:150px;">
+                                    @if ($tasksByType->get('other'))
+                                        <strong>{{ $tasksByType->get('other')->equipmentSummary() }}</strong>
+                                        <small style="display:block;margin-top:4px;color:var(--text-muted);">
+                                            <i class="fa-solid fa-user-check"></i> {{ $tasksByType->get('other')?->staff?->name ?? 'ยังไม่มอบหมาย' }}<br>
+                                            {{ $tasksByType->get('other')?->statusLabel() ?? 'รอมอบหมาย' }}
+                                        </small>
+                                    @else
+                                        <span style="color:var(--text-muted);">-</span>
                                     @endif
                                 </td>
                                 <td>

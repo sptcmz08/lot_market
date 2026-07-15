@@ -20,6 +20,16 @@
             </div>
 
             <div class="cute-input-group" style="margin-bottom: 0; flex: 1; min-width: 130px;">
+                <label class="cute-label" for="task_type">ประเภทงาน</label>
+                <select id="task_type" name="task_type" class="cute-select">
+                    <option value="">ทั้งหมด</option>
+                    <option value="tent" {{ request('task_type') === 'tent' ? 'selected' : '' }}>งานเต็นท์</option>
+                    <option value="counter" {{ request('task_type') === 'counter' ? 'selected' : '' }}>งานเคาน์เตอร์</option>
+                    <option value="other" {{ request('task_type') === 'other' ? 'selected' : '' }}>งานอุปกรณ์อื่น</option>
+                </select>
+            </div>
+
+            <div class="cute-input-group" style="margin-bottom: 0; flex: 1; min-width: 130px;">
                 <label class="cute-label" for="status">สถานะการติดตั้ง</label>
                 <select id="status" name="status" class="cute-select">
                     <option value="">ทั้งหมด</option>
@@ -54,6 +64,7 @@
                     <th>วันที่รับงาน</th>
                     <th>รหัสใบจอง</th>
                     <th>ชื่อร้านค้า / ล็อค</th>
+                    <th>ประเภท / อุปกรณ์</th>
                     <th>พนักงานติดตั้ง</th>
                     <th>เวลาเริ่ม/จบงาน</th>
                     <th>สถานะ</th>
@@ -65,6 +76,10 @@
                     <tr>
                         <td>
                             <strong>{{ $task->task_date->format('d/m/Y') }}</strong>
+                        </td>
+                        <td>
+                            <strong>{{ $task->typeLabel() }}</strong>
+                            <small style="display:block;color:var(--text-muted);">{{ $task->equipmentSummary() }}</small>
                         </td>
                         <td>
                             <strong>{{ $task->booking ? $task->booking->booking_code : '-' }}</strong>
@@ -118,7 +133,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                        <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted);">
                             <i class="fa-solid fa-folder-minus" style="font-size: 40px; margin-bottom: 10px; display: block; color: var(--border-cute);"></i>
                             ไม่มีประวัติงานติดตั้งเต็นท์ในระบบ หรือไม่ตรงเงื่อนไขค้นหา
                         </td>
