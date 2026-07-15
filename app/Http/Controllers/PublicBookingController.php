@@ -57,6 +57,22 @@ class PublicBookingController extends Controller
             ->filter();
         $selectedFrom = $selectedNumbers->min();
         $selectedTo = $selectedNumbers->max();
+        $selectedGroups = collect($selectedCodes)
+            ->map(function ($code) {
+                $prefix = preg_replace('/\d+$/', '', $code);
+                $number = (int) Str::after($code, $prefix);
+
+                return compact('prefix', 'number');
+            })
+            ->filter(fn ($lot) => $lot['prefix'] && $lot['number'])
+            ->groupBy('prefix')
+            ->map(fn ($group, $prefix) => [
+                'prefix' => $prefix,
+                'from' => $group->min('number'),
+                'to' => $group->max('number'),
+            ])
+            ->values()
+            ->all();
 
         return view('public.booking-create', compact(
             'date',
@@ -68,7 +84,8 @@ class PublicBookingController extends Controller
             'lotPrefixes',
             'selectedPrefix',
             'selectedFrom',
-            'selectedTo'
+            'selectedTo',
+            'selectedGroups'
         ));
     }
 
@@ -80,9 +97,14 @@ class PublicBookingController extends Controller
             'customer_phone' => 'required|string|regex:/^[0-9]{9,10}$/',
             'lots' => 'nullable|array',
             'lots.*' => 'required|string|exists:lots,lot_code',
-            'lot_prefix' => 'nullable|required_without:lots|string|max:20',
-            'lot_number_from' => 'nullable|required_without:lots|integer|min:1|max:999',
-            'lot_number_to' => 'nullable|required_without:lots|integer|min:1|max:999',
+            'lot_mode' => 'nullable|in:single,multiple',
+            'lot_groups' => 'nullable|array',
+            'lot_groups.*.prefix' => 'nullable|string|max:20',
+            'lot_groups.*.from' => 'nullable|integer|min:1|max:999',
+            'lot_groups.*.to' => 'nullable|integer|min:1|max:999',
+            'lot_prefix' => 'nullable|string|max:20',
+            'lot_number_from' => 'nullable|integer|min:1|max:999',
+            'lot_number_to' => 'nullable|integer|min:1|max:999',
             'wants_tent' => 'nullable|boolean',
             'tent_size' => 'nullable|required_if:wants_tent,1|in:1.5x1.5,2x2,2x3,2.5x2.5,3x4.5',
             'tent_color' => 'nullable|required_if:wants_tent,1|string|max:50',
@@ -118,14 +140,60 @@ class PublicBookingController extends Controller
         }
 
         if (empty($validated['lots'])) {
-            if ((int) $validated['lot_number_from'] > (int) $validated['lot_number_to']) {
-                return back()
-                    ->withErrors(['lot_number_to' => 'เลขล็อคสิ้นสุดต้องมากกว่าหรือเท่ากับเลขเริ่มต้น'])
-                    ->withInput();
+            $lotMode = $validated['lot_mode'] ?? 'single';
+            $lotGroups = [];
+
+            if ($lotMode === 'multiple') {
+                foreach (($validated['lot_groups'] ?? []) as $index => $group) {
+                    if (empty($group['prefix']) && empty($group['from']) && empty($group['to'])) {
+                        continue;
+                    }
+
+                    if (empty($group['prefix']) || empty($group['from'])) {
+                        return back()
+                            ->withErrors(['lot_groups' => 'กรุณากรอกอักษรล็อคและเลขเริ่มให้ครบทุกแถว'])
+                            ->withInput();
+                    }
+
+                    $lotGroups[] = [
+                        'prefix' => $group['prefix'],
+                        'from' => (int) $group['from'],
+                        'to' => (int) ($group['to'] ?: $group['from']),
+                    ];
+                }
+
+                if (empty($lotGroups)) {
+                    return back()
+                        ->withErrors(['lot_groups' => 'กรุณาเพิ่มเลขล็อคอย่างน้อย 1 รายการ'])
+                        ->withInput();
+                }
+            } else {
+                if (empty($validated['lot_prefix']) || empty($validated['lot_number_from'])) {
+                    return back()
+                        ->withErrors(['lot_number_from' => 'กรุณาเลือกอักษรล็อคและกรอกเลขล็อค'])
+                        ->withInput();
+                }
+
+                $lotGroups[] = [
+                    'prefix' => $validated['lot_prefix'] ?? null,
+                    'from' => (int) ($validated['lot_number_from'] ?? 0),
+                    'to' => (int) (($validated['lot_number_to'] ?? null) ?: ($validated['lot_number_from'] ?? 0)),
+                ];
             }
 
-            $validated['lots'] = collect(range((int) $validated['lot_number_from'], (int) $validated['lot_number_to']))
-                ->map(fn ($number) => $validated['lot_prefix'] . $number)
+            foreach ($lotGroups as $group) {
+                if ($group['from'] > $group['to']) {
+                    return back()
+                        ->withErrors(['lot_number_to' => 'เลขล็อคสิ้นสุดต้องมากกว่าหรือเท่ากับเลขเริ่มต้น'])
+                        ->withInput();
+                }
+            }
+
+            $validated['lots'] = collect($lotGroups)
+                ->flatMap(fn ($group) => collect(range($group['from'], $group['to']))
+                    ->map(fn ($number) => $group['prefix'] . $number))
+                ->unique()
+                ->values()
                 ->all();
         }
 

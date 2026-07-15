@@ -93,6 +93,60 @@
         align-items: center;
     }
 
+    .lot-mode-tabs {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .lot-mode-tab {
+        border: 1px solid var(--border-cute);
+        border-radius: 14px;
+        padding: 10px 12px;
+        background: var(--bg-card-soft);
+        color: var(--text-muted);
+        font-weight: 800;
+        cursor: pointer;
+        text-align: center;
+    }
+
+    .lot-mode-tab.is-active {
+        border-color: var(--primary);
+        color: var(--text-dark);
+        background: rgba(56, 189, 248, 0.14);
+    }
+
+    .lot-group-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .lot-group-row {
+        display: grid;
+        grid-template-columns: minmax(110px, 160px) minmax(80px, 1fr) auto minmax(80px, 1fr) 42px;
+        gap: 8px;
+        align-items: center;
+    }
+
+    .lot-remove-btn,
+    .lot-add-btn {
+        border: 1px solid var(--border-cute);
+        border-radius: 12px;
+        background: var(--bg-card-soft);
+        color: var(--text-dark);
+        min-height: 42px;
+        font-weight: 900;
+        cursor: pointer;
+    }
+
+    .lot-add-btn {
+        width: 100%;
+        margin-top: 10px;
+        color: var(--primary);
+    }
+
     @media (max-width: 720px) {
         .booking-paper {
             padding: 16px;
@@ -111,7 +165,8 @@
 
         .booking-line,
         .equipment-inputs,
-        .lot-range-grid {
+        .lot-range-grid,
+        .lot-group-row {
             grid-template-columns: 1fr;
         }
 
@@ -132,6 +187,14 @@
         .booking-form-actions {
             flex-direction: column-reverse;
             margin-top: 22px !important;
+        }
+
+        .lot-mode-tabs {
+            grid-template-columns: 1fr;
+        }
+
+        .lot-remove-btn {
+            width: 100%;
         }
     }
 </style>
@@ -223,17 +286,79 @@
 
                 <div class="booking-field">
                     <label class="cute-label"><i class="fa-solid fa-location-dot" style="color:var(--primary);"></i> เลขล็อค *</label>
-                    <div class="lot-range-grid">
-                        <select name="lot_prefix" class="cute-select" required>
+                    @php
+                        $defaultMode = count($selectedGroups ?? []) > 1 ? 'multiple' : 'single';
+                        $oldMode = old('lot_mode', old('lot_groups') ? 'multiple' : $defaultMode);
+                        $oldGroups = old('lot_groups', $selectedGroups ?: [
+                            ['prefix' => $selectedPrefix, 'from' => $selectedFrom, 'to' => $selectedTo],
+                        ]);
+                    @endphp
+
+                    <input type="hidden" name="lot_mode" id="lot_mode" value="{{ $oldMode }}">
+
+                    <div class="lot-mode-tabs" role="tablist" aria-label="เลือกประเภทเลขล็อค">
+                        <button type="button" class="lot-mode-tab {{ $oldMode === 'single' ? 'is-active' : '' }}" data-lot-mode="single">
+                            ล็อคเดียว / โซนเดียว
+                        </button>
+                        <button type="button" class="lot-mode-tab {{ $oldMode === 'multiple' ? 'is-active' : '' }}" data-lot-mode="multiple">
+                            หลายล็อค / หลายโซน
+                        </button>
+                    </div>
+
+                    <div id="single-lot-section" style="{{ $oldMode === 'multiple' ? 'display:none;' : '' }}">
+                        <div class="lot-range-grid">
+                            <select name="lot_prefix" class="cute-select" {{ $oldMode === 'multiple' ? '' : 'required' }}>
+                                <option value="">เลือกอักษรล็อค</option>
+                                @foreach($lotPrefixes as $prefix)
+                                    <option value="{{ $prefix }}" {{ old('lot_prefix', $selectedPrefix) == $prefix ? 'selected' : '' }}>{{ $prefix }}</option>
+                                @endforeach
+                            </select>
+                            <input type="number" name="lot_number_from" class="cute-input" value="{{ old('lot_number_from', $selectedFrom) }}" min="1" max="999" placeholder="เลขล็อค" {{ $oldMode === 'multiple' ? '' : 'required' }}>
+                            <strong style="text-align:center;color:var(--text-dark);">ถึง</strong>
+                            <input type="number" name="lot_number_to" class="cute-input" value="{{ old('lot_number_to', $selectedTo) }}" min="1" max="999" placeholder="ถ้าล็อคเดียวไม่ต้องกรอก">
+                        </div>
+                    </div>
+
+                    <div id="multiple-lot-section" style="{{ $oldMode === 'multiple' ? '' : 'display:none;' }}">
+                        <div class="lot-group-list" id="lot-group-list">
+                            @foreach($oldGroups as $index => $group)
+                                <div class="lot-group-row">
+                                    <select name="lot_groups[{{ $index }}][prefix]" class="cute-select">
+                                        <option value="">อักษรล็อค</option>
+                                        @foreach($lotPrefixes as $prefix)
+                                            <option value="{{ $prefix }}" {{ ($group['prefix'] ?? null) == $prefix ? 'selected' : '' }}>{{ $prefix }}</option>
+                                        @endforeach
+                                    </select>
+                                    <input type="number" name="lot_groups[{{ $index }}][from]" class="cute-input" value="{{ $group['from'] ?? '' }}" min="1" max="999" placeholder="เลขเริ่ม">
+                                    <strong style="text-align:center;color:var(--text-dark);">ถึง</strong>
+                                    <input type="number" name="lot_groups[{{ $index }}][to]" class="cute-input" value="{{ $group['to'] ?? '' }}" min="1" max="999" placeholder="เลขสิ้นสุด">
+                                    <button type="button" class="lot-remove-btn" aria-label="ลบแถว"><i class="fa-solid fa-xmark"></i></button>
+                                </div>
+                            @endforeach
+                        </div>
+                        <button type="button" class="lot-add-btn" id="add-lot-group">
+                            <i class="fa-solid fa-plus"></i> เพิ่มล็อค/โซน
+                        </button>
+                        <small style="display:block;color: var(--text-muted); font-size: 12px; margin-top:8px;">
+                            ตัวอย่าง: แถวแรก GB 10 ถึง 12, แถวต่อไป GQ 40 ถึง 41
+                        </small>
+                    </div>
+
+                    <template id="lot-group-template">
+                        <div class="lot-group-row">
+                            <select name="__PREFIX_NAME__" class="cute-select">
                             <option value="">เลือกอักษรล็อค</option>
                             @foreach($lotPrefixes as $prefix)
-                                <option value="{{ $prefix }}" {{ old('lot_prefix', $selectedPrefix) == $prefix ? 'selected' : '' }}>{{ $prefix }}</option>
+                                <option value="{{ $prefix }}">{{ $prefix }}</option>
                             @endforeach
                         </select>
-                        <input type="number" name="lot_number_from" class="cute-input" value="{{ old('lot_number_from', $selectedFrom) }}" min="1" max="999" placeholder="เลขเริ่ม" required>
+                            <input type="number" name="__FROM_NAME__" class="cute-input" min="1" max="999" placeholder="เลขเริ่ม">
                         <strong style="text-align:center;color:var(--text-dark);">ถึง</strong>
-                        <input type="number" name="lot_number_to" class="cute-input" value="{{ old('lot_number_to', $selectedTo) }}" min="1" max="999" placeholder="เลขสิ้นสุด" required>
-                    </div>
+                            <input type="number" name="__TO_NAME__" class="cute-input" min="1" max="999" placeholder="เลขสิ้นสุด">
+                            <button type="button" class="lot-remove-btn" aria-label="ลบแถว"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                    </template>
+
                     @if(!empty($selectedCodes))
                         <small style="color: var(--text-muted); font-size: 12px;">เติมจากล็อตที่เลือกบนแผนที่: {{ implode(', ', $selectedCodes) }}</small>
                     @endif
@@ -268,4 +393,63 @@
             </div>
         </form>
     </div>
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modeInput = document.getElementById('lot_mode');
+        const tabs = document.querySelectorAll('[data-lot-mode]');
+        const singleSection = document.getElementById('single-lot-section');
+        const multipleSection = document.getElementById('multiple-lot-section');
+        const singleRequiredFields = singleSection.querySelectorAll('[name="lot_prefix"], [name="lot_number_from"]');
+        const groupList = document.getElementById('lot-group-list');
+        const addButton = document.getElementById('add-lot-group');
+        const template = document.getElementById('lot-group-template');
+
+        function setMode(mode) {
+            modeInput.value = mode;
+            singleSection.style.display = mode === 'single' ? '' : 'none';
+            multipleSection.style.display = mode === 'multiple' ? '' : 'none';
+            singleRequiredFields.forEach(field => field.required = mode === 'single');
+            tabs.forEach(tab => tab.classList.toggle('is-active', tab.dataset.lotMode === mode));
+
+            if (mode === 'multiple' && groupList.children.length === 0) {
+                addLotGroup();
+            }
+        }
+
+        function refreshRemoveButtons() {
+            groupList.querySelectorAll('.lot-remove-btn').forEach(button => {
+                button.disabled = groupList.children.length <= 1;
+                button.style.opacity = button.disabled ? '0.45' : '1';
+            });
+        }
+
+        function addLotGroup() {
+            const index = Date.now().toString();
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = template.innerHTML
+                .replace('__PREFIX_NAME__', `lot_groups[${index}][prefix]`)
+                .replace('__FROM_NAME__', `lot_groups[${index}][from]`)
+                .replace('__TO_NAME__', `lot_groups[${index}][to]`);
+            groupList.appendChild(wrapper.firstElementChild);
+            refreshRemoveButtons();
+        }
+
+        tabs.forEach(tab => tab.addEventListener('click', () => setMode(tab.dataset.lotMode)));
+        addButton.addEventListener('click', addLotGroup);
+        groupList.addEventListener('click', function (event) {
+            const removeButton = event.target.closest('.lot-remove-btn');
+            if (!removeButton || removeButton.disabled) {
+                return;
+            }
+            removeButton.closest('.lot-group-row').remove();
+            refreshRemoveButtons();
+        });
+
+        setMode(modeInput.value || 'single');
+        refreshRemoveButtons();
+    });
+</script>
 @endsection
