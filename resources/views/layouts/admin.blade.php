@@ -419,6 +419,11 @@
                 </a>
             </li>
             <li>
+                <a href="{{ route('admin.lot_photo_reviews.index') }}" class="sidebar-link {{ Route::is('admin.lot_photo_reviews.*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-camera-retro"></i> ตรวจรูปเลขล็อต
+                </a>
+            </li>
+            <li>
                 <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ Route::is('admin.users.*') ? 'active' : '' }}">
                     <i class="fa-solid fa-users-cog"></i> ผู้ใช้งานพนักงาน
                 </a>

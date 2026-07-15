@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\DeliveryPhoto;
 use App\Models\DeliveryTask;
-use App\Services\LotOcrService;
 use App\Services\PhotoUploadService;
 use App\Services\StatusLogService;
 use Illuminate\Http\Request;
@@ -15,12 +14,10 @@ use Illuminate\Support\Facades\DB;
 class StaffTaskController extends Controller
 {
     protected $photoUploadService;
-    protected $lotOcrService;
 
-    public function __construct(PhotoUploadService $photoUploadService, LotOcrService $lotOcrService)
+    public function __construct(PhotoUploadService $photoUploadService)
     {
         $this->photoUploadService = $photoUploadService;
-        $this->lotOcrService = $lotOcrService;
     }
 
     public function index()
@@ -92,11 +89,6 @@ class StaffTaskController extends Controller
 
         $path = $this->photoUploadService->upload($request->file('photo'));
 
-        $ocrResult = null;
-        if ($request->photo_type === 'lot_number') {
-            $ocrResult = $this->lotOcrService->verifyPhoto($task, $path);
-        }
-
         $photo = DeliveryPhoto::create([
             'delivery_task_id' => $task->id,
             'photo_type' => $request->photo_type,
@@ -106,16 +98,11 @@ class StaffTaskController extends Controller
             'taken_at' => now(),
             'uploaded_by' => auth()->id(),
             'note' => $request->note,
-            'ocr_text' => $ocrResult['text'] ?? null,
-            'ocr_status' => $ocrResult['status'] ?? null,
-            'ocr_confidence' => $ocrResult['confidence'] ?? null,
+            'ocr_status' => $request->photo_type === 'lot_number' ? 'pending_review' : null,
         ]);
 
-        if ($request->photo_type === 'lot_number' && ($ocrResult['status'] ?? null) !== 'matched') {
-            $expected = implode(', ', $ocrResult['expected_lots'] ?? []);
-            $detected = implode(', ', $ocrResult['detected_lots'] ?? []) ?: 'อ่านเลขล็อตไม่พบ';
-
-            return back()->with('error', "อัปโหลดรูปแล้ว แต่ OCR ตรวจเลขล็อตไม่ผ่าน: ระบบต้องการ {$expected} / อ่านได้ {$detected}");
+        if ($request->photo_type === 'lot_number') {
+            return back()->with('success', 'อัปโหลดรูปเลขล็อตสำเร็จแล้ว รอแอดมินตรวจสอบยืนยัน');
         }
 
         return back()->with('success', 'อัปโหลดรูปภาพสำเร็จแล้ว');
@@ -136,8 +123,10 @@ class StaffTaskController extends Controller
             return back()->with('error', 'ไม่สามารถส่งงานได้: ต้องถ่ายรูปเลขล็อตอย่างน้อย 1 รูป และรูปหลังติดตั้งอย่างน้อย 1 รูป');
         }
 
-        if (!$this->lotOcrService->hasPassingLotPhoto($task)) {
-            return back()->with('error', 'ไม่สามารถส่งงานได้: รูปป้ายเลขล็อตยังไม่ผ่าน OCR หรือเลขล็อตไม่ตรงกับรายการจอง กรุณาถ่ายรูปป้ายเลขล็อตใหม่ให้ชัดเจน');
+        $hasApprovedLotNumber = $photos->contains(fn ($photo) => $photo->photo_type === 'lot_number' && $photo->ocr_status === 'approved');
+
+        if (!$hasApprovedLotNumber) {
+            return back()->with('error', 'ไม่สามารถส่งงานได้: รูปป้ายเลขล็อตยังไม่ได้รับการยืนยันจากแอดมิน หรือถูกตีกลับ กรุณารอแอดมินตรวจสอบ');
         }
 
         DB::transaction(function () use ($task) {
@@ -156,6 +145,36 @@ class StaffTaskController extends Controller
         });
 
         return redirect()->route('staff.tasks.index')->with('success', 'ส่งงานติดตั้งเต็นท์เสร็จเรียบร้อย! เก่งมาก!');
+    }
+
+    public function reviewStatus(DeliveryTask $task)
+    {
+        if ($task->staff_id !== auth()->id() && auth()->user()->role !== 'admin') {
+            abort(403, 'Unauthorized.');
+        }
+
+        $task->load('photos');
+        $lotPhotos = $task->photos->where('photo_type', 'lot_number');
+
+        $status = 'none';
+        $message = 'ยังไม่ได้อัปโหลดรูปเลขล็อต';
+
+        if ($lotPhotos->contains(fn ($photo) => $photo->ocr_status === 'approved')) {
+            $status = 'approved';
+            $message = 'แอดมินยืนยันรูปเลขล็อตแล้ว สามารถส่งงานได้';
+        } elseif ($lotPhotos->contains(fn ($photo) => $photo->ocr_status === 'pending_review')) {
+            $status = 'pending_review';
+            $message = 'อัปโหลดรูปเลขล็อตแล้ว กำลังรอแอดมินตรวจสอบ';
+        } elseif ($lotPhotos->contains(fn ($photo) => $photo->ocr_status === 'rejected')) {
+            $status = 'rejected';
+            $message = 'รูปเลขล็อตถูกตีกลับ กรุณาถ่ายและอัปโหลดใหม่';
+        }
+
+        return response()->json([
+            'status' => $status,
+            'message' => $message,
+            'can_complete' => $status === 'approved',
+        ]);
     }
 
     public function reportProblem(Request $request, DeliveryTask $task)

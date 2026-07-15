@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\AdminDeliveryTaskController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminReportController;
 use App\Http\Controllers\Admin\AdminMapController;
+use App\Http\Controllers\Admin\AdminLotPhotoReviewController;
 use App\Http\Controllers\Staff\StaffTaskController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Session\Middleware\StartSession;
@@ -43,6 +44,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     Route::get('/tasks', [AdminDeliveryTaskController::class, 'index'])->name('tasks.index');
     Route::get('/tasks/{task}', [AdminDeliveryTaskController::class, 'show'])->name('tasks.show');
+    Route::get('/lot-photo-reviews', [AdminLotPhotoReviewController::class, 'index'])->name('lot_photo_reviews.index');
+    Route::get('/lot-photo-reviews/status', [AdminLotPhotoReviewController::class, 'status'])->name('lot_photo_reviews.status');
+    Route::post('/lot-photo-reviews/{photo}/approve', [AdminLotPhotoReviewController::class, 'approve'])->name('lot_photo_reviews.approve');
+    Route::post('/lot-photo-reviews/{photo}/reject', [AdminLotPhotoReviewController::class, 'reject'])->name('lot_photo_reviews.reject');
 
     Route::resource('/users', AdminUserController::class)->except(['show']);
     Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
@@ -54,6 +59,7 @@ Route::middleware(['auth', 'role:staff,admin'])->prefix('staff')->name('staff.')
     Route::get('/tasks/{task}', [StaffTaskController::class, 'show'])->name('tasks.show');
     Route::post('/tasks/{task}/start', [StaffTaskController::class, 'start'])->name('tasks.start');
     Route::post('/tasks/{task}/upload-photo', [StaffTaskController::class, 'uploadPhoto'])->name('tasks.upload_photo');
+    Route::get('/tasks/{task}/review-status', [StaffTaskController::class, 'reviewStatus'])->name('tasks.review_status');
     Route::post('/tasks/{task}/complete', [StaffTaskController::class, 'complete'])->name('tasks.complete');
     Route::post('/tasks/{task}/problem', [StaffTaskController::class, 'reportProblem'])->name('tasks.problem');
 });

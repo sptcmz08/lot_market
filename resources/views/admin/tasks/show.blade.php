@@ -115,8 +115,13 @@
                                     </strong>
 
                                     @if($photo->photo_type === 'lot_number')
-                                        <div style="font-size: 12px; font-weight: 800; color: @if($photo->ocr_status === 'matched') #1E7E34 @else #D35400 @endif;">
-                                            OCR: {{ $photo->ocr_status === 'matched' ? 'ผ่าน' : 'ไม่ผ่าน' }}
+                                        <div style="font-size: 12px; font-weight: 800; color: @if($photo->ocr_status === 'approved') #1E7E34 @elseif($photo->ocr_status === 'pending_review') #856404 @else #D35400 @endif;">
+                                            ตรวจเลขล็อต:
+                                            @if($photo->ocr_status === 'approved') ผ่าน
+                                            @elseif($photo->ocr_status === 'pending_review') รอตรวจ
+                                            @elseif($photo->ocr_status === 'rejected') ไม่ผ่าน
+                                            @else ยังไม่ตรวจ
+                                            @endif
                                         </div>
                                         @if($photo->ocr_text)
                                             <div style="color: var(--text-muted); font-size: 11px; word-break: break-word;">{{ $photo->ocr_text }}</div>

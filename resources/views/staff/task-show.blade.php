@@ -94,12 +94,18 @@
                 @php
                     $photos = $task->photos;
                     $hasLotNo = $photos->contains('photo_type', 'lot_number');
-                    $hasOcrLotPass = $photos->contains(fn ($photo) => $photo->photo_type === 'lot_number' && $photo->ocr_status === 'matched');
+                    $hasApprovedLotNo = $photos->contains(fn ($photo) => $photo->photo_type === 'lot_number' && $photo->ocr_status === 'approved');
+                    $hasPendingLotNo = $photos->contains(fn ($photo) => $photo->photo_type === 'lot_number' && $photo->ocr_status === 'pending_review');
                     $hasBefore = $photos->contains('photo_type', 'before');
                     $hasAfter = $photos->contains('photo_type', 'after');
                 @endphp
-                <span class="status-badge @if($hasOcrLotPass) status-completed @elseif($hasLotNo) status-problem @else status-pending @endif">
-                    <i class="fa-solid @if($hasOcrLotPass) fa-check @else fa-circle-xmark @endif"></i> OCR เลขล็อต
+                <span id="lot-review-badge" class="status-badge @if($hasApprovedLotNo) status-completed @elseif($hasPendingLotNo) status-pending @elseif($hasLotNo) status-problem @else status-pending @endif">
+                    <i class="fa-solid @if($hasApprovedLotNo) fa-check @else fa-circle-xmark @endif"></i>
+                    @if($hasApprovedLotNo) แอดมินยืนยันเลขล็อตแล้ว
+                    @elseif($hasPendingLotNo) รอแอดมินตรวจเลขล็อต
+                    @elseif($hasLotNo) รูปเลขล็อตไม่ผ่าน
+                    @else ยังไม่มีรูปเลขล็อต
+                    @endif
                 </span>
                 <span class="status-badge @if($hasBefore) status-completed @else status-blocked @endif">
                     <i class="fa-solid @if($hasBefore) fa-check @else fa-circle @endif"></i> ก่อนติดตั้ง (ถ้ามี)
@@ -192,8 +198,13 @@
                             @endif
                         </div>
                         @if($ph->photo_type === 'lot_number')
-                            <div style="font-size:10px;padding:0 4px 6px;color:@if($ph->ocr_status === 'matched') #1E7E34 @else #D35400 @endif;font-weight:700;">
-                                OCR: {{ $ph->ocr_status === 'matched' ? 'ผ่าน' : 'ไม่ผ่าน' }}
+                            <div style="font-size:10px;padding:0 4px 6px;color:@if($ph->ocr_status === 'approved') #1E7E34 @elseif($ph->ocr_status === 'pending_review') #856404 @else #D35400 @endif;font-weight:700;">
+                                ตรวจเลขล็อต:
+                                @if($ph->ocr_status === 'approved') ผ่าน
+                                @elseif($ph->ocr_status === 'pending_review') รอตรวจ
+                                @elseif($ph->ocr_status === 'rejected') ไม่ผ่าน
+                                @else ยังไม่ตรวจ
+                                @endif
                                 @if($ph->ocr_text)
                                     <span style="display:block;color:var(--text-muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ $ph->ocr_text }}</span>
                                 @endif
@@ -213,9 +224,15 @@
         <div class="sticky-bottom-bar">
             <form action="{{ route('staff.tasks.complete', $task) }}" method="POST" style="margin: 0; width: 100%;">
                 @csrf
-                <button type="submit" class="btn-large btn-large-success" style="width: 100%;">
+                <button id="complete-task-btn" type="submit" class="btn-large btn-large-success" style="width: 100%;" @if(!$hasApprovedLotNo) disabled @endif>
                     <i class="fa-solid fa-circle-check"></i> ส่งงานติดตั้งเสร็จสมบูรณ์
                 </button>
+                <div id="lot-review-message" style="text-align:center;font-size:12px;font-weight:700;margin-top:6px;color:var(--text-muted);">
+                    @if($hasApprovedLotNo) แอดมินยืนยันรูปเลขล็อตแล้ว
+                    @elseif($hasPendingLotNo) รอแอดมินตรวจรูปเลขล็อต
+                    @else ต้องอัปโหลดรูปเลขล็อตและรอแอดมินยืนยันก่อนส่งงาน
+                    @endif
+                </div>
             </form>
         </div>
     @endif
@@ -230,6 +247,9 @@
         
         const latFields = document.querySelectorAll('.gps-lat');
         const lngFields = document.querySelectorAll('.gps-lng');
+        const completeBtn = document.getElementById('complete-task-btn');
+        const reviewMessage = document.getElementById('lot-review-message');
+        const reviewBadge = document.getElementById('lot-review-badge');
 
         // Check if browser supports geolocation
         if ("geolocation" in navigator) {
@@ -263,6 +283,24 @@
             gpsStatus.style.color = '#721C24';
             gpsIcon.className = 'fa-solid fa-circle-xmark';
             gpsText.innerText = 'อุปกรณ์ของคุณไม่รองรับการจับพิกัดจีพีเอส';
+        }
+
+        if (completeBtn && reviewMessage) {
+            setInterval(function () {
+                fetch('{{ route('staff.tasks.review_status', $task) }}', { headers: { 'Accept': 'application/json' } })
+                    .then(response => response.json())
+                    .then(data => {
+                        completeBtn.disabled = !data.can_complete;
+                        reviewMessage.textContent = data.message;
+                        if (reviewBadge) {
+                            const badgeClass = data.status === 'approved' ? 'status-completed' : (data.status === 'pending_review' ? 'status-pending' : 'status-problem');
+                            const iconClass = data.status === 'approved' ? 'fa-check' : 'fa-circle-xmark';
+                            reviewBadge.className = `status-badge ${badgeClass}`;
+                            reviewBadge.innerHTML = `<i class="fa-solid ${iconClass}"></i> ${data.message}`;
+                        }
+                    })
+                    .catch(() => {});
+            }, 5000);
         }
     });
 </script>
