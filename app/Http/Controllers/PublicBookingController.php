@@ -111,8 +111,8 @@ class PublicBookingController extends Controller
             'wants_counter' => 'nullable|boolean',
             'counter_size' => 'nullable|required_if:wants_counter,1|in:1 ล็อค 70x75 cm. มีหลังคา,2 ล็อค 140x75 cm.,3 ล็อค 180x75 cm.',
             'counter_color' => 'nullable|string|max:50',
-            'payment_slip' => 'nullable|image|mimes:jpg,jpeg,png,webp',
-            'collect_front_store' => 'nullable|boolean',
+            'payment_method' => 'required|in:slip,front_store',
+            'payment_slip' => 'nullable|required_if:payment_method,slip|image|mimes:jpg,jpeg,png,webp',
             'customer_note' => 'nullable|string|max:500',
         ], [
             'customer_phone.regex' => 'เบอร์โทรศัพท์ต้องเป็นตัวเลข 9-10 หลัก',
@@ -125,12 +125,15 @@ class PublicBookingController extends Controller
             'tent_size.required_if' => 'กรุณาเลือกขนาดเต็นท์',
             'tent_color.required_if' => 'กรุณาเลือกสีเต็นท์',
             'counter_size.required_if' => 'กรุณาเลือกขนาดเคาน์เตอร์',
+            'payment_method.required' => 'กรุณาเลือกวิธีชำระเงิน',
+            'payment_method.in' => 'วิธีชำระเงินไม่ถูกต้อง',
+            'payment_slip.required_if' => 'กรุณาแนบรูปสลิปสำหรับรายการที่ชำระแล้ว',
             'payment_slip.image' => 'ไฟล์สลิปต้องเป็นรูปภาพ',
         ]);
 
         $validated['wants_tent'] = $request->boolean('wants_tent');
         $validated['wants_counter'] = $request->boolean('wants_counter');
-        $validated['collect_front_store'] = $request->boolean('collect_front_store');
+        $validated['collect_front_store'] = $validated['payment_method'] === 'front_store';
 
         if (!$validated['wants_tent'] && !$validated['wants_counter']) {
             return back()
@@ -211,7 +214,7 @@ class PublicBookingController extends Controller
             return back()->withErrors(['lots' => 'ล็อคที่เลือกมีคำสั่งจองอุปกรณ์อยู่แล้วในวันดังกล่าว กรุณาตรวจสอบรายการเดิมก่อน'])->withInput();
         }
 
-        if ($request->hasFile('payment_slip')) {
+        if ($validated['payment_method'] === 'slip' && $request->hasFile('payment_slip')) {
             $validated['payment_slip_path'] = $this->photoUploadService->upload($request->file('payment_slip'), 'payment-slips');
         }
 

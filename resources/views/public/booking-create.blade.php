@@ -111,6 +111,62 @@
         accent-color: var(--primary);
     }
 
+    .payment-method-tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .payment-method-tab {
+        display: flex;
+        min-height: 54px;
+        padding: 11px 14px;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border: 2px solid var(--border-cute);
+        border-radius: 14px;
+        background: var(--bg-card-soft);
+        color: var(--text-muted);
+        font-weight: 800;
+        text-align: center;
+        cursor: pointer;
+    }
+
+    .payment-method-tab input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .payment-method-tab.is-active {
+        border-color: var(--primary);
+        background: rgba(56, 189, 248, 0.14);
+        color: var(--text-dark);
+    }
+
+    .payment-method-panel {
+        margin-top: 12px;
+        padding: 14px;
+        border: 1px solid var(--border-cute);
+        border-radius: 14px;
+        background: var(--bg-card-soft);
+    }
+
+    .front-store-message {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+        color: var(--text-dark);
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .front-store-message i {
+        margin-top: 4px;
+        color: #f59e0b;
+    }
+
     .lot-range-grid {
         display: grid;
         grid-template-columns: minmax(120px, 180px) minmax(90px, 1fr) auto minmax(90px, 1fr);
@@ -215,6 +271,10 @@
         }
 
         .lot-mode-tabs {
+            grid-template-columns: 1fr;
+        }
+
+        .payment-method-tabs {
             grid-template-columns: 1fr;
         }
 
@@ -400,16 +460,35 @@
                 </div>
 
                 <div class="booking-field">
-                    <label class="cute-label" for="payment_slip"><i class="fa-solid fa-image" style="color:var(--primary);"></i> รูปภาพสลิป กรณีลูกค้าชำระแล้ว</label>
-                    <input type="file" id="payment_slip" name="payment_slip" class="cute-input" accept="image/*">
-                    <small style="color: var(--text-muted); font-size: 12px;">รองรับไฟล์รูปภาพ JPG, PNG และ WEBP</small>
-                </div>
+                    @php
+                        $selectedPaymentMethod = old('payment_method', 'slip');
+                    @endphp
+                    <label class="cute-label"><i class="fa-solid fa-wallet" style="color:var(--primary);"></i> วิธีชำระเงิน *</label>
+                    <div class="payment-method-tabs" role="radiogroup" aria-label="วิธีชำระเงิน">
+                        <label class="payment-method-tab" data-payment-method="slip">
+                            <input type="radio" name="payment_method" value="slip" {{ $selectedPaymentMethod === 'slip' ? 'checked' : '' }}>
+                            <i class="fa-solid fa-receipt"></i>
+                            <span>ชำระแล้ว / แนบสลิป</span>
+                        </label>
+                        <label class="payment-method-tab" data-payment-method="front_store">
+                            <input type="radio" name="payment_method" value="front_store" {{ $selectedPaymentMethod === 'front_store' ? 'checked' : '' }}>
+                            <i class="fa-solid fa-store"></i>
+                            <span>เก็บเงินหน้าร้าน</span>
+                        </label>
+                    </div>
 
-                <div class="booking-field">
-                    <label class="checkbox-line">
-                        <input type="checkbox" name="collect_front_store" value="1" {{ old('collect_front_store') ? 'checked' : '' }}>
-                        <span>ให้เก็บหน้าร้าน</span>
-                    </label>
+                    <div id="payment-slip-panel" class="payment-method-panel">
+                        <label class="cute-label" for="payment_slip"><i class="fa-solid fa-image" style="color:var(--primary);"></i> รูปภาพสลิป *</label>
+                        <input type="file" id="payment_slip" name="payment_slip" class="cute-input" accept="image/jpeg,image/png,image/webp">
+                        <small style="color:var(--text-muted);font-size:12px;">รองรับไฟล์รูปภาพ JPG, PNG และ WEBP</small>
+                    </div>
+
+                    <div id="front-store-panel" class="payment-method-panel" hidden>
+                        <div class="front-store-message">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <span>เลือกเก็บเงินหน้าร้านแล้ว เจ้าหน้าที่จะไปเก็บเงินตามเลข LOT ที่ระบุในรายการจอง</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="booking-field">
@@ -441,6 +520,10 @@
         const groupList = document.getElementById('lot-group-list');
         const addButton = document.getElementById('add-lot-group');
         const template = document.getElementById('lot-group-template');
+        const paymentTabs = document.querySelectorAll('[data-payment-method]');
+        const paymentSlipPanel = document.getElementById('payment-slip-panel');
+        const frontStorePanel = document.getElementById('front-store-panel');
+        const paymentSlipInput = document.getElementById('payment_slip');
 
         function setMode(mode) {
             modeInput.value = mode;
@@ -461,6 +544,18 @@
             });
         }
 
+        function setPaymentMethod(method) {
+            const useSlip = method === 'slip';
+            paymentSlipPanel.hidden = !useSlip;
+            frontStorePanel.hidden = useSlip;
+            paymentSlipInput.required = useSlip;
+            paymentTabs.forEach(tab => {
+                const active = tab.dataset.paymentMethod === method;
+                tab.classList.toggle('is-active', active);
+                tab.querySelector('input').checked = active;
+            });
+        }
+
         function addLotGroup() {
             const index = Date.now().toString();
             const wrapper = document.createElement('div');
@@ -473,6 +568,7 @@
         }
 
         tabs.forEach(tab => tab.addEventListener('click', () => setMode(tab.dataset.lotMode)));
+        paymentTabs.forEach(tab => tab.addEventListener('click', () => setPaymentMethod(tab.dataset.paymentMethod)));
         addButton.addEventListener('click', addLotGroup);
         groupList.addEventListener('click', function (event) {
             const removeButton = event.target.closest('.lot-remove-btn');
@@ -484,6 +580,7 @@
         });
 
         setMode(modeInput.value || 'single');
+        setPaymentMethod(document.querySelector('input[name="payment_method"]:checked')?.value || 'slip');
         refreshRemoveButtons();
     });
 </script>
