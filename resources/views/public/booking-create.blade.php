@@ -72,6 +72,31 @@
         gap: 12px;
     }
 
+    .equipment-control {
+        min-width: 0;
+    }
+
+    .equipment-control .cute-label {
+        margin-bottom: 6px;
+        font-size: 14px;
+    }
+
+    .tent-color-note {
+        grid-column: 1 / -1;
+        display: flex;
+        gap: 7px;
+        align-items: flex-start;
+        margin: -2px 0 0;
+        color: var(--text-muted);
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .tent-color-note i {
+        color: #f59e0b;
+        margin-top: 3px;
+    }
+
     .checkbox-line {
         display: flex;
         align-items: center;
@@ -241,18 +266,28 @@
                             <span>จองเต็นท์</span>
                         </label>
                         <div class="equipment-inputs">
-                            <select name="tent_size" class="cute-select">
-                                <option value="">เลือกขนาดเต็นท์</option>
-                                @foreach($tentSizes as $size)
-                                    <option value="{{ $size }}" {{ old('tent_size') == $size ? 'selected' : '' }}>{{ $size }}</option>
-                                @endforeach
-                            </select>
-                            <select name="tent_color" class="cute-select">
-                                <option value="">เลือกสีเต็นท์</option>
-                                @foreach($equipmentColors as $color)
-                                    <option value="{{ $color }}" {{ old('tent_color') == $color ? 'selected' : '' }}>{{ $color }}</option>
-                                @endforeach
-                            </select>
+                            <div class="equipment-control">
+                                <label class="cute-label" for="tent_size">ขนาดเต็นท์ *</label>
+                                <select id="tent_size" name="tent_size" class="cute-select">
+                                    <option value="">เลือกขนาดเต็นท์</option>
+                                    @foreach($tentSizes as $size)
+                                        <option value="{{ $size }}" {{ old('tent_size') == $size ? 'selected' : '' }}>{{ $size }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="equipment-control">
+                                <label class="cute-label" for="tent_color">สีเต็นท์ *</label>
+                                <select id="tent_color" name="tent_color" class="cute-select">
+                                    <option value="">เลือกสีเต็นท์</option>
+                                    @foreach($equipmentColors as $color)
+                                        <option value="{{ $color }}" {{ old('tent_color') == $color ? 'selected' : '' }}>{{ $color }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <p class="tent-color-note">
+                                <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                                <span><strong>หมายเหตุ:</strong> หากสีที่เลือกหมด ทางร้านจะเลือกสีอื่นทดแทน</span>
+                            </p>
                         </div>
                     </div>
                 </div>

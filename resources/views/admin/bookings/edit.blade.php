@@ -72,6 +72,10 @@
                                     <option value="{{ $color }}" {{ old('tent_color', $booking->tent_color) == $color ? 'selected' : '' }}>{{ $color }}</option>
                                 @endforeach
                             </select>
+                            <small style="display:flex;gap:6px;align-items:flex-start;color:var(--text-muted);line-height:1.5;">
+                                <i class="fa-solid fa-circle-info" style="color:#f59e0b;margin-top:3px;"></i>
+                                <span><strong>หมายเหตุ:</strong> หากสีที่เลือกหมด ทางร้านจะเลือกสีอื่นทดแทน</span>
+                            </small>
                         </div>
                     </div>
                 </div>
