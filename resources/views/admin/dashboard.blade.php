@@ -178,15 +178,20 @@
                 </h3>
                 <span style="color:var(--text-muted);font-size:13px;">ดูยอดงานและรายการเก็บเงินหน้าร้านตามวันที่ใช้งาน</span>
             </div>
-            <form action="{{ route('admin.dashboard') }}" method="GET" style="display:flex;gap:8px;align-items:flex-end;">
-                <div class="cute-input-group" style="margin:0;">
-                    <label class="cute-label" for="summary_date">วันที่</label>
-                    <input type="date" id="summary_date" name="date" class="cute-input" value="{{ $selectedDate }}">
-                </div>
-                <button type="submit" class="btn-primary" style="min-height:44px;padding:10px 16px;">
-                    <i class="fa-solid fa-magnifying-glass"></i> แสดงยอด
-                </button>
-            </form>
+            <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
+                <form action="{{ route('admin.dashboard') }}" method="GET" style="display:flex;gap:8px;align-items:flex-end;">
+                    <div class="cute-input-group" style="margin:0;">
+                        <label class="cute-label" for="summary_date">วันที่</label>
+                        <input type="date" id="summary_date" name="date" class="cute-input" value="{{ $selectedDate }}">
+                    </div>
+                    <button type="submit" class="btn-primary" style="min-height:44px;padding:10px 16px;">
+                        <i class="fa-solid fa-magnifying-glass"></i> แสดงยอด
+                    </button>
+                </form>
+                <a href="{{ route('admin.dashboard.front_store_export', ['date' => $selectedDate]) }}" class="btn-secondary" style="min-height:44px;padding:10px 16px;">
+                    <i class="fa-solid fa-file-excel"></i> ส่งออก Excel
+                </a>
+            </div>
         </div>
 
         <div class="daily-summary-grid">

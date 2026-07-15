@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
+use ZipArchive;
 
 class AdminDashboardCollectionTest extends TestCase
 {
@@ -44,7 +45,10 @@ class AdminDashboardCollectionTest extends TestCase
             ->assertSee('GA12')
             ->assertSee('1 LOT')
             ->assertSee('500.00 บาท')
-            ->assertSee('เก็บแล้ว');
+            ->assertSee('เก็บแล้ว')
+            ->assertSee('ส่งออก Excel')
+            ->assertSee('Home')
+            ->assertSee(route('public.booking.create'), false);
     }
 
     public function test_admin_cannot_record_collection_for_booking_without_front_store_option(): void
@@ -60,6 +64,54 @@ class AdminDashboardCollectionTest extends TestCase
         $response->assertRedirect()
             ->assertSessionHas('error', 'รายการนี้ไม่ได้เลือกเก็บเงินหน้าร้าน');
         $this->assertNull($booking->fresh()->front_store_collected_at);
+    }
+
+    public function test_admin_can_export_front_store_collection_as_excel(): void
+    {
+        $admin = $this->createAdmin('admin-export-test');
+        $useDate = now()->addDays(2)->toDateString();
+        $booking = $this->createBooking($useDate, true, 'BKEXPORT001');
+        $booking->update([
+            'front_store_collected_amount' => 750,
+            'front_store_collected_at' => now(),
+            'front_store_collected_by' => $admin->id,
+        ]);
+        $lot = Lot::firstOrCreate(
+            ['lot_code' => 'GB20'],
+            ['display_name' => 'GB20', 'is_active' => true]
+        );
+        $booking->lots()->attach($lot);
+
+        $response = $this->actingAs($admin)->get(route('admin.dashboard.front_store_export', ['date' => $useDate]));
+
+        $response->assertOk();
+        $response->assertHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $response->assertDownload('front-store-collection-'.$useDate.'.xlsx');
+
+        $zip = new ZipArchive();
+        $this->assertTrue($zip->open($response->getFile()->getPathname()) === true);
+        $worksheet = $zip->getFromName('xl/worksheets/sheet1.xml');
+        $zip->close();
+
+        $this->assertStringContainsString('BKEXPORT001', $worksheet);
+        $this->assertStringContainsString('GB20', $worksheet);
+        $this->assertStringContainsString('ร้านเก็บเงินหน้าร้าน', $worksheet);
+        $this->assertStringContainsString('<v>750</v>', $worksheet);
+    }
+
+    public function test_staff_cannot_export_front_store_collection(): void
+    {
+        $staff = User::create([
+            'name' => 'พนักงานทดสอบ',
+            'username' => 'staff-export-test',
+            'password' => Hash::make('password'),
+            'role' => 'staff',
+            'is_active' => true,
+        ]);
+
+        $this->actingAs($staff)
+            ->get(route('admin.dashboard.front_store_export'))
+            ->assertForbidden();
     }
 
     private function createAdmin(string $username = 'admin-collection-test'): User

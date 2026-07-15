@@ -36,6 +36,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Admin Routes
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/front-store-export', [AdminDashboardController::class, 'exportFrontStore'])->name('dashboard.front_store_export');
     Route::post('/dashboard/bookings/{booking}/front-store-collection', [AdminDashboardController::class, 'collectFrontStore'])->name('dashboard.front_store_collection');
 
     Route::resource('/bookings', AdminBookingController::class)->except(['create', 'store']);

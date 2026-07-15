@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\User;
+use App\Services\SimpleXlsxWriter;
 use App\Services\StatusLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -102,5 +103,55 @@ class AdminDashboardController extends Controller
         });
 
         return back()->with('success', 'บันทึกยอดเก็บหน้าร้านเรียบร้อยแล้ว');
+    }
+
+    public function exportFrontStore(Request $request, SimpleXlsxWriter $writer)
+    {
+        try {
+            $selectedDate = Carbon::createFromFormat('Y-m-d', $request->query('date', now()->format('Y-m-d')))
+                ->format('Y-m-d');
+        } catch (\Throwable) {
+            $selectedDate = now()->format('Y-m-d');
+        }
+
+        $bookings = Booking::whereDate('use_date', $selectedDate)
+            ->where('collect_front_store', true)
+            ->where('status', '!=', 'cancelled')
+            ->with(['lots', 'frontStoreCollectedBy'])
+            ->orderBy('shop_name')
+            ->get();
+
+        $rows = [
+            ['รายการเก็บเงินหน้าร้าน วันที่ '.Carbon::parse($selectedDate)->format('d/m/Y'), '', '', '', '', '', '', '', '', ''],
+            ['', '', '', '', '', '', '', '', '', ''],
+            ['ลำดับ', 'รหัสจอง', 'วันที่ใช้', 'เลข LOT', 'ร้านค้า', 'เบอร์โทร', 'รายการอุปกรณ์', 'สถานะเก็บเงิน', 'ยอดเงิน (บาท)', 'ผู้บันทึก / เวลา'],
+        ];
+
+        foreach ($bookings as $index => $booking) {
+            $rows[] = [
+                $index + 1,
+                $booking->booking_code,
+                $booking->use_date->format('d/m/Y'),
+                $booking->lots->pluck('lot_code')->implode(', '),
+                $booking->shop_name,
+                $booking->customer_phone,
+                $booking->equipmentSummary(),
+                $booking->front_store_collected_at ? 'เก็บแล้ว' : 'รอเก็บ',
+                $booking->front_store_collected_at ? (float) $booking->front_store_collected_amount : '',
+                $booking->front_store_collected_at
+                    ? trim(($booking->frontStoreCollectedBy?->name ?? '-').' '.$booking->front_store_collected_at->format('d/m/Y H:i').' น.')
+                    : '',
+            ];
+        }
+
+        $rows[] = ['', '', '', '', '', '', '', 'รวมยอดที่เก็บแล้ว', (float) $bookings->whereNotNull('front_store_collected_at')->sum('front_store_collected_amount'), ''];
+
+        $path = $writer->create($rows, [8, 24, 14, 24, 24, 16, 32, 18, 18, 30], [8]);
+
+        return response()->download(
+            $path,
+            'front-store-collection-'.$selectedDate.'.xlsx',
+            ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
+        )->deleteFileAfterSend(true);
     }
 }

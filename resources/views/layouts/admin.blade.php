@@ -399,6 +399,11 @@
         </a>
         <ul class="sidebar-menu">
             <li>
+                <a href="{{ route('public.booking.create') }}" class="sidebar-link">
+                    <i class="fa-solid fa-house"></i> Home
+                </a>
+            </li>
+            <li>
                 <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ Route::is('admin.dashboard') ? 'active' : '' }}">
                     <i class="fa-solid fa-gauge"></i> แผงควบคุม
                 </a>
