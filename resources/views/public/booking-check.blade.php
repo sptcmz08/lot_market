@@ -117,9 +117,9 @@
                                 <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;">
                                     @foreach ($booking->deliveryTask->photos as $photo)
                                         <div style="border: 2px solid var(--border-cute); border-radius: 14px; overflow: hidden; background-color: var(--bg-page); text-align: center;">
-                                            <a href="{{ route('media.show', ['path' => $photo->image_path]) }}" target="_blank">
+                                            <button type="button" class="image-lightbox-trigger" data-lightbox-src="{{ route('media.show', ['path' => $photo->image_path]) }}" data-lightbox-alt="ภาพถ่ายติดตั้ง" style="display:block;width:100%;">
                                                 <img src="{{ route('media.show', ['path' => $photo->image_path]) }}" style="width: 100%; height: 100px; object-fit: cover; display: block;" alt="ภาพถ่ายติดตั้ง">
-                                            </a>
+                                            </button>
                                             <span style="font-size: 11px; font-weight: 700; padding: 4px; display: block; color: var(--text-dark);">
                                                 @if($photo->photo_type === 'lot_number') 📝 เลขล็อค
                                                 @elseif($photo->photo_type === 'before') 🛠️ ก่อนติดตั้ง
@@ -143,4 +143,6 @@
             @endforeach
         @endif
     @endif
+
+    @include('components.image-lightbox')
 @endsection

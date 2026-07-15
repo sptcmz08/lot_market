@@ -104,9 +104,9 @@
                 @if ($booking->payment_slip_path)
                     <div style="background-color: var(--bg-page); border: 2px solid var(--border-cute); border-radius: 16px; padding: 15px; margin-top: 15px;">
                         <strong style="font-size: 14px; display: block; margin-bottom: 10px;"><i class="fa-solid fa-receipt"></i> รูปภาพสลิปชำระเงิน:</strong>
-                        <a href="{{ route('media.show', ['path' => $booking->payment_slip_path]) }}" target="_blank" style="display:inline-block;">
+                        <button type="button" class="image-lightbox-trigger" data-lightbox-src="{{ route('media.show', ['path' => $booking->payment_slip_path]) }}" data-lightbox-alt="สลิปชำระเงิน" style="display:inline-block;">
                             <img src="{{ route('media.show', ['path' => $booking->payment_slip_path]) }}" alt="สลิปชำระเงิน" style="width: 180px; max-width: 100%; border-radius: 12px; border: 1px solid var(--border-cute); display:block;">
-                        </a>
+                        </button>
                     </div>
                 @endif
 
@@ -135,9 +135,9 @@
                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px;">
                         @foreach ($booking->deliveryTask->photos as $photo)
                             <div style="border: 2px solid var(--border-cute); border-radius: 18px; overflow: hidden; background-color: var(--bg-page); text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
-                                <a href="{{ route('media.show', ['path' => $photo->image_path]) }}" target="_blank">
+                                <button type="button" class="image-lightbox-trigger" data-lightbox-src="{{ route('media.show', ['path' => $photo->image_path]) }}" data-lightbox-alt="ภาพถ่ายยืนยัน" style="display:block;width:100%;">
                                     <img src="{{ route('media.show', ['path' => $photo->image_path]) }}" style="width: 100%; height: 140px; object-fit: cover; display: block;" alt="ภาพถ่ายยืนยัน">
-                                </a>
+                                </button>
                                 <div style="padding: 10px; font-size: 13px;">
                                     <strong style="display:block;margin-bottom:4px;color:var(--text-dark);">
                                         @if($photo->photo_type === 'lot_number') 📋 ป้ายเลขแผง
@@ -247,4 +247,6 @@
             </div>
         </div>
     </div>
+
+    @include('components.image-lightbox')
 @endsection

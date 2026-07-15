@@ -102,9 +102,9 @@
                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
                         @foreach ($task->photos as $photo)
                             <div style="border: 2px solid var(--border-cute); border-radius: 18px; overflow: hidden; background-color: var(--bg-page); display: flex; flex-direction: column;">
-                                <a href="{{ route('media.show', ['path' => $photo->image_path]) }}" target="_blank">
+                                <button type="button" class="image-lightbox-trigger" data-lightbox-src="{{ route('media.show', ['path' => $photo->image_path]) }}" data-lightbox-alt="รูปติดตั้ง" style="display:block;width:100%;">
                                     <img src="{{ route('media.show', ['path' => $photo->image_path]) }}" style="width: 100%; height: 150px; object-fit: cover; display: block;" alt="รูปติดตั้ง">
-                                </a>
+                                </button>
                                 <div style="padding: 12px; font-size: 13px; display: flex; flex-direction: column; gap: 4px; flex: 1;">
                                     <strong style="color: var(--text-dark);">
                                         @if($photo->photo_type === 'lot_number') 📝 รูปป้ายเลขแผง
@@ -197,4 +197,6 @@
             </div>
         </div>
     </div>
+
+    @include('components.image-lightbox')
 @endsection
