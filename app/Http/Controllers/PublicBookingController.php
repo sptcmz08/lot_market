@@ -191,11 +191,37 @@ class PublicBookingController extends Controller
                 }
             }
 
-            $validated['lots'] = collect($lotGroups)
+            $requestedLots = collect($lotGroups)
                 ->flatMap(fn ($group) => collect(range($group['from'], $group['to']))
-                    ->map(fn ($number) => $group['prefix'] . $number))
-                ->unique()
-                ->values()
+                    ->map(fn ($number) => [
+                        'prefix' => $group['prefix'],
+                        'number' => $number,
+                    ]))
+                ->unique(fn ($lot) => $lot['prefix'] . ':' . $lot['number'])
+                ->values();
+
+            $activeLotCodes = Lot::where('is_active', true)
+                ->pluck('lot_code')
+                ->mapWithKeys(function ($code) {
+                    if (!preg_match('/^(.*?)(\d+)$/', $code, $matches)) {
+                        return [];
+                    }
+
+                    return [$matches[1] . ':' . (int) $matches[2] => $code];
+                });
+
+            $missingLots = $requestedLots->reject(
+                fn ($lot) => $activeLotCodes->has($lot['prefix'] . ':' . $lot['number'])
+            );
+
+            if ($missingLots->isNotEmpty()) {
+                return back()
+                    ->withErrors(['lots' => 'ไม่พบเลขล็อคบางรายการในระบบ กรุณาตรวจสอบอักษรล็อคและช่วงเลขอีกครั้ง'])
+                    ->withInput();
+            }
+
+            $validated['lots'] = $requestedLots
+                ->map(fn ($lot) => $activeLotCodes->get($lot['prefix'] . ':' . $lot['number']))
                 ->all();
         }
 

@@ -61,6 +61,25 @@ class PublicBookingPaymentMethodTest extends TestCase
         $this->assertSame(0, Booking::count());
     }
 
+    public function test_booking_range_resolves_zero_padded_lot_codes_from_the_market_layout(): void
+    {
+        Lot::whereIn('lot_code', ['GJ08', 'GJ09'])->update(['is_active' => true]);
+
+        $response = $this->post(route('public.booking.store'), $this->bookingData([
+            'payment_method' => 'front_store',
+            'lot_prefix' => 'GJ',
+            'lot_number_from' => 8,
+            'lot_number_to' => 9,
+        ]));
+
+        $response->assertRedirect(route('public.booking.check'));
+
+        $this->assertSame(
+            ['GJ08', 'GJ09'],
+            Booking::firstOrFail()->lots()->orderBy('lot_code')->pluck('lot_code')->all()
+        );
+    }
+
     private function bookingData(array $overrides = []): array
     {
         return array_merge([
