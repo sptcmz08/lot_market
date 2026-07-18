@@ -86,6 +86,7 @@
                     <option value="">ทั้งหมด</option>
                     <option value="pending_admin" {{ request('status') == 'pending_admin' ? 'selected' : '' }}>รอยืนยัน</option>
                     <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>ยืนยันแล้ว/รอส่ง</option>
+                    <option value="photo_review" {{ request('status') == 'photo_review' ? 'selected' : '' }}>ส่งรูปแล้ว/รอตรวจ</option>
                     <option value="installing" {{ request('status') == 'installing' ? 'selected' : '' }}>กำลังติดตั้ง</option>
                     <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>ติดตั้งสำเร็จ</option>
                     <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>ยกเลิก</option>
@@ -135,6 +136,16 @@
             </thead>
             <tbody>
                 @forelse ($bookings as $booking)
+                    @php
+                        $taskPhotos = $booking->deliveryTasks->flatMap->photos;
+                        $isPhotoReviewPending = $booking->deliveryTasks->contains('status', 'photo_uploaded');
+                        $isPhotoRejected = $booking->deliveryTasks->pluck('problem_note')
+                            ->filter(fn ($note) => str_starts_with((string) $note, 'ตีกลับโดยแอดมิน:'))
+                            ->isNotEmpty();
+                        $hasDraftPhotos = !$isPhotoReviewPending
+                            && $booking->status !== 'completed'
+                            && $taskPhotos->whereIn('photo_type', ['lot_number', 'after'])->isNotEmpty();
+                    @endphp
                     <tr>
                         <td>
                             <strong>{{ $booking->use_date->format('d/m/Y') }}</strong>
@@ -172,25 +183,33 @@
                             @endif
                         </td>
                         <td>
-                            @php
-                                $statusClass = 'status-' . $booking->status;
-                                $statusName = 'รอยืนยัน';
-                                switch($booking->status) {
-                                    case 'pending_admin': $statusName = 'รอยืนยัน'; break;
-                                    case 'confirmed': $statusName = 'ยืนยันแล้ว/รอส่ง'; break;
-                                    case 'assigned': $statusName = 'ยืนยันแล้ว/รอส่ง'; break;
-                                    case 'installing': $statusName = 'กำลังติดตั้ง'; break;
-                                    case 'completed': $statusName = 'ติดตั้งสำเร็จ'; break;
-                                    case 'cancelled': $statusName = 'ยกเลิก'; break;
-                                    case 'problem': $statusName = 'มีปัญหา'; break;
-                                }
-                            @endphp
-                            <span class="status-badge {{ $statusClass }}">{{ $statusName }}</span>
+                            @if ($isPhotoReviewPending)
+                                <span class="status-badge status-pending_admin"><i class="fa-solid fa-camera"></i> ส่งรูปแล้ว / รอตรวจ</span>
+                            @elseif ($isPhotoRejected)
+                                <span class="status-badge status-problem"><i class="fa-solid fa-rotate-left"></i> ตีกลับ / รอส่งใหม่</span>
+                            @elseif ($hasDraftPhotos)
+                                <span class="status-badge status-installing"><i class="fa-solid fa-images"></i> เพิ่มรูปแล้ว / ยังไม่ส่ง</span>
+                            @else
+                                @php
+                                    $statusClass = 'status-' . $booking->status;
+                                    $statusName = 'รอยืนยัน';
+                                    switch($booking->status) {
+                                        case 'pending_admin': $statusName = 'รอยืนยัน'; break;
+                                        case 'confirmed': $statusName = 'ยืนยันแล้ว/รอส่ง'; break;
+                                        case 'assigned': $statusName = 'ยืนยันแล้ว/รอส่ง'; break;
+                                        case 'installing': $statusName = 'กำลังติดตั้ง'; break;
+                                        case 'completed': $statusName = 'ติดตั้งสำเร็จ'; break;
+                                        case 'cancelled': $statusName = 'ยกเลิก'; break;
+                                        case 'problem': $statusName = 'มีปัญหา'; break;
+                                    }
+                                @endphp
+                                <span class="status-badge {{ $statusClass }}">{{ $statusName }}</span>
+                            @endif
                         </td>
                         <td>
                             <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-                                <a href="{{ route('admin.bookings.show', $booking) }}" class="btn-secondary" style="padding: 6px 12px; font-size: 13px; border-radius: 10px;" title="เปิดดูรายละเอียด">
-                                    <i class="fa-solid fa-eye"></i> ดู
+                                <a href="{{ route('admin.bookings.show', $booking) }}{{ $isPhotoReviewPending ? '#installation-review' : '' }}" class="{{ $isPhotoReviewPending ? 'btn-primary' : 'btn-secondary' }}" style="padding: 6px 12px; font-size: 13px; border-radius: 10px;" title="{{ $isPhotoReviewPending ? 'เปิดตรวจและอนุมัติรูป' : 'เปิดดูรายละเอียด' }}">
+                                    <i class="fa-solid {{ $isPhotoReviewPending ? 'fa-camera-retro' : 'fa-eye' }}"></i> {{ $isPhotoReviewPending ? 'ตรวจรูป' : 'ดูรายละเอียด' }}
                                 </a>
                                 @if (!$booking->collect_front_store && !$booking->payment_slip_path)
                                     <form action="{{ route('admin.bookings.payment_slip', $booking) }}" method="POST" enctype="multipart/form-data" style="margin:0;">

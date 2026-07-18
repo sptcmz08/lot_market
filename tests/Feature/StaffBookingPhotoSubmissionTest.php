@@ -68,6 +68,11 @@ class StaffBookingPhotoSubmissionTest extends TestCase
         $this->assertSame('photo_uploaded', $task->fresh()->status);
 
         $this->actingAs($staff)->get(route('staff.bookings.camera', $booking))->assertForbidden();
+        $this->actingAs($admin)->get(route('admin.bookings.index'))
+            ->assertOk()
+            ->assertSee('ส่งรูปแล้ว / รอตรวจ')
+            ->assertSee('ตรวจรูป')
+            ->assertSee(route('admin.bookings.show', $booking).'#installation-review', false);
         $this->actingAs($admin)->get(route('admin.bookings.show', $booking))
             ->assertOk()
             ->assertSee('ภาพถ่ายและอนุมัติงานติดตั้ง')

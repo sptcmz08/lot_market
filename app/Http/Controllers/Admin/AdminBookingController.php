@@ -23,10 +23,14 @@ class AdminBookingController extends Controller
 
     public function index(Request $request)
     {
-        $query = Booking::with(['lots', 'deliveryTasks']);
+        $query = Booking::with(['lots', 'deliveryTasks.photos']);
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            if ($request->status === 'photo_review') {
+                $query->whereHas('deliveryTasks', fn ($tasks) => $tasks->where('status', 'photo_uploaded'));
+            } else {
+                $query->where('status', $request->status);
+            }
         }
 
         if ($request->filled('search')) {
