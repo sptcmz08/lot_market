@@ -42,6 +42,13 @@ class StaffBookingPhotoSubmissionTest extends TestCase
             ->assertSee('ส่ง')
             ->assertDontSee(route('admin.bookings.destroy', $booking), false);
 
+        $this->actingAs($staff)->get(route('staff.bookings.camera', $booking))
+            ->assertOk()
+            ->assertSee('data-camera-trigger', false)
+            ->assertSee('data-gallery-trigger', false)
+            ->assertSee('navigator.mediaDevices.getUserMedia', false)
+            ->assertSee('capture="environment"', false);
+
         $this->actingAs($staff)->post(route('staff.bookings.photos', $booking), [
             'photo_type' => 'after',
             'photos' => [$this->photo('one.png'), $this->photo('two.png')],
