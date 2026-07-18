@@ -17,8 +17,9 @@ class PublicBookingPaymentMethodTest extends TestCase
     {
         $this->get(route('public.booking.create'))
             ->assertOk()
-            ->assertSee('name="tent_quantity"', false)
-            ->assertSee('name="counter_quantity"', false)
+            ->assertSee('name="tent_items[0][quantity]"', false)
+            ->assertSee('name="counter_items[0][quantity]"', false)
+            ->assertSee('เพิ่มเต็นท์ต่างขนาดหรือสี')
             ->assertSee('data-equipment-row', false);
     }
 
@@ -38,6 +39,8 @@ class PublicBookingPaymentMethodTest extends TestCase
         $this->assertFalse($booking->collect_front_store);
         $this->assertNotNull($booking->payment_slip_path);
         $this->assertSame(3, $booking->tent_quantity);
+        $this->assertCount(2, $booking->tentEquipmentItems());
+        $this->assertStringContainsString('เต็นท์ 3x4.5 สีแดง จำนวน 1 หลัง', $booking->equipmentSummary());
         Storage::disk('public')->assertExists($booking->payment_slip_path);
     }
 
@@ -49,8 +52,7 @@ class PublicBookingPaymentMethodTest extends TestCase
         $response = $this->post(route('public.booking.store'), $this->bookingData([
             'payment_method' => 'front_store',
             'wants_counter' => 1,
-            'counter_size' => '2 ล็อค 140x75 cm.',
-            'counter_quantity' => 4,
+            'counter_items' => [['size' => '2 ล็อค 140x75 cm.', 'quantity' => 4]],
         ]));
 
         $response->assertRedirect(route('public.booking.check'));
@@ -105,9 +107,10 @@ class PublicBookingPaymentMethodTest extends TestCase
             'lot_prefix' => 'GA',
             'lot_number_from' => 1,
             'wants_tent' => 1,
-            'tent_size' => '2x2',
-            'tent_color' => 'ขาว',
-            'tent_quantity' => 3,
+            'tent_items' => [
+                ['size' => '2x2', 'color' => 'ขาว', 'quantity' => 3],
+                ['size' => '3x4.5', 'color' => 'แดง', 'quantity' => 1],
+            ],
         ], $overrides);
     }
 

@@ -17,9 +17,11 @@ class Booking extends Model
         'tent_size',
         'tent_color',
         'tent_quantity',
+        'tent_items',
         'counter_size',
         'counter_color',
         'counter_quantity',
+        'counter_items',
         'payment_slip_path',
         'collect_front_store',
         'front_store_collected_amount',
@@ -40,6 +42,8 @@ class Booking extends Model
         'front_store_collected_at' => 'datetime',
         'tent_quantity' => 'integer',
         'counter_quantity' => 'integer',
+        'tent_items' => 'array',
+        'counter_items' => 'array',
     ];
 
     public function lots()
@@ -93,16 +97,46 @@ class Booking extends Model
 
     public function equipmentSummary(): string
     {
-        $items = [];
+        $items = collect($this->tentEquipmentItems())
+            ->map(fn (array $item) => 'เต็นท์ '.$item['size'].(!empty($item['color']) ? ' สี'.$item['color'] : '').' จำนวน '.$item['quantity'].' หลัง')
+            ->merge(collect($this->counterEquipmentItems())
+                ->map(fn (array $item) => 'เคาน์เตอร์ '.$item['size'].(!empty($item['color']) ? ' สี'.$item['color'] : '').' จำนวน '.$item['quantity'].' ชุด'));
 
-        if ($this->tent_size) {
-            $items[] = trim('เต็นท์ ' . $this->tent_size . ($this->tent_color ? ' สี' . $this->tent_color : '') . ' จำนวน ' . ($this->tent_quantity ?: 1) . ' หลัง');
+        return $items->implode(' / ') ?: '-';
+    }
+
+    public function tentEquipmentItems(): array
+    {
+        if (!empty($this->tent_items)) {
+            return $this->normalizeEquipmentItems($this->tent_items);
         }
 
-        if ($this->counter_size) {
-            $items[] = trim('เคาน์เตอร์ ' . $this->counter_size . ($this->counter_color ? ' สี' . $this->counter_color : '') . ' จำนวน ' . ($this->counter_quantity ?: 1) . ' ชุด');
+        return $this->tent_size ? [[
+            'size' => $this->tent_size,
+            'color' => $this->tent_color,
+            'quantity' => (int) ($this->tent_quantity ?: 1),
+        ]] : [];
+    }
+
+    public function counterEquipmentItems(): array
+    {
+        if (!empty($this->counter_items)) {
+            return $this->normalizeEquipmentItems($this->counter_items);
         }
 
-        return implode(' / ', $items) ?: '-';
+        return $this->counter_size ? [[
+            'size' => $this->counter_size,
+            'color' => $this->counter_color,
+            'quantity' => (int) ($this->counter_quantity ?: 1),
+        ]] : [];
+    }
+
+    private function normalizeEquipmentItems(array $items): array
+    {
+        return collect($items)->filter(fn ($item) => !empty($item['size']))->map(fn ($item) => [
+            'size' => (string) $item['size'],
+            'color' => $item['color'] ?? null,
+            'quantity' => max(1, (int) ($item['quantity'] ?? 1)),
+        ])->values()->all();
     }
 }

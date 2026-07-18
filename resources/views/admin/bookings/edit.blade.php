@@ -59,21 +59,16 @@
                             <input type="checkbox" name="wants_tent" value="1" style="width:18px;height:18px;accent-color:var(--primary);" {{ old('wants_tent', $booking->tent_size ? 1 : 0) ? 'checked' : '' }}>
                             <span>จองเต็นท์</span>
                         </label>
-                        <div style="display:grid;gap:10px;">
-                            <select name="tent_size" class="cute-select">
-                                <option value="">เลือกขนาดเต็นท์</option>
-                                @foreach ($tentSizes as $size)
-                                    <option value="{{ $size }}" {{ old('tent_size', $booking->tent_size) == $size ? 'selected' : '' }}>{{ $size }}</option>
-                                @endforeach
-                            </select>
-                            <select name="tent_color" class="cute-select">
-                                <option value="">เลือกสีเต็นท์</option>
-                                @foreach ($equipmentColors as $color)
-                                    <option value="{{ $color }}" {{ old('tent_color', $booking->tent_color) == $color ? 'selected' : '' }}>{{ $color }}</option>
-                                @endforeach
-                            </select>
-                            <label class="cute-label" for="tent_quantity">จำนวนเต็นท์ (หลัง)</label>
-                            <input type="number" id="tent_quantity" name="tent_quantity" class="cute-input" value="{{ old('tent_quantity', $booking->tent_quantity ?: 1) }}" min="1" max="99" inputmode="numeric">
+                        <div style="display:grid;gap:10px;" id="admin-tent-items">
+                            @foreach(old('tent_items', $booking->tentEquipmentItems() ?: [['size'=>'','color'=>'','quantity'=>1]]) as $index => $item)
+                                <div class="admin-equipment-item" style="display:grid;grid-template-columns:1fr 1fr 90px 42px;gap:8px;">
+                                    <select name="tent_items[{{ $index }}][size]" class="cute-select"><option value="">ขนาดเต็นท์</option>@foreach ($tentSizes as $size)<option value="{{ $size }}" @selected(($item['size'] ?? '') === $size)>{{ $size }}</option>@endforeach</select>
+                                    <select name="tent_items[{{ $index }}][color]" class="cute-select"><option value="">สีเต็นท์</option>@foreach ($equipmentColors as $color)<option value="{{ $color }}" @selected(($item['color'] ?? '') === $color)>{{ $color }}</option>@endforeach</select>
+                                    <input type="number" name="tent_items[{{ $index }}][quantity]" class="cute-input" value="{{ $item['quantity'] ?? 1 }}" min="1" max="99" title="จำนวนหลัง">
+                                    <button type="button" class="admin-equipment-remove btn-secondary" style="padding:8px;"><i class="fa-solid fa-xmark"></i></button>
+                                </div>
+                            @endforeach
+                            <button type="button" class="btn-secondary" data-add-admin-equipment="tent"><i class="fa-solid fa-plus"></i> เพิ่มเต็นท์ต่างขนาด/สี</button>
                             <small style="display:flex;gap:6px;align-items:flex-start;color:var(--text-muted);line-height:1.5;">
                                 <i class="fa-solid fa-circle-info" style="color:#f59e0b;margin-top:3px;"></i>
                                 <span><strong>หมายเหตุ:</strong> หากสีที่เลือกหมด ทางร้านจะเลือกสีอื่นทดแทน</span>
@@ -89,15 +84,15 @@
                             <input type="checkbox" name="wants_counter" value="1" style="width:18px;height:18px;accent-color:var(--primary);" {{ old('wants_counter', $booking->counter_size ? 1 : 0) ? 'checked' : '' }}>
                             <span>จองเคาน์เตอร์</span>
                         </label>
-                        <div style="display:grid;gap:10px;">
-                            <select name="counter_size" class="cute-select">
-                                <option value="">เลือกขนาดเคาน์เตอร์</option>
-                                @foreach ($counterSizes as $size)
-                                    <option value="{{ $size }}" {{ old('counter_size', $booking->counter_size) == $size ? 'selected' : '' }}>{{ $size }}</option>
-                                @endforeach
-                            </select>
-                            <label class="cute-label" for="counter_quantity">จำนวนเคาน์เตอร์ (ชุด)</label>
-                            <input type="number" id="counter_quantity" name="counter_quantity" class="cute-input" value="{{ old('counter_quantity', $booking->counter_quantity ?: 1) }}" min="1" max="99" inputmode="numeric">
+                        <div style="display:grid;gap:10px;" id="admin-counter-items">
+                            @foreach(old('counter_items', $booking->counterEquipmentItems() ?: [['size'=>'','quantity'=>1]]) as $index => $item)
+                                <div class="admin-equipment-item" style="display:grid;grid-template-columns:1fr 90px 42px;gap:8px;">
+                                    <select name="counter_items[{{ $index }}][size]" class="cute-select"><option value="">ขนาดเคาน์เตอร์</option>@foreach ($counterSizes as $size)<option value="{{ $size }}" @selected(($item['size'] ?? '') === $size)>{{ $size }}</option>@endforeach</select>
+                                    <input type="number" name="counter_items[{{ $index }}][quantity]" class="cute-input" value="{{ $item['quantity'] ?? 1 }}" min="1" max="99" title="จำนวนชุด">
+                                    <button type="button" class="admin-equipment-remove btn-secondary" style="padding:8px;"><i class="fa-solid fa-xmark"></i></button>
+                                </div>
+                            @endforeach
+                            <button type="button" class="btn-secondary" data-add-admin-equipment="counter"><i class="fa-solid fa-plus"></i> เพิ่มเคาน์เตอร์ต่างขนาด</button>
                         </div>
                     </div>
                 </div>
@@ -131,4 +126,31 @@
             </div>
         </form>
     </div>
+
+    <template id="admin-tent-template"><div class="admin-equipment-item" style="display:grid;grid-template-columns:1fr 1fr 90px 42px;gap:8px;"><select name="__SIZE__" class="cute-select"><option value="">ขนาดเต็นท์</option>@foreach($tentSizes as $size)<option value="{{ $size }}">{{ $size }}</option>@endforeach</select><select name="__COLOR__" class="cute-select"><option value="">สีเต็นท์</option>@foreach($equipmentColors as $color)<option value="{{ $color }}">{{ $color }}</option>@endforeach</select><input type="number" name="__QUANTITY__" class="cute-input" value="1" min="1" max="99"><button type="button" class="admin-equipment-remove btn-secondary" style="padding:8px;"><i class="fa-solid fa-xmark"></i></button></div></template>
+    <template id="admin-counter-template"><div class="admin-equipment-item" style="display:grid;grid-template-columns:1fr 90px 42px;gap:8px;"><select name="__SIZE__" class="cute-select"><option value="">ขนาดเคาน์เตอร์</option>@foreach($counterSizes as $size)<option value="{{ $size }}">{{ $size }}</option>@endforeach</select><input type="number" name="__QUANTITY__" class="cute-input" value="1" min="1" max="99"><button type="button" class="admin-equipment-remove btn-secondary" style="padding:8px;"><i class="fa-solid fa-xmark"></i></button></div></template>
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const lists = { tent: document.getElementById('admin-tent-items'), counter: document.getElementById('admin-counter-items') };
+    const refresh = list => list.querySelectorAll('.admin-equipment-remove').forEach(button => button.disabled = list.querySelectorAll('.admin-equipment-item').length <= 1);
+    Object.entries(lists).forEach(([type, list]) => {
+        list.addEventListener('click', event => {
+            const remove = event.target.closest('.admin-equipment-remove');
+            if (remove && !remove.disabled) { remove.closest('.admin-equipment-item').remove(); refresh(list); }
+        });
+        list.querySelector('[data-add-admin-equipment]').addEventListener('click', () => {
+            const index = Date.now().toString();
+            const template = document.getElementById(`admin-${type}-template`);
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = template.innerHTML.replace('__SIZE__', `${type}_items[${index}][size]`).replace('__QUANTITY__', `${type}_items[${index}][quantity]`).replace('__COLOR__', `${type}_items[${index}][color]`);
+            list.querySelector('[data-add-admin-equipment]').before(wrapper.firstElementChild);
+            refresh(list);
+        });
+        refresh(list);
+    });
+});
+</script>
 @endsection

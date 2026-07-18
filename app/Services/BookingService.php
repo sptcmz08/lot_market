@@ -32,17 +32,24 @@ class BookingService
                 ]);
             }
 
+            $tentItems = $data['wants_tent'] ? array_values($data['tent_items'] ?? []) : [];
+            $counterItems = $data['wants_counter'] ? array_values($data['counter_items'] ?? []) : [];
+            $primaryTent = $tentItems[0] ?? null;
+            $primaryCounter = $counterItems[0] ?? null;
+
             $booking = Booking::create([
                 'booking_code' => $this->generateBookingCode(),
                 'use_date' => $data['use_date'],
                 'shop_name' => $data['shop_name'],
                 'customer_phone' => $data['customer_phone'],
-                'tent_size' => $data['wants_tent'] ? ($data['tent_size'] ?? null) : null,
-                'tent_color' => $data['wants_tent'] ? ($data['tent_color'] ?? null) : null,
-                'tent_quantity' => $data['wants_tent'] ? ($data['tent_quantity'] ?? 1) : null,
-                'counter_size' => $data['wants_counter'] ? ($data['counter_size'] ?? null) : null,
-                'counter_color' => $data['wants_counter'] ? ($data['counter_color'] ?? null) : null,
-                'counter_quantity' => $data['wants_counter'] ? ($data['counter_quantity'] ?? 1) : null,
+                'tent_size' => $primaryTent['size'] ?? null,
+                'tent_color' => $primaryTent['color'] ?? null,
+                'tent_quantity' => $primaryTent['quantity'] ?? null,
+                'tent_items' => $tentItems ?: null,
+                'counter_size' => $primaryCounter['size'] ?? null,
+                'counter_color' => $primaryCounter['color'] ?? null,
+                'counter_quantity' => $primaryCounter['quantity'] ?? null,
+                'counter_items' => $counterItems ?: null,
                 'payment_slip_path' => $data['payment_slip_path'] ?? null,
                 'collect_front_store' => $data['collect_front_store'] ?? false,
                 'customer_note' => $data['customer_note'] ?? null,

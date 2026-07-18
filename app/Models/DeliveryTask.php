@@ -64,10 +64,10 @@ class DeliveryTask extends Model
 
         return match ($this->task_type) {
             self::TYPE_TENT => $this->booking->tent_size
-                ? trim('เต็นท์ '.$this->booking->tent_size.($this->booking->tent_color ? ' สี'.$this->booking->tent_color : '').' จำนวน '.($this->booking->tent_quantity ?: 1).' หลัง')
+                ? collect($this->booking->tentEquipmentItems())->map(fn ($item) => 'เต็นท์ '.$item['size'].(!empty($item['color']) ? ' สี'.$item['color'] : '').' จำนวน '.$item['quantity'].' หลัง')->implode(' / ')
                 : '-',
             self::TYPE_COUNTER => $this->booking->counter_size
-                ? trim('เคาน์เตอร์ '.$this->booking->counter_size.($this->booking->counter_color ? ' สี'.$this->booking->counter_color : '').' จำนวน '.($this->booking->counter_quantity ?: 1).' ชุด')
+                ? collect($this->booking->counterEquipmentItems())->map(fn ($item) => 'เคาน์เตอร์ '.$item['size'].(!empty($item['color']) ? ' สี'.$item['color'] : '').' จำนวน '.$item['quantity'].' ชุด')->implode(' / ')
                 : '-',
             self::TYPE_OTHER => $this->equipment_note ?: 'อุปกรณ์อื่น',
             default => $this->booking->equipmentSummary(),

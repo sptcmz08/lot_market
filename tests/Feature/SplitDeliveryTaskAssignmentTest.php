@@ -27,6 +27,10 @@ class SplitDeliveryTaskAssignmentTest extends TestCase
             'tent_size' => '2x2',
             'tent_color' => 'ขาว',
             'tent_quantity' => 3,
+            'tent_items' => [
+                ['size' => '2x2', 'color' => 'ขาว', 'quantity' => 3],
+                ['size' => '3x4.5', 'color' => 'แดง', 'quantity' => 1],
+            ],
             'counter_size' => '2 ล็อค 140x75 cm.',
             'counter_quantity' => 2,
             'collect_front_store' => true,
@@ -57,7 +61,8 @@ class SplitDeliveryTaskAssignmentTest extends TestCase
 
         $details = $this->actingAs($admin)->get(route('admin.bookings.show', $booking));
         $details->assertOk()
-            ->assertSee('เต็นท์ 2x2 สีขาว')
+            ->assertSee('เต็นท์ 2x2 สีขาว จำนวน 3 หลัง')
+            ->assertSee('เต็นท์ 3x4.5 สีแดง จำนวน 1 หลัง')
             ->assertSee('เคาน์เตอร์ 2 ล็อค 140x75 cm.')
             ->assertDontSee('มอบหมายพนักงาน')
             ->assertDontSee('บันทึกการแบ่งงาน');
@@ -71,9 +76,13 @@ class SplitDeliveryTaskAssignmentTest extends TestCase
             ->assertSee('เต็นท์')
             ->assertSee('เคาน์เตอร์')
             ->assertSee('อื่น ๆ')
-            ->assertSee('เต็นท์ 2x2 สีขาว')
+            ->assertSee('ขนาด 2x2 · สีขาว')
             ->assertSee('3 หลัง')
-            ->assertSee('เคาน์เตอร์ 2 ล็อค 140x75 cm.')
+            ->assertSee('ขนาด 3x4.5 · สีแดง')
+            ->assertSee('1 หลัง')
+            ->assertSee('รวมที่ต้องเตรียม')
+            ->assertSee('4 หลัง')
+            ->assertSee('ขนาด 2 ล็อค 140x75 cm.')
             ->assertSee('2 ชุด');
 
         $counterList = $this->actingAs($counterStaff)->get(route('staff.bookings.index'));

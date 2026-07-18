@@ -20,9 +20,13 @@
     .action-btn { min-height:39px;padding:0 13px;border-radius:12px;border:2px solid var(--border-cute);background:#fff;color:var(--text-dark);font:inherit;font-size:13px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:7px;cursor:pointer; }
     .action-btn.send { border:0;background:linear-gradient(135deg,var(--primary),var(--primary-hover));color:#fff; }
     .action-btn[disabled] { opacity:.55;cursor:not-allowed; }
-    .equipment-detail { display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:145px; }
-    .equipment-detail strong { line-height:1.45; }
-    .equipment-quantity { display:inline-flex;align-items:center;gap:5px;padding:5px 9px;border-radius:999px;background:#eaf8ff;color:#0874a6;font-size:12px;font-weight:900; }
+    .equipment-detail { display:grid;gap:8px;min-width:165px; }
+    .equipment-item { display:grid;gap:6px;padding:9px 10px;border:1px solid #dceff8;border-radius:13px;background:#f7fcff; }
+    .equipment-total { display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:8px 10px;border-radius:11px;background:#0874a6;color:#fff;font-size:12px;font-weight:900; }
+    .equipment-total b { font-size:21px;line-height:1; }
+    .equipment-item strong { line-height:1.45; }
+    .equipment-quantity { display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:7px 10px;border-radius:10px;background:#dff4ff;color:#075d87;font-size:12px;font-weight:900; }
+    .equipment-quantity b { font-size:20px;line-height:1;color:#064f73; }
     .equipment-empty { color:var(--text-muted);font-weight:700; }
     .pagination { margin-top:18px; }
     @media(max-width:900px){
@@ -63,6 +67,8 @@
                     $rejectNote = $tasks->pluck('problem_note')->filter()->first();
                     $canUseCamera = !$isSent && !$isApproved && $tasks->isNotEmpty() && !in_array($booking->status, ['pending_admin','cancelled'], true);
                     $otherEquipment = $tasks->where('task_type', 'other')->pluck('equipment_note')->filter()->implode(' / ');
+                    $tentItems = $booking->tentEquipmentItems();
+                    $counterItems = $booking->counterEquipmentItems();
                 @endphp
                 <tr>
                     <td data-label="วันที่ใช้งาน"><strong>{{ $booking->use_date->format('d/m/Y') }}</strong></td>
@@ -70,13 +76,13 @@
                     <td data-label="ร้านค้า"><div><strong>{{ $booking->shop_name }}</strong><small style="display:block;color:var(--text-muted)">โทร: {{ $booking->customer_phone }}</small></div></td>
                     <td data-label="ล็อตแผง"><strong style="color:var(--primary-hover)">{{ $booking->lots->pluck('lot_code')->implode(', ') ?: '-' }}</strong></td>
                     <td data-label="เต็นท์">
-                        @if($booking->tent_size)
-                            <div class="equipment-detail"><strong>เต็นท์ {{ $booking->tent_size }}{{ $booking->tent_color ? ' สี'.$booking->tent_color : '' }}</strong><span class="equipment-quantity"><i class="fa-solid fa-campground"></i> {{ $booking->tent_quantity ?: 1 }} หลัง</span></div>
+                        @if($tentItems)
+                            <div class="equipment-detail"><div class="equipment-total"><span>รวมที่ต้องเตรียม</span><b>{{ collect($tentItems)->sum('quantity') }} หลัง</b></div>@foreach($tentItems as $item)<div class="equipment-item"><strong>ขนาด {{ $item['size'] }}{{ !empty($item['color']) ? ' · สี'.$item['color'] : '' }}</strong><span class="equipment-quantity"><span>จำนวนขนาดนี้</span><b>{{ $item['quantity'] }} หลัง</b></span></div>@endforeach</div>
                         @else<span class="equipment-empty">ไม่จอง</span>@endif
                     </td>
                     <td data-label="เคาน์เตอร์">
-                        @if($booking->counter_size)
-                            <div class="equipment-detail"><strong>เคาน์เตอร์ {{ $booking->counter_size }}{{ $booking->counter_color ? ' สี'.$booking->counter_color : '' }}</strong><span class="equipment-quantity"><i class="fa-solid fa-table-cells-large"></i> {{ $booking->counter_quantity ?: 1 }} ชุด</span></div>
+                        @if($counterItems)
+                            <div class="equipment-detail"><div class="equipment-total"><span>รวมที่ต้องเตรียม</span><b>{{ collect($counterItems)->sum('quantity') }} ชุด</b></div>@foreach($counterItems as $item)<div class="equipment-item"><strong>ขนาด {{ $item['size'] }}{{ !empty($item['color']) ? ' · สี'.$item['color'] : '' }}</strong><span class="equipment-quantity"><span>จำนวนขนาดนี้</span><b>{{ $item['quantity'] }} ชุด</b></span></div>@endforeach</div>
                         @else<span class="equipment-empty">ไม่จอง</span>@endif
                     </td>
                     <td data-label="อื่น ๆ">@if($otherEquipment)<div class="equipment-detail"><strong>{{ $otherEquipment }}</strong></div>@else<span class="equipment-empty">ไม่มี</span>@endif</td>
