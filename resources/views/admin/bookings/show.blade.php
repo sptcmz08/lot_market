@@ -90,7 +90,7 @@
                             switch($booking->status) {
                                 case 'pending_admin': $statusName = 'รอยืนยัน'; break;
                                 case 'confirmed': $statusName = 'ยืนยันแล้ว/รอส่ง'; break;
-                                case 'assigned': $statusName = 'มอบหมายงาน'; break;
+                                case 'assigned': $statusName = 'ยืนยันแล้ว/รอส่ง'; break;
                                 case 'installing': $statusName = 'กำลังติดตั้ง'; break;
                                 case 'completed': $statusName = 'ติดตั้งสำเร็จ'; break;
                                 case 'cancelled': $statusName = 'ยกเลิกการจอง'; break;
@@ -209,69 +209,8 @@
             </div>
         </div>
 
-        <!-- Right Side: Assignment & History Logs -->
+        <!-- Right Side: History Logs -->
         <div>
-            <!-- Worker Assignment Card -->
-            @if ($booking->status !== 'pending_admin' && $booking->status !== 'cancelled')
-                <div class="cute-card">
-                    <h3 class="cute-card-title">
-                        <i class="fa-solid fa-truck-pickup"></i> มอบหมายพนักงาน
-                    </h3>
-                    @php
-                        $tasksByType = $booking->deliveryTasks->keyBy('task_type');
-                    @endphp
-                    <form action="{{ route('admin.bookings.assign', $booking) }}" method="POST">
-                        @csrf
-                        @if ($booking->tent_size)
-                        <div class="cute-input-group">
-                            <label class="cute-label" for="tent_staff_id"><i class="fa-solid fa-tents"></i> งานเต็นท์: {{ $booking->tent_size }} สี{{ $booking->tent_color }}</label>
-                            <select id="tent_staff_id" name="tent_staff_id" class="cute-select">
-                                <option value="">ยังไม่มอบหมาย</option>
-                                @foreach ($staffMembers as $staff)
-                                    <option value="{{ $staff->id }}" {{ old('tent_staff_id', $tasksByType->get('tent')?->staff_id) == $staff->id ? 'selected' : '' }}>
-                                        {{ $staff->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        @endif
-
-                        @if ($booking->counter_size)
-                        <div class="cute-input-group">
-                            <label class="cute-label" for="counter_staff_id"><i class="fa-solid fa-shop"></i> งานเคาน์เตอร์: {{ $booking->counter_size }}</label>
-                            <select id="counter_staff_id" name="counter_staff_id" class="cute-select">
-                                <option value="">ยังไม่มอบหมาย</option>
-                                @foreach ($staffMembers as $staff)
-                                    <option value="{{ $staff->id }}" {{ old('counter_staff_id', $tasksByType->get('counter')?->staff_id) == $staff->id ? 'selected' : '' }}>
-                                        {{ $staff->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        @endif
-
-                        <div class="cute-input-group">
-                            <label class="cute-label" for="other_equipment_note"><i class="fa-solid fa-boxes-stacked"></i> รายละเอียดอุปกรณ์อื่น</label>
-                            <input id="other_equipment_note" name="other_equipment_note" class="cute-input" maxlength="255" value="{{ old('other_equipment_note', $tasksByType->get('other')?->equipment_note) }}" placeholder="เช่น ถุงทราย เชือก ไฟ หรืออุปกรณ์เสริม">
-                        </div>
-                        <div class="cute-input-group">
-                            <label class="cute-label" for="other_staff_id">พนักงานส่งอุปกรณ์อื่น</label>
-                            <select id="other_staff_id" name="other_staff_id" class="cute-select">
-                                <option value="">ยังไม่มีงานอุปกรณ์อื่น</option>
-                                @foreach ($staffMembers as $staff)
-                                    <option value="{{ $staff->id }}" {{ old('other_staff_id', $tasksByType->get('other')?->staff_id) == $staff->id ? 'selected' : '' }}>
-                                        {{ $staff->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <button type="submit" class="btn-primary" style="width: 100%;">
-                            <i class="fa-solid fa-users-gear"></i> บันทึกการแบ่งงาน
-                        </button>
-                    </form>
-                </div>
-            @endif
-
             <!-- Status logs history -->
             <div class="cute-card" style="padding: 20px;">
                 <h3 class="cute-card-title" style="font-size: 18px;">
@@ -291,7 +230,7 @@
                                             switch($log->new_status) {
                                                 case 'pending_admin': $stName = 'รอยืนยัน'; break;
                                                 case 'confirmed': $stName = 'ยืนยันแล้ว'; break;
-                                                case 'assigned': $stName = 'มอบหมายงาน'; break;
+                                                case 'assigned': $stName = 'ยืนยันแล้ว/รอส่ง'; break;
                                                 case 'installing': $stName = 'กำลังติดตั้ง'; break;
                                                 case 'completed': $stName = 'ติดตั้งสำเร็จ'; break;
                                                 case 'cancelled': $stName = 'ยกเลิก'; break;

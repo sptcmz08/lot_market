@@ -8,11 +8,9 @@ use App\Http\Controllers\SystemCommandController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminBookingController;
 use App\Http\Controllers\Admin\AdminLotController;
-use App\Http\Controllers\Admin\AdminDeliveryTaskController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminReportController;
 use App\Http\Controllers\Admin\AdminMapController;
-use App\Http\Controllers\Admin\AdminLotPhotoReviewController;
 use App\Http\Controllers\Admin\AdminInstallationReviewController;
 use App\Http\Controllers\Staff\StaffBookingController;
 use App\Http\Controllers\Staff\StaffTaskController;
@@ -45,17 +43,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/bookings/{booking}/payment-slip', [AdminBookingController::class, 'uploadPaymentSlip'])->name('bookings.payment_slip');
     Route::post('/bookings/{booking}/confirm', [AdminBookingController::class, 'confirm'])->name('bookings.confirm');
     Route::post('/bookings/{booking}/cancel', [AdminBookingController::class, 'cancel'])->name('bookings.cancel');
-    Route::post('/bookings/{booking}/assign', [AdminBookingController::class, 'assignStaff'])->name('bookings.assign');
 
     Route::resource('/lots', AdminLotController::class)->except(['show']);
     Route::get('/map', [AdminMapController::class, 'index'])->name('map.index');
 
-    Route::get('/tasks', [AdminDeliveryTaskController::class, 'index'])->name('tasks.index');
-    Route::get('/tasks/{task}', [AdminDeliveryTaskController::class, 'show'])->name('tasks.show');
-    Route::get('/lot-photo-reviews', [AdminLotPhotoReviewController::class, 'index'])->name('lot_photo_reviews.index');
-    Route::get('/lot-photo-reviews/status', [AdminLotPhotoReviewController::class, 'status'])->name('lot_photo_reviews.status');
-    Route::post('/lot-photo-reviews/{photo}/approve', [AdminLotPhotoReviewController::class, 'approve'])->name('lot_photo_reviews.approve');
-    Route::post('/lot-photo-reviews/{photo}/reject', [AdminLotPhotoReviewController::class, 'reject'])->name('lot_photo_reviews.reject');
     Route::get('/installation-reviews', [AdminInstallationReviewController::class, 'index'])->name('installation_reviews.index');
     Route::post('/installation-reviews/{booking}/approve', [AdminInstallationReviewController::class, 'approve'])->name('installation_reviews.approve');
     Route::post('/installation-reviews/{booking}/reject', [AdminInstallationReviewController::class, 'reject'])->name('installation_reviews.reject');

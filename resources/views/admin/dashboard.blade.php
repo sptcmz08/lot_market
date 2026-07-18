@@ -224,7 +224,7 @@
         </div>
         <div class="stat-card stat-card-blue">
             <span class="stat-label"><i class="fa-solid fa-calendar-check"></i> ยืนยัน / รอส่ง</span>
-            <span class="stat-value">{{ $stats['confirmed'] + $stats['assigned'] }}</span>
+            <span class="stat-value">{{ $stats['confirmed'] }}</span>
         </div>
         <div class="stat-card stat-card-purple">
             <span class="stat-label"><i class="fa-solid fa-hammer"></i> กำลังติดตั้ง</span>
@@ -366,7 +366,7 @@
             <i class="fa-solid fa-map-location-dot"></i> ดูแผนผังแผงตลาด
         </a>
         <a href="{{ route('admin.users.index') }}" class="btn-secondary">
-            <i class="fa-solid fa-user-plus"></i> เพิ่ม/จัดการพนักงาน
+            <i class="fa-solid fa-users-gear"></i> จัดการผู้ใช้งานระบบ
         </a>
     </div>
 
@@ -400,10 +400,10 @@
                         @foreach ($todayBookings as $booking)
                             @php
                                 $tasksByType = $booking->deliveryTasks->keyBy('task_type');
-                                $lotPhotos = $booking->deliveryTasks->flatMap->photos->where('photo_type', 'lot_number');
-                                $pendingLotPhotos = $lotPhotos->where('ocr_status', 'pending_review');
-                                $approvedLotPhotos = $lotPhotos->where('ocr_status', 'approved');
-                                $rejectedLotPhotos = $lotPhotos->where('ocr_status', 'rejected');
+                                $allPhotos = $booking->deliveryTasks->flatMap->photos->whereIn('photo_type', ['lot_number', 'after']);
+                                $isSubmitted = $booking->deliveryTasks->contains('status', 'photo_uploaded');
+                                $isCompleted = $booking->deliveryTasks->isNotEmpty() && $booking->deliveryTasks->every(fn ($task) => $task->status === 'completed');
+                                $isRejected = $booking->deliveryTasks->pluck('problem_note')->filter(fn ($note) => str_starts_with((string) $note, 'ตีกลับโดยแอดมิน:'))->isNotEmpty();
                             @endphp
                             <tr>
                                 <td>
@@ -417,8 +417,7 @@
                                 <td class="workflow-equipment">
                                     @if ($booking->tent_size)
                                         <strong>{{ $booking->tent_size }} สี{{ $booking->tent_color }}</strong>
-                                        <small><i class="fa-solid fa-user"></i> {{ $tasksByType->get('tent')?->staff?->name ?? 'ยังไม่มอบหมาย' }}</small>
-                                        <small>{{ $tasksByType->get('tent')?->statusLabel() ?? 'รอมอบหมาย' }}</small>
+                                        <small>{{ $tasksByType->get('tent')?->statusLabel() ?? 'รอส่งรูป' }}</small>
                                     @else
                                         <span style="color:var(--text-muted);">-</span>
                                     @endif
@@ -426,8 +425,7 @@
                                 <td class="workflow-equipment">
                                     @if ($booking->counter_size)
                                         <strong>{{ $booking->counter_size }}</strong>
-                                        <small><i class="fa-solid fa-user"></i> {{ $tasksByType->get('counter')?->staff?->name ?? 'ยังไม่มอบหมาย' }}</small>
-                                        <small>{{ $tasksByType->get('counter')?->statusLabel() ?? 'รอมอบหมาย' }}</small>
+                                        <small>{{ $tasksByType->get('counter')?->statusLabel() ?? 'รอส่งรูป' }}</small>
                                     @else
                                         <span style="color:var(--text-muted);">-</span>
                                     @endif
@@ -435,20 +433,16 @@
                                 <td class="workflow-equipment">
                                     @if ($tasksByType->get('other'))
                                         <strong>{{ $tasksByType->get('other')->equipmentSummary() }}</strong>
-                                        <small><i class="fa-solid fa-user"></i> {{ $tasksByType->get('other')?->staff?->name ?? 'ยังไม่มอบหมาย' }}</small>
-                                        <small>{{ $tasksByType->get('other')?->statusLabel() ?? 'รอมอบหมาย' }}</small>
+                                        <small>{{ $tasksByType->get('other')?->statusLabel() ?? 'รอส่งรูป' }}</small>
                                     @else
                                         <span style="color:var(--text-muted);">-</span>
                                     @endif
                                 </td>
                                 <td>
                                     <div class="workflow-photo-list">
-                                        @forelse ($lotPhotos as $photo)
-                                            @php
-                                                $photoTask = $booking->deliveryTasks->firstWhere('id', $photo->delivery_task_id);
-                                            @endphp
-                                            <button type="button" class="image-lightbox-trigger workflow-photo-button" data-lightbox-src="{{ route('media.show', ['path' => $photo->image_path]) }}" data-lightbox-alt="รูป LOT - {{ $photoTask?->typeLabel() ?? 'งานจัดส่ง' }}">
-                                                <i class="fa-solid fa-image"></i> {{ $photoTask?->typeLabel() ?? 'ดูรูป LOT' }}
+                                        @forelse ($allPhotos as $photo)
+                                            <button type="button" class="image-lightbox-trigger workflow-photo-button" data-lightbox-src="{{ route('media.show', ['path' => $photo->image_path]) }}" data-lightbox-alt="{{ $photo->photo_type === 'lot_number' ? 'รูปเลข LOT' : 'รูปหลังติดตั้ง' }}">
+                                                <i class="fa-solid fa-image"></i> {{ $photo->photo_type === 'lot_number' ? 'LOT' : 'หลังติดตั้ง' }}
                                             </button>
                                         @empty
                                             <span style="color:var(--text-muted);">ยังไม่มีรูป</span>
@@ -457,11 +451,11 @@
                                 </td>
                                 <td>
                                     <div class="workflow-status-stack">
-                                        @if ($pendingLotPhotos->isNotEmpty())
-                                            <span class="status-badge status-pending_admin">ส่งแล้ว / รอตรวจ {{ $pendingLotPhotos->count() }} รูป</span>
-                                        @elseif ($approvedLotPhotos->isNotEmpty())
-                                            <span class="status-badge status-completed">ยืนยันแล้ว {{ $approvedLotPhotos->count() }} รูป</span>
-                                        @elseif ($rejectedLotPhotos->isNotEmpty())
+                                        @if ($isSubmitted)
+                                            <span class="status-badge status-pending_admin">ส่งแล้ว / รออนุมัติ {{ $allPhotos->count() }} รูป</span>
+                                        @elseif ($isCompleted)
+                                            <span class="status-badge status-completed">อนุมัติแล้ว</span>
+                                        @elseif ($isRejected)
                                             <span class="status-badge status-problem">ไม่ผ่าน / รอส่งใหม่</span>
                                         @else
                                             <span class="status-badge status-confirmed">รอพนักงานส่งรูป</span>
@@ -470,23 +464,15 @@
                                 </td>
                                 <td>
                                     <div class="workflow-approve-list">
-                                        @forelse ($pendingLotPhotos as $photo)
-                                            @php
-                                                $photoTask = $booking->deliveryTasks->firstWhere('id', $photo->delivery_task_id);
-                                            @endphp
-                                            <form action="{{ route('admin.lot_photo_reviews.approve', $photo) }}" method="POST">
-                                                @csrf
-                                                <button type="submit" class="workflow-approve-button">
-                                                    <i class="fa-solid fa-circle-check"></i> Approve {{ $photoTask?->typeLabel() ?? '' }}
-                                                </button>
-                                            </form>
-                                        @empty
-                                            @if ($approvedLotPhotos->isNotEmpty())
-                                                <span style="color:#15803d;font-weight:800;"><i class="fa-solid fa-check"></i> Approved</span>
-                                            @else
-                                                <span style="color:var(--text-muted);">รอรูปภาพ</span>
-                                            @endif
-                                        @endforelse
+                                        @if ($isSubmitted)
+                                            <a href="{{ route('admin.installation_reviews.index') }}" class="workflow-approve-button" style="text-decoration:none;text-align:center;">
+                                                <i class="fa-solid fa-images"></i> ตรวจและอนุมัติ
+                                            </a>
+                                        @elseif ($isCompleted)
+                                            <span style="color:#15803d;font-weight:800;"><i class="fa-solid fa-check"></i> อนุมัติแล้ว</span>
+                                        @else
+                                            <span style="color:var(--text-muted);">รอรูปภาพ</span>
+                                        @endif
                                         <a href="{{ route('admin.bookings.show', $booking) }}" class="btn-secondary" style="padding:7px 9px;font-size:12px;border-radius:8px;text-align:center;">
                                             <i class="fa-solid fa-eye"></i> รายละเอียด
                                         </a>

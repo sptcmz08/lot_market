@@ -78,7 +78,8 @@ class DeliveryTask extends Model
     {
         return match ($this->status) {
             'waiting' => 'รอเริ่มงาน',
-            'started', 'photo_uploaded' => 'กำลังดำเนินการ',
+            'started' => 'กำลังดำเนินการ',
+            'photo_uploaded' => 'ส่งแล้ว / รออนุมัติ',
             'completed' => 'เสร็จแล้ว',
             'problem' => 'พบปัญหา',
             default => $this->status,

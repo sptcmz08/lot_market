@@ -68,8 +68,6 @@ class Booking extends Model
             $status = 'completed';
         } elseif ($tasks->contains(fn (DeliveryTask $task) => in_array($task->status, ['started', 'photo_uploaded', 'completed'], true))) {
             $status = 'installing';
-        } elseif ($tasks->contains(fn (DeliveryTask $task) => $task->staff_id !== null)) {
-            $status = 'assigned';
         }
 
         if ($this->status !== $status) {

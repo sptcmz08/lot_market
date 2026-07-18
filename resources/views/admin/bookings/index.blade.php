@@ -86,7 +86,6 @@
                     <option value="">ทั้งหมด</option>
                     <option value="pending_admin" {{ request('status') == 'pending_admin' ? 'selected' : '' }}>รอยืนยัน</option>
                     <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>ยืนยันแล้ว/รอส่ง</option>
-                    <option value="assigned" {{ request('status') == 'assigned' ? 'selected' : '' }}>มอบหมายพนักงาน</option>
                     <option value="installing" {{ request('status') == 'installing' ? 'selected' : '' }}>กำลังติดตั้ง</option>
                     <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>ติดตั้งสำเร็จ</option>
                     <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>ยกเลิก</option>
@@ -129,7 +128,6 @@
                     <th>ชื่อร้านค้า / เบอร์โทร</th>
                     <th>ล็อตแผงที่จอง</th>
                     <th>รายการอุปกรณ์</th>
-                    <th>ผู้รับผิดชอบ</th>
                     <th>การชำระเงิน</th>
                     <th>สถานะ</th>
                     <th>จัดการ</th>
@@ -153,15 +151,6 @@
                         </td>
                         <td>
                             <div>{{ $booking->equipmentSummary() }}</div>
-                        </td>
-                        <td>
-                            @if ($booking->deliveryTasks->whereNotNull('staff_id')->isNotEmpty())
-                                @foreach ($booking->deliveryTasks->whereNotNull('staff_id') as $task)
-                                    <small style="display:block;"><strong>{{ $task->typeLabel() }}:</strong> {{ $task->staff?->name }} ({{ $task->statusLabel() }})</small>
-                                @endforeach
-                            @else
-                                <span style="color: var(--text-muted); font-style: italic;">ยังไม่ระบุ</span>
-                            @endif
                         </td>
                         <td class="payment-method-detail">
                             @if ($booking->collect_front_store)
@@ -189,7 +178,7 @@
                                 switch($booking->status) {
                                     case 'pending_admin': $statusName = 'รอยืนยัน'; break;
                                     case 'confirmed': $statusName = 'ยืนยันแล้ว/รอส่ง'; break;
-                                    case 'assigned': $statusName = 'มอบหมายงาน'; break;
+                                    case 'assigned': $statusName = 'ยืนยันแล้ว/รอส่ง'; break;
                                     case 'installing': $statusName = 'กำลังติดตั้ง'; break;
                                     case 'completed': $statusName = 'ติดตั้งสำเร็จ'; break;
                                     case 'cancelled': $statusName = 'ยกเลิก'; break;
@@ -231,7 +220,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="9" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                        <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted);">
                             <i class="fa-solid fa-box-open" style="font-size: 40px; margin-bottom: 10px; display: block; color: var(--border-cute);"></i>
                             ไม่พบข้อมูลการจองในระบบ
                         </td>
