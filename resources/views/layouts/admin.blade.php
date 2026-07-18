@@ -427,6 +427,9 @@
                 <a href="{{ route('admin.lot_photo_reviews.index') }}" class="sidebar-link {{ Route::is('admin.lot_photo_reviews.*') ? 'active' : '' }}">
                     <i class="fa-solid fa-camera-retro"></i> ตรวจรูปเลขล็อต
                 </a>
+                <a href="{{ route('admin.installation_reviews.index') }}" class="sidebar-link {{ Route::is('admin.installation_reviews.*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-images"></i> อนุมัติรูปส่งงาน
+                </a>
             </li>
             <li>
                 <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ Route::is('admin.users.*') ? 'active' : '' }}">

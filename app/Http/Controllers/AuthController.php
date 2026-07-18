@@ -13,7 +13,7 @@ class AuthController extends Controller
             if (Auth::user()->role === 'admin') {
                 return redirect()->route('admin.dashboard');
             }
-            return redirect()->route('staff.tasks.index');
+            return redirect()->route('staff.bookings.index');
         }
         return view('auth.login');
     }
@@ -62,7 +62,7 @@ class AuthController extends Controller
             return redirect()->intended(route('admin.dashboard'));
         }
 
-        return redirect()->intended(route('staff.tasks.index'));
+        return redirect()->intended(route('staff.bookings.index'));
     }
 
     public function logout(Request $request)

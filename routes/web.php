@@ -13,6 +13,8 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminReportController;
 use App\Http\Controllers\Admin\AdminMapController;
 use App\Http\Controllers\Admin\AdminLotPhotoReviewController;
+use App\Http\Controllers\Admin\AdminInstallationReviewController;
+use App\Http\Controllers\Staff\StaffBookingController;
 use App\Http\Controllers\Staff\StaffTaskController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Session\Middleware\StartSession;
@@ -54,6 +56,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/lot-photo-reviews/status', [AdminLotPhotoReviewController::class, 'status'])->name('lot_photo_reviews.status');
     Route::post('/lot-photo-reviews/{photo}/approve', [AdminLotPhotoReviewController::class, 'approve'])->name('lot_photo_reviews.approve');
     Route::post('/lot-photo-reviews/{photo}/reject', [AdminLotPhotoReviewController::class, 'reject'])->name('lot_photo_reviews.reject');
+    Route::get('/installation-reviews', [AdminInstallationReviewController::class, 'index'])->name('installation_reviews.index');
+    Route::post('/installation-reviews/{booking}/approve', [AdminInstallationReviewController::class, 'approve'])->name('installation_reviews.approve');
+    Route::post('/installation-reviews/{booking}/reject', [AdminInstallationReviewController::class, 'reject'])->name('installation_reviews.reject');
 
     Route::resource('/users', AdminUserController::class)->except(['show']);
     Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
@@ -61,6 +66,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
 // Staff Routes
 Route::middleware(['auth', 'role:staff,admin'])->prefix('staff')->name('staff.')->group(function () {
+    Route::get('/bookings', [StaffBookingController::class, 'index'])->name('bookings.index');
+    Route::get('/bookings/{booking}/camera', [StaffBookingController::class, 'camera'])->name('bookings.camera');
+    Route::post('/bookings/{booking}/photos', [StaffBookingController::class, 'uploadPhotos'])->name('bookings.photos');
+    Route::post('/bookings/{booking}/submit', [StaffBookingController::class, 'submit'])->name('bookings.submit');
     Route::get('/tasks', [StaffTaskController::class, 'index'])->name('tasks.index');
     Route::get('/tasks/{task}', [StaffTaskController::class, 'show'])->name('tasks.show');
     Route::post('/tasks/{task}/start', [StaffTaskController::class, 'start'])->name('tasks.start');

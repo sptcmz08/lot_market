@@ -93,7 +93,7 @@
             flex: 1;
             padding: 15px;
             box-sizing: border-box;
-            max-width: 600px;
+            max-width: 1440px;
             width: 100%;
             margin: 0 auto;
         }
@@ -233,9 +233,9 @@
 <body class="@yield('body_class')">
 
     <header class="staff-header">
-        <a href="{{ route('staff.tasks.index') }}" class="staff-brand">
-            <i class="fa-solid fa-helmet-safety"></i>
-            <span>งานติดตั้งของฉัน</span>
+        <a href="{{ route('staff.bookings.index') }}" class="staff-brand">
+            <i class="fa-solid fa-calendar-check"></i>
+            <span>รายการจอง</span>
         </a>
         <div style="display: flex; align-items: center; gap: 10px;">
             <span style="font-size: 13px; font-weight: 600; color: var(--text-muted);">{{ Auth::user()->name }}</span>
