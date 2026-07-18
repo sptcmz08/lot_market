@@ -13,6 +13,15 @@ class PublicBookingPaymentMethodTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_booking_form_has_separate_tent_and_counter_quantity_fields(): void
+    {
+        $this->get(route('public.booking.create'))
+            ->assertOk()
+            ->assertSee('name="tent_quantity"', false)
+            ->assertSee('name="counter_quantity"', false)
+            ->assertSee('data-equipment-row', false);
+    }
+
     public function test_slip_payment_requires_and_stores_a_slip_without_front_store_collection(): void
     {
         Storage::fake('public');
@@ -28,6 +37,7 @@ class PublicBookingPaymentMethodTest extends TestCase
         $booking = Booking::firstOrFail();
         $this->assertFalse($booking->collect_front_store);
         $this->assertNotNull($booking->payment_slip_path);
+        $this->assertSame(3, $booking->tent_quantity);
         Storage::disk('public')->assertExists($booking->payment_slip_path);
     }
 
@@ -38,6 +48,9 @@ class PublicBookingPaymentMethodTest extends TestCase
 
         $response = $this->post(route('public.booking.store'), $this->bookingData([
             'payment_method' => 'front_store',
+            'wants_counter' => 1,
+            'counter_size' => '2 ล็อค 140x75 cm.',
+            'counter_quantity' => 4,
         ]));
 
         $response->assertRedirect(route('public.booking.check'));
@@ -45,6 +58,8 @@ class PublicBookingPaymentMethodTest extends TestCase
         $booking = Booking::firstOrFail();
         $this->assertTrue($booking->collect_front_store);
         $this->assertNull($booking->payment_slip_path);
+        $this->assertSame(4, $booking->counter_quantity);
+        $this->assertStringContainsString('จำนวน 4 ชุด', $booking->equipmentSummary());
     }
 
     public function test_slip_payment_cannot_be_submitted_without_a_slip(): void
@@ -92,6 +107,7 @@ class PublicBookingPaymentMethodTest extends TestCase
             'wants_tent' => 1,
             'tent_size' => '2x2',
             'tent_color' => 'ขาว',
+            'tent_quantity' => 3,
         ], $overrides);
     }
 

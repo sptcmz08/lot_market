@@ -51,6 +51,7 @@
             display: flex;
             flex-direction: column;
             -webkit-text-size-adjust: 100%;
+            overflow-x: hidden;
         }
 
         .header-bar {
@@ -290,6 +291,7 @@
         /* Mobile specific fixes */
         @media (max-width: 767px) {
             .header-bar {
+                flex-direction: column;
                 gap: 10px;
                 padding: 10px 12px;
                 align-items: stretch;
@@ -312,10 +314,6 @@
                 gap: 8px;
             }
 
-            .main-nav .nav-link:last-child {
-                grid-column: 1 / -1;
-            }
-
             .nav-link {
                 padding: 9px 10px;
                 font-size: 13px;
@@ -330,6 +328,7 @@
 
             .content-container {
                 padding: 12px 10px 18px;
+                min-width: 0;
             }
 
             .cute-card {
@@ -358,9 +357,24 @@
                 font-size: 14px;
             }
 
+            .cute-input,
+            .cute-select,
+            .cute-textarea {
+                font-size: 16px;
+                min-width: 0;
+            }
+
             footer {
                 padding: 14px 10px calc(14px + env(safe-area-inset-bottom, 0px));
             }
+        }
+
+        @media (max-width: 390px) {
+            .header-bar { padding-inline: 8px; }
+            .brand-title { font-size: 15px; }
+            .main-nav { gap: 6px; }
+            .nav-link { padding: 8px 5px; font-size: 12px; gap: 4px; }
+            .content-container { padding-inline: 7px; }
         }
     </style>
     @yield('styles')

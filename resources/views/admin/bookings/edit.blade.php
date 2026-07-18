@@ -72,6 +72,8 @@
                                     <option value="{{ $color }}" {{ old('tent_color', $booking->tent_color) == $color ? 'selected' : '' }}>{{ $color }}</option>
                                 @endforeach
                             </select>
+                            <label class="cute-label" for="tent_quantity">จำนวนเต็นท์ (หลัง)</label>
+                            <input type="number" id="tent_quantity" name="tent_quantity" class="cute-input" value="{{ old('tent_quantity', $booking->tent_quantity ?: 1) }}" min="1" max="99" inputmode="numeric">
                             <small style="display:flex;gap:6px;align-items:flex-start;color:var(--text-muted);line-height:1.5;">
                                 <i class="fa-solid fa-circle-info" style="color:#f59e0b;margin-top:3px;"></i>
                                 <span><strong>หมายเหตุ:</strong> หากสีที่เลือกหมด ทางร้านจะเลือกสีอื่นทดแทน</span>
@@ -94,6 +96,8 @@
                                     <option value="{{ $size }}" {{ old('counter_size', $booking->counter_size) == $size ? 'selected' : '' }}>{{ $size }}</option>
                                 @endforeach
                             </select>
+                            <label class="cute-label" for="counter_quantity">จำนวนเคาน์เตอร์ (ชุด)</label>
+                            <input type="number" id="counter_quantity" name="counter_quantity" class="cute-input" value="{{ old('counter_quantity', $booking->counter_quantity ?: 1) }}" min="1" max="99" inputmode="numeric">
                         </div>
                     </div>
                 </div>

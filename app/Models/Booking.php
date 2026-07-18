@@ -16,8 +16,10 @@ class Booking extends Model
         'customer_phone',
         'tent_size',
         'tent_color',
+        'tent_quantity',
         'counter_size',
         'counter_color',
+        'counter_quantity',
         'payment_slip_path',
         'collect_front_store',
         'front_store_collected_amount',
@@ -36,6 +38,8 @@ class Booking extends Model
         'collect_front_store' => 'boolean',
         'front_store_collected_amount' => 'decimal:2',
         'front_store_collected_at' => 'datetime',
+        'tent_quantity' => 'integer',
+        'counter_quantity' => 'integer',
     ];
 
     public function lots()
@@ -92,11 +96,11 @@ class Booking extends Model
         $items = [];
 
         if ($this->tent_size) {
-            $items[] = trim('เต็นท์ ' . $this->tent_size . ($this->tent_color ? ' สี' . $this->tent_color : ''));
+            $items[] = trim('เต็นท์ ' . $this->tent_size . ($this->tent_color ? ' สี' . $this->tent_color : '') . ' จำนวน ' . ($this->tent_quantity ?: 1) . ' หลัง');
         }
 
         if ($this->counter_size) {
-            $items[] = trim('เคาน์เตอร์ ' . $this->counter_size . ($this->counter_color ? ' สี' . $this->counter_color : ''));
+            $items[] = trim('เคาน์เตอร์ ' . $this->counter_size . ($this->counter_color ? ' สี' . $this->counter_color : '') . ' จำนวน ' . ($this->counter_quantity ?: 1) . ' ชุด');
         }
 
         return implode(' / ', $items) ?: '-';

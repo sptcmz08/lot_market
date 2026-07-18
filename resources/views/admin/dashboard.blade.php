@@ -418,7 +418,7 @@
                                 </td>
                                 <td class="workflow-equipment">
                                     @if ($booking->tent_size)
-                                        <strong>{{ $booking->tent_size }} สี{{ $booking->tent_color }}</strong>
+                                        <strong>{{ $booking->tent_size }} สี{{ $booking->tent_color }} × {{ $booking->tent_quantity ?: 1 }} หลัง</strong>
                                         <small>{{ $tasksByType->get('tent')?->statusLabel() ?? 'รอส่งรูป' }}</small>
                                     @else
                                         <span style="color:var(--text-muted);">-</span>
@@ -426,7 +426,7 @@
                                 </td>
                                 <td class="workflow-equipment">
                                     @if ($booking->counter_size)
-                                        <strong>{{ $booking->counter_size }}</strong>
+                                        <strong>{{ $booking->counter_size }} × {{ $booking->counter_quantity ?: 1 }} ชุด</strong>
                                         <small>{{ $tasksByType->get('counter')?->statusLabel() ?? 'รอส่งรูป' }}</small>
                                     @else
                                         <span style="color:var(--text-muted);">-</span>

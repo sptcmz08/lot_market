@@ -68,8 +68,12 @@
 
     .equipment-inputs {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(120px, 160px);
+        grid-template-columns: minmax(0, 1fr) minmax(120px, 160px) minmax(100px, 120px);
         gap: 12px;
+    }
+
+    .equipment-inputs.counter-inputs {
+        grid-template-columns: minmax(0, 1fr) minmax(100px, 120px);
     }
 
     .equipment-control {
@@ -230,12 +234,17 @@
 
     @media (max-width: 720px) {
         .booking-paper {
-            padding: 16px;
-            border-radius: 18px;
+            padding: 14px;
+            border-radius: 16px;
         }
 
         .booking-paper-title {
             font-size: 19px;
+            margin-bottom: 14px;
+        }
+
+        .booking-form-grid {
+            gap: 12px;
         }
 
         .booking-field.half,
@@ -246,9 +255,36 @@
 
         .booking-line,
         .equipment-inputs,
-        .lot-range-grid,
-        .lot-group-row {
+        .equipment-inputs.counter-inputs {
             grid-template-columns: 1fr;
+        }
+
+        .lot-range-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .lot-range-grid select {
+            grid-column: 1 / -1;
+        }
+
+        .lot-group-row {
+            grid-template-columns: 1fr 1fr 44px;
+            padding: 10px;
+            border: 1px solid var(--border-cute);
+            border-radius: 14px;
+        }
+
+        .lot-group-row select {
+            grid-column: 1 / -1;
+        }
+
+        .lot-group-row .lot-remove-btn {
+            grid-column: 3;
+            grid-row: 2;
+        }
+
+        .lot-separator {
+            display: none;
         }
 
         .booking-line .cute-label,
@@ -261,6 +297,12 @@
             border-radius: 16px;
         }
 
+        .cute-input,
+        .cute-select,
+        .cute-textarea {
+            min-height: 50px;
+        }
+
         .checkbox-line {
             min-height: 44px;
         }
@@ -271,7 +313,7 @@
         }
 
         .lot-mode-tabs {
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr 1fr;
         }
 
         .payment-method-tabs {
@@ -279,8 +321,15 @@
         }
 
         .lot-remove-btn {
-            width: 100%;
+            width: 44px;
         }
+    }
+
+    @media (max-width: 390px) {
+        .booking-paper { padding: 11px; }
+        .equipment-row { padding: 10px; }
+        .lot-mode-tab { padding: 9px 6px; font-size: 12px; }
+        .payment-method-tab { padding: 10px 8px; font-size: 13px; }
     }
 </style>
 @endsection
@@ -320,12 +369,12 @@
                 </div>
 
                 <div class="booking-field">
-                    <div class="equipment-row">
+                    <div class="equipment-row" data-equipment-row>
                         <label class="equipment-head">
-                            <input type="checkbox" name="wants_tent" value="1" style="width:20px;height:20px;accent-color:var(--primary);" {{ old('wants_tent', old('wants_counter') ? null : true) ? 'checked' : '' }}>
+                            <input type="checkbox" name="wants_tent" value="1" data-equipment-toggle style="width:20px;height:20px;accent-color:var(--primary);" {{ old('wants_tent', old('wants_counter') ? null : true) ? 'checked' : '' }}>
                             <span>จองเต็นท์</span>
                         </label>
-                        <div class="equipment-inputs">
+                        <div class="equipment-inputs" data-equipment-fields>
                             <div class="equipment-control">
                                 <label class="cute-label" for="tent_size">ขนาดเต็นท์ *</label>
                                 <select id="tent_size" name="tent_size" class="cute-select">
@@ -344,6 +393,10 @@
                                     @endforeach
                                 </select>
                             </div>
+                            <div class="equipment-control quantity-control">
+                                <label class="cute-label" for="tent_quantity">จำนวน (หลัง) *</label>
+                                <input type="number" id="tent_quantity" name="tent_quantity" class="cute-input" value="{{ old('tent_quantity', 1) }}" min="1" max="99" inputmode="numeric" required>
+                            </div>
                             <p class="tent-color-note">
                                 <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
                                 <span><strong>หมายเหตุ:</strong> หากสีที่เลือกหมด ทางร้านจะเลือกสีอื่นทดแทน</span>
@@ -353,18 +406,25 @@
                 </div>
 
                 <div class="booking-field">
-                    <div class="equipment-row">
+                    <div class="equipment-row" data-equipment-row>
                         <label class="equipment-head">
-                            <input type="checkbox" name="wants_counter" value="1" style="width:20px;height:20px;accent-color:var(--primary);" {{ old('wants_counter') ? 'checked' : '' }}>
+                            <input type="checkbox" name="wants_counter" value="1" data-equipment-toggle style="width:20px;height:20px;accent-color:var(--primary);" {{ old('wants_counter') ? 'checked' : '' }}>
                             <span>จองเคาน์เตอร์</span>
                         </label>
-                        <div>
-                            <select name="counter_size" class="cute-select">
-                                <option value="">เลือกขนาดเคาน์เตอร์</option>
-                                @foreach($counterSizes as $size)
-                                    <option value="{{ $size }}" {{ old('counter_size') == $size ? 'selected' : '' }}>{{ $size }}</option>
-                                @endforeach
-                            </select>
+                        <div class="equipment-inputs counter-inputs" data-equipment-fields>
+                            <div class="equipment-control">
+                                <label class="cute-label" for="counter_size">ขนาดเคาน์เตอร์ *</label>
+                                <select id="counter_size" name="counter_size" class="cute-select">
+                                    <option value="">เลือกขนาดเคาน์เตอร์</option>
+                                    @foreach($counterSizes as $size)
+                                        <option value="{{ $size }}" {{ old('counter_size') == $size ? 'selected' : '' }}>{{ $size }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="equipment-control quantity-control">
+                                <label class="cute-label" for="counter_quantity">จำนวน (ชุด) *</label>
+                                <input type="number" id="counter_quantity" name="counter_quantity" class="cute-input" value="{{ old('counter_quantity', 1) }}" min="1" max="99" inputmode="numeric" required>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -409,7 +469,7 @@
                                 @endforeach
                             </select>
                             <input type="number" name="lot_number_from" class="cute-input" value="{{ old('lot_number_from', $selectedFrom) }}" min="1" max="999" placeholder="เลขล็อค" {{ $oldMode === 'multiple' ? '' : 'required' }}>
-                            <strong style="text-align:center;color:var(--text-dark);">ถึง</strong>
+                            <strong class="lot-separator" style="text-align:center;color:var(--text-dark);">ถึง</strong>
                             <input type="number" name="lot_number_to" class="cute-input" value="{{ old('lot_number_to', $selectedTo) }}" min="1" max="999" placeholder="ถ้าล็อคเดียวไม่ต้องกรอก">
                         </div>
                     </div>
@@ -425,7 +485,7 @@
                                         @endforeach
                                     </select>
                                     <input type="number" name="lot_groups[{{ $index }}][from]" class="cute-input" value="{{ $group['from'] ?? '' }}" min="1" max="999" placeholder="เลขเริ่ม">
-                                    <strong style="text-align:center;color:var(--text-dark);">ถึง</strong>
+                                    <strong class="lot-separator" style="text-align:center;color:var(--text-dark);">ถึง</strong>
                                     <input type="number" name="lot_groups[{{ $index }}][to]" class="cute-input" value="{{ $group['to'] ?? '' }}" min="1" max="999" placeholder="เลขสิ้นสุด">
                                     <button type="button" class="lot-remove-btn" aria-label="ลบแถว"><i class="fa-solid fa-xmark"></i></button>
                                 </div>
@@ -448,7 +508,7 @@
                             @endforeach
                         </select>
                             <input type="number" name="__FROM_NAME__" class="cute-input" min="1" max="999" placeholder="เลขเริ่ม">
-                        <strong style="text-align:center;color:var(--text-dark);">ถึง</strong>
+                        <strong class="lot-separator" style="text-align:center;color:var(--text-dark);">ถึง</strong>
                             <input type="number" name="__TO_NAME__" class="cute-input" min="1" max="999" placeholder="เลขสิ้นสุด">
                             <button type="button" class="lot-remove-btn" aria-label="ลบแถว"><i class="fa-solid fa-xmark"></i></button>
                         </div>
@@ -524,6 +584,7 @@
         const paymentSlipPanel = document.getElementById('payment-slip-panel');
         const frontStorePanel = document.getElementById('front-store-panel');
         const paymentSlipInput = document.getElementById('payment_slip');
+        const equipmentRows = document.querySelectorAll('[data-equipment-row]');
 
         function setMode(mode) {
             modeInput.value = mode;
@@ -567,6 +628,13 @@
             refreshRemoveButtons();
         }
 
+        function syncEquipmentRow(row) {
+            const enabled = row.querySelector('[data-equipment-toggle]').checked;
+            const fields = row.querySelector('[data-equipment-fields]');
+            fields.style.opacity = enabled ? '1' : '.45';
+            fields.querySelectorAll('input, select').forEach(field => field.disabled = !enabled);
+        }
+
         tabs.forEach(tab => tab.addEventListener('click', () => setMode(tab.dataset.lotMode)));
         paymentTabs.forEach(tab => tab.addEventListener('click', () => setPaymentMethod(tab.dataset.paymentMethod)));
         addButton.addEventListener('click', addLotGroup);
@@ -577,6 +645,10 @@
             }
             removeButton.closest('.lot-group-row').remove();
             refreshRemoveButtons();
+        });
+        equipmentRows.forEach(row => {
+            row.querySelector('[data-equipment-toggle]').addEventListener('change', () => syncEquipmentRow(row));
+            syncEquipmentRow(row);
         });
 
         setMode(modeInput.value || 'single');
