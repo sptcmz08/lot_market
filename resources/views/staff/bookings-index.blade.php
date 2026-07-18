@@ -10,8 +10,8 @@
     .field label { display:block;font-size:13px;font-weight:700;margin-bottom:6px; }
     .field input,.field select { width:100%;height:44px;border:2px solid var(--border-cute);border-radius:13px;padding:0 12px;font:inherit;box-sizing:border-box;background:#fff; }
     .table-wrap { overflow:auto;background:#fff;border:1px solid var(--border-cute);border-radius:20px; }
-    table { width:100%;border-collapse:collapse;min-width:1380px; }
-    th,td { text-align:left;padding:15px 14px;border-bottom:1px solid var(--border-cute);vertical-align:middle;font-size:14px; }
+    table { width:100%;border-collapse:collapse;min-width:1260px; }
+    th,td { text-align:left;padding:14px 10px;border-bottom:1px solid var(--border-cute);vertical-align:middle;font-size:14px; }
     th { background:#fff9fb;font-size:13px;white-space:nowrap; }
     .badge { display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:999px;font-size:12px;font-weight:800;white-space:nowrap; }
     .badge-waiting { background:#fff1c9;color:#8a6500; }.badge-sent { background:#e9ddff;color:#6d28d9; }
@@ -20,13 +20,15 @@
     .action-btn { min-height:39px;padding:0 13px;border-radius:12px;border:2px solid var(--border-cute);background:#fff;color:var(--text-dark);font:inherit;font-size:13px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:7px;cursor:pointer; }
     .action-btn.send { border:0;background:linear-gradient(135deg,var(--primary),var(--primary-hover));color:#fff; }
     .action-btn[disabled] { opacity:.55;cursor:not-allowed; }
-    .equipment-detail { display:grid;gap:8px;min-width:165px; }
-    .equipment-item { display:grid;gap:6px;padding:9px 10px;border:1px solid #dceff8;border-radius:13px;background:#f7fcff; }
-    .equipment-total { display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:8px 10px;border-radius:11px;background:#0874a6;color:#fff;font-size:12px;font-weight:900; }
-    .equipment-total b { font-size:21px;line-height:1; }
-    .equipment-item strong { line-height:1.45; }
-    .equipment-quantity { display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:7px 10px;border-radius:10px;background:#dff4ff;color:#075d87;font-size:12px;font-weight:900; }
-    .equipment-quantity b { font-size:20px;line-height:1;color:#064f73; }
+    th:nth-child(5),td:nth-child(5){min-width:170px}th:nth-child(6),td:nth-child(6){min-width:210px}
+    .equipment-detail { display:grid;gap:5px;min-width:0; }
+    .equipment-item { display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:4px 0;border-bottom:1px dashed var(--border-cute); }
+    .equipment-item:last-child { border-bottom:0; }
+    .equipment-item strong { line-height:1.4;font-size:13px; }
+    .equipment-quantity { flex:none;color:#0874a6;font-size:12px;font-weight:800;white-space:nowrap; }
+    .equipment-quantity b { font-size:17px;color:#075d87; }
+    .equipment-total { margin-bottom:2px;color:#b4235a;font-size:12px;font-weight:800; }
+    .equipment-total b { font-size:16px; }
     .equipment-empty { color:var(--text-muted);font-weight:700; }
     .pagination { margin-top:18px; }
     @media(max-width:900px){
@@ -77,12 +79,12 @@
                     <td data-label="ล็อตแผง"><strong style="color:var(--primary-hover)">{{ $booking->lots->pluck('lot_code')->implode(', ') ?: '-' }}</strong></td>
                     <td data-label="เต็นท์">
                         @if($tentItems)
-                            <div class="equipment-detail"><div class="equipment-total"><span>รวมที่ต้องเตรียม</span><b>{{ collect($tentItems)->sum('quantity') }} หลัง</b></div>@foreach($tentItems as $item)<div class="equipment-item"><strong>ขนาด {{ $item['size'] }}{{ !empty($item['color']) ? ' · สี'.$item['color'] : '' }}</strong><span class="equipment-quantity"><span>จำนวนขนาดนี้</span><b>{{ $item['quantity'] }} หลัง</b></span></div>@endforeach</div>
+                            <div class="equipment-detail">@if(count($tentItems) > 1)<div class="equipment-total">รวมทั้งหมด <b>{{ collect($tentItems)->sum('quantity') }} หลัง</b></div>@endif @foreach($tentItems as $item)<div class="equipment-item"><strong>{{ $item['size'] }}{{ !empty($item['color']) ? ' สี'.$item['color'] : '' }}</strong><span class="equipment-quantity">จำนวน <b>{{ $item['quantity'] }}</b> หลัง</span></div>@endforeach</div>
                         @else<span class="equipment-empty">ไม่จอง</span>@endif
                     </td>
                     <td data-label="เคาน์เตอร์">
                         @if($counterItems)
-                            <div class="equipment-detail"><div class="equipment-total"><span>รวมที่ต้องเตรียม</span><b>{{ collect($counterItems)->sum('quantity') }} ชุด</b></div>@foreach($counterItems as $item)<div class="equipment-item"><strong>ขนาด {{ $item['size'] }}{{ !empty($item['color']) ? ' · สี'.$item['color'] : '' }}</strong><span class="equipment-quantity"><span>จำนวนขนาดนี้</span><b>{{ $item['quantity'] }} ชุด</b></span></div>@endforeach</div>
+                            <div class="equipment-detail">@if(count($counterItems) > 1)<div class="equipment-total">รวมทั้งหมด <b>{{ collect($counterItems)->sum('quantity') }} ชุด</b></div>@endif @foreach($counterItems as $item)<div class="equipment-item"><strong>{{ $item['size'] }}{{ !empty($item['color']) ? ' สี'.$item['color'] : '' }}</strong><span class="equipment-quantity">จำนวน <b>{{ $item['quantity'] }}</b> ชุด</span></div>@endforeach</div>
                         @else<span class="equipment-empty">ไม่จอง</span>@endif
                     </td>
                     <td data-label="อื่น ๆ">@if($otherEquipment)<div class="equipment-detail"><strong>{{ $otherEquipment }}</strong></div>@else<span class="equipment-empty">ไม่มี</span>@endif</td>
