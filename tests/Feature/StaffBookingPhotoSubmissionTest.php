@@ -43,10 +43,17 @@ class StaffBookingPhotoSubmissionTest extends TestCase
             ->assertDontSee(route('admin.bookings.destroy', $booking), false);
 
         $this->actingAs($staff)->post(route('staff.bookings.photos', $booking), [
+            'photo_type' => 'after',
             'photos' => [$this->photo('one.png'), $this->photo('two.png')],
         ])->assertRedirect()->assertSessionHas('success');
 
+        $this->actingAs($staff)->post(route('staff.bookings.photos', $booking), [
+            'photo_type' => 'lot_number',
+            'camera_photo' => $this->photo('lot.png'),
+        ])->assertRedirect()->assertSessionHas('success');
+
         $this->assertCount(2, $task->photos()->where('photo_type', 'after')->get());
+        $this->assertCount(1, $task->photos()->where('photo_type', 'lot_number')->get());
 
         $this->actingAs($staff)->post(route('staff.bookings.submit', $booking))
             ->assertRedirect(route('staff.bookings.index'))
@@ -61,6 +68,7 @@ class StaffBookingPhotoSubmissionTest extends TestCase
             ->assertRedirect()->assertSessionHas('success');
         $this->assertSame('completed', $task->fresh()->status);
         $this->assertSame('completed', $booking->fresh()->status);
+        $this->assertSame('approved', $task->photos()->where('photo_type', 'lot_number')->value('ocr_status'));
 
         $paths = $task->photos()->pluck('image_path');
         $publicPage = $this->post(route('public.booking.check.submit'), ['search_query' => 'BKSTAFFPHOTO001']);

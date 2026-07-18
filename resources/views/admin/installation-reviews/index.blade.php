@@ -10,7 +10,7 @@
     </div>
 
     @forelse($bookings as $booking)
-        @php($photos=$booking->deliveryTasks->flatMap->photos->where('photo_type','after')->sortBy('id'))
+        @php($photos=$booking->deliveryTasks->flatMap->photos->whereIn('photo_type',['lot_number','after'])->sortBy('id'))
         <div class="cute-card">
             <div style="display:flex;justify-content:space-between;align-items:start;gap:14px;flex-wrap:wrap;margin-bottom:16px">
                 <div>
@@ -25,7 +25,8 @@
                 @foreach($photos as $photo)
                     <button type="button" class="image-lightbox-trigger" data-lightbox-src="{{ route('media.show',['path'=>$photo->image_path]) }}" data-lightbox-alt="รูปส่งงาน {{ $booking->booking_code }}" style="border:1px solid var(--border-cute);border-radius:14px;overflow:hidden;padding:0;background:var(--bg-page)">
                         <img src="{{ route('media.show',['path'=>$photo->image_path]) }}" alt="รูปส่งงาน" style="display:block;width:100%;height:155px;object-fit:cover">
-                        <small style="display:block;padding:7px;color:var(--text-muted)">{{ $photo->uploadedBy?->name ?? 'พนักงาน' }} · {{ $photo->created_at->format('H:i น.') }}</small>
+                        <small style="display:block;padding:7px;color:{{ $photo->photo_type === 'lot_number' ? 'var(--primary-hover)' : '#15803d' }};font-weight:800">{{ $photo->photo_type === 'lot_number' ? 'รูปเลข LOT' : 'รูปหลังติดตั้ง' }}</small>
+                        <small style="display:block;padding:0 7px 7px;color:var(--text-muted)">{{ $photo->uploadedBy?->name ?? 'พนักงาน' }} · {{ $photo->created_at->format('H:i น.') }}</small>
                     </button>
                 @endforeach
             </div>

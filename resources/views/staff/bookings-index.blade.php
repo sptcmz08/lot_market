@@ -44,7 +44,10 @@
             @forelse($bookings as $booking)
                 @php
                     $tasks = $booking->deliveryTasks;
-                    $photoCount = $tasks->flatMap->photos->where('photo_type', 'after')->count();
+                    $allPhotos = $tasks->flatMap->photos;
+                    $lotPhotoCount = $allPhotos->where('photo_type', 'lot_number')->count();
+                    $afterPhotoCount = $allPhotos->where('photo_type', 'after')->count();
+                    $photoCount = $lotPhotoCount + $afterPhotoCount;
                     $isSent = $tasks->contains('status', 'photo_uploaded');
                     $isApproved = $tasks->isNotEmpty() && $tasks->every(fn($task) => $task->status === 'completed');
                     $rejectNote = $tasks->pluck('problem_note')->filter(fn($note) => str_starts_with((string)$note, 'ตีกลับโดยแอดมิน:'))->first();
@@ -66,7 +69,7 @@
                     <td><div class="actions">
                         @if($canUseCamera)
                             <a class="action-btn" href="{{ route('staff.bookings.camera',$booking) }}"><i class="fa-solid fa-camera"></i> กล้อง</a>
-                            <form method="POST" action="{{ route('staff.bookings.submit',$booking) }}" style="margin:0">@csrf<button class="action-btn send" type="submit" @disabled($photoCount===0) onclick="return confirm('ยืนยันส่งรูปให้แอดมินตรวจสอบ?')"><i class="fa-solid fa-paper-plane"></i> ส่ง</button></form>
+                            <form method="POST" action="{{ route('staff.bookings.submit',$booking) }}" style="margin:0">@csrf<button class="action-btn send" type="submit" @disabled($lotPhotoCount===0 || $afterPhotoCount===0) onclick="return confirm('ยืนยันส่งรูป LOT และรูปหลังติดตั้งให้แอดมินตรวจสอบ?')"><i class="fa-solid fa-paper-plane"></i> ส่ง</button></form>
                         @else
                             <button class="action-btn" disabled><i class="fa-solid fa-camera"></i> กล้อง</button><button class="action-btn send" disabled><i class="fa-solid fa-paper-plane"></i> ส่ง</button>
                         @endif

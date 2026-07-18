@@ -58,6 +58,7 @@ class StaffBookingController extends Controller
         $this->ensurePhotoAccess($booking);
 
         $validated = $request->validate([
+            'photo_type' => 'required|in:lot_number,after',
             'camera_photo' => 'nullable|required_without:photos|image',
             'photos' => 'nullable|required_without:camera_photo|array|min:1',
             'photos.*' => 'required|image',
@@ -81,11 +82,12 @@ class StaffBookingController extends Controller
         foreach ($files as $file) {
             DeliveryPhoto::create([
                 'delivery_task_id' => $task->id,
-                'photo_type' => 'after',
+                'photo_type' => $validated['photo_type'],
                 'image_path' => $this->photoUploadService->upload($file),
                 'taken_at' => now(),
                 'uploaded_by' => auth()->id(),
                 'note' => $validated['note'] ?? null,
+                'ocr_status' => $validated['photo_type'] === 'lot_number' ? 'draft' : null,
             ]);
         }
 
@@ -97,12 +99,17 @@ class StaffBookingController extends Controller
         $booking->load('deliveryTasks.photos');
         $this->ensurePhotoAccess($booking);
 
-        $hasPhotos = $booking->deliveryTasks->flatMap->photos->contains('photo_type', 'after');
-        if (! $hasPhotos) {
-            return back()->with('error', 'กรุณาถ่ายรูปหรือแนบรูปอย่างน้อย 1 รูปก่อนส่ง');
+        $photos = $booking->deliveryTasks->flatMap->photos;
+        if (! $photos->contains('photo_type', 'lot_number') || ! $photos->contains('photo_type', 'after')) {
+            return back()->with('error', 'กรุณาเพิ่มรูปเลข LOT และรูปหลังติดตั้งอย่างน้อยประเภทละ 1 รูปก่อนส่ง');
         }
 
         DB::transaction(function () use ($booking) {
+            DeliveryPhoto::whereIn('delivery_task_id', $booking->deliveryTasks->pluck('id'))
+                ->where('photo_type', 'lot_number')
+                ->where('ocr_status', '!=', 'approved')
+                ->update(['ocr_status' => 'submitted']);
+
             foreach ($booking->deliveryTasks as $task) {
                 if ($task->status === 'completed') {
                     continue;

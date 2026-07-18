@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\DeliveryTask;
+use App\Models\DeliveryPhoto;
 use App\Services\StatusLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,9 +26,23 @@ class AdminInstallationReviewController extends Controller
     {
         $booking->load('deliveryTasks.photos');
         $this->ensurePending($booking);
-        abort_unless($booking->deliveryTasks->flatMap->photos->contains('photo_type', 'after'), 422, 'ไม่พบรูปส่งงาน');
+        $photos = $booking->deliveryTasks->flatMap->photos;
+        abort_unless(
+            $photos->contains('photo_type', 'lot_number') && $photos->contains('photo_type', 'after'),
+            422,
+            'ต้องมีรูปเลข LOT และรูปหลังติดตั้ง'
+        );
 
         DB::transaction(function () use ($booking) {
+            DeliveryPhoto::whereIn('delivery_task_id', $booking->deliveryTasks->pluck('id'))
+                ->where('photo_type', 'lot_number')
+                ->where('ocr_status', 'submitted')
+                ->update([
+                    'ocr_status' => 'approved',
+                    'ocr_text' => 'ยืนยันโดยแอดมิน: '.auth()->user()->name,
+                    'ocr_confidence' => 100,
+                ]);
+
             foreach ($booking->deliveryTasks->where('status', 'photo_uploaded') as $task) {
                 $task->update(['status' => 'completed', 'completed_at' => now(), 'problem_note' => null]);
                 StatusLogService::log(DeliveryTask::class, $task->id, 'photo_uploaded', 'completed', auth()->id(), 'แอดมินอนุมัติรูปส่งงาน');
@@ -48,6 +63,15 @@ class AdminInstallationReviewController extends Controller
         $this->ensurePending($booking);
 
         DB::transaction(function () use ($booking, $validated) {
+            DeliveryPhoto::whereIn('delivery_task_id', $booking->deliveryTasks->pluck('id'))
+                ->where('photo_type', 'lot_number')
+                ->where('ocr_status', 'submitted')
+                ->update([
+                    'ocr_status' => 'rejected',
+                    'ocr_text' => 'ตีกลับโดยแอดมิน: '.$validated['reason'],
+                    'ocr_confidence' => 0,
+                ]);
+
             foreach ($booking->deliveryTasks->where('status', 'photo_uploaded') as $task) {
                 $task->update(['status' => 'started', 'problem_note' => 'ตีกลับโดยแอดมิน: '.$validated['reason']]);
                 StatusLogService::log(DeliveryTask::class, $task->id, 'photo_uploaded', 'started', auth()->id(), 'แอดมินตีกลับรูป: '.$validated['reason']);
