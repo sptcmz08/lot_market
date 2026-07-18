@@ -48,9 +48,11 @@
                     $lotPhotoCount = $allPhotos->where('photo_type', 'lot_number')->count();
                     $afterPhotoCount = $allPhotos->where('photo_type', 'after')->count();
                     $photoCount = $lotPhotoCount + $afterPhotoCount;
+                    $lotApproved = $allPhotos->where('photo_type', 'lot_number')->contains('ocr_status', 'approved');
+                    $lotSubmitted = $allPhotos->where('photo_type', 'lot_number')->contains('ocr_status', 'submitted');
                     $isSent = $tasks->contains('status', 'photo_uploaded');
                     $isApproved = $tasks->isNotEmpty() && $tasks->every(fn($task) => $task->status === 'completed');
-                    $rejectNote = $tasks->pluck('problem_note')->filter(fn($note) => str_starts_with((string)$note, 'ตีกลับโดยแอดมิน:'))->first();
+                    $rejectNote = $tasks->pluck('problem_note')->filter()->first();
                     $canUseCamera = !$isSent && !$isApproved && $tasks->isNotEmpty() && !in_array($booking->status, ['pending_admin','cancelled'], true);
                 @endphp
                 <tr>
@@ -61,15 +63,22 @@
                     <td>{{ $booking->equipmentSummary() }}</td>
                     <td>
                         @if($isApproved)<span class="badge badge-approved"><i class="fa-solid fa-circle-check"></i> อนุมัติแล้ว</span>
-                        @elseif($isSent)<span class="badge badge-sent"><i class="fa-solid fa-paper-plane"></i> ส่งแล้ว / รออนุมัติ</span>
-                        @elseif($rejectNote)<span class="badge badge-rejected"><i class="fa-solid fa-rotate-left"></i> ตีกลับ</span><small style="display:block;margin-top:5px;color:#b42318">{{ str($rejectNote)->after('ตีกลับโดยแอดมิน:')->trim() }}</small>
-                        @elseif($photoCount)<span class="badge badge-waiting"><i class="fa-solid fa-images"></i> เพิ่มแล้ว {{ $photoCount }} รูป</span>
-                        @else<span class="badge badge-waiting"><i class="fa-solid fa-clock"></i> ยังไม่ได้ส่ง</span>@endif
+                        @elseif($isSent)<span class="badge badge-sent"><i class="fa-solid fa-paper-plane"></i> ส่งรูปงาน / รออนุมัติ</span>
+                        @elseif($rejectNote)<span class="badge badge-rejected"><i class="fa-solid fa-rotate-left"></i> ตีกลับ / รอส่งใหม่</span><small style="display:block;margin-top:5px;color:#b42318">{{ str($rejectNote)->after(':')->trim() }}</small>
+                        @elseif($lotSubmitted)<span class="badge badge-sent"><i class="fa-solid fa-paper-plane"></i> ส่งรูป LOT / รออนุมัติ</span>
+                        @elseif($lotApproved && $afterPhotoCount)<span class="badge badge-waiting"><i class="fa-solid fa-images"></i> LOT ผ่าน / เพิ่มรูปงานแล้ว</span>
+                        @elseif($lotApproved)<span class="badge badge-approved"><i class="fa-solid fa-circle-check"></i> LOT ผ่าน / รอรูปงาน</span>
+                        @elseif($lotPhotoCount)<span class="badge badge-waiting"><i class="fa-solid fa-images"></i> เพิ่มรูป LOT แล้ว / ยังไม่ส่ง</span>
+                        @else<span class="badge badge-waiting"><i class="fa-solid fa-clock"></i> รอรูป LOT</span>@endif
                     </td>
                     <td><div class="actions">
                         @if($canUseCamera)
                             <a class="action-btn" href="{{ route('staff.bookings.camera',$booking) }}"><i class="fa-solid fa-camera"></i> กล้อง</a>
-                            <form method="POST" action="{{ route('staff.bookings.submit',$booking) }}" style="margin:0">@csrf<button class="action-btn send" type="submit" @disabled($lotPhotoCount===0 || $afterPhotoCount===0) onclick="return confirm('ยืนยันส่งรูป LOT และรูปหลังติดตั้งให้แอดมินตรวจสอบ?')"><i class="fa-solid fa-paper-plane"></i> ส่ง</button></form>
+                            @if(!$lotApproved)
+                                <form method="POST" action="{{ route('staff.bookings.submit_lot',$booking) }}" style="margin:0">@csrf<button class="action-btn send" type="submit" @disabled($lotPhotoCount===0 || $lotSubmitted) onclick="return confirm('ยืนยันส่งรูป LOT ให้ Admin ตรวจสอบ?')"><i class="fa-solid fa-paper-plane"></i> ส่ง LOT</button></form>
+                            @else
+                                <form method="POST" action="{{ route('staff.bookings.submit_work',$booking) }}" style="margin:0">@csrf<button class="action-btn send" type="submit" @disabled($afterPhotoCount===0) onclick="return confirm('ยืนยันส่งรูปงานติดตั้งให้ Admin ตรวจสอบ?')"><i class="fa-solid fa-paper-plane"></i> ส่งรูปงาน</button></form>
+                            @endif
                         @else
                             <button class="action-btn" disabled><i class="fa-solid fa-camera"></i> กล้อง</button><button class="action-btn send" disabled><i class="fa-solid fa-paper-plane"></i> ส่ง</button>
                         @endif

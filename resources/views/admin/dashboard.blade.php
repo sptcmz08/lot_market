@@ -401,9 +401,11 @@
                             @php
                                 $tasksByType = $booking->deliveryTasks->keyBy('task_type');
                                 $allPhotos = $booking->deliveryTasks->flatMap->photos->whereIn('photo_type', ['lot_number', 'after']);
-                                $isSubmitted = $booking->deliveryTasks->contains('status', 'photo_uploaded');
+                                $isLotSubmitted = $allPhotos->where('photo_type', 'lot_number')->contains('ocr_status', 'submitted');
+                                $isLotApproved = $allPhotos->where('photo_type', 'lot_number')->contains('ocr_status', 'approved');
+                                $isWorkSubmitted = $booking->deliveryTasks->contains('status', 'photo_uploaded');
                                 $isCompleted = $booking->deliveryTasks->isNotEmpty() && $booking->deliveryTasks->every(fn ($task) => $task->status === 'completed');
-                                $isRejected = $booking->deliveryTasks->pluck('problem_note')->filter(fn ($note) => str_starts_with((string) $note, 'ตีกลับโดยแอดมิน:'))->isNotEmpty();
+                                $isRejected = $booking->deliveryTasks->pluck('problem_note')->filter(fn ($note) => str_starts_with((string) $note, 'ตีกลับรูป'))->isNotEmpty();
                             @endphp
                             <tr>
                                 <td>
@@ -451,22 +453,26 @@
                                 </td>
                                 <td>
                                     <div class="workflow-status-stack">
-                                        @if ($isSubmitted)
-                                            <span class="status-badge status-pending_admin">ส่งแล้ว / รออนุมัติ {{ $allPhotos->count() }} รูป</span>
+                                        @if ($isWorkSubmitted)
+                                            <span class="status-badge status-pending_admin">รูปงานรอตรวจ {{ $allPhotos->where('photo_type', 'after')->count() }} รูป</span>
+                                        @elseif ($isLotSubmitted)
+                                            <span class="status-badge status-pending_admin">รูป LOT รอตรวจ {{ $allPhotos->where('photo_type', 'lot_number')->count() }} รูป</span>
                                         @elseif ($isCompleted)
                                             <span class="status-badge status-completed">อนุมัติแล้ว</span>
                                         @elseif ($isRejected)
                                             <span class="status-badge status-problem">ไม่ผ่าน / รอส่งใหม่</span>
+                                        @elseif ($isLotApproved)
+                                            <span class="status-badge status-confirmed">LOT ผ่าน / รอรูปงาน</span>
                                         @else
-                                            <span class="status-badge status-confirmed">รอพนักงานส่งรูป</span>
+                                            <span class="status-badge status-confirmed">รอรูป LOT</span>
                                         @endif
                                     </div>
                                 </td>
                                 <td>
                                     <div class="workflow-approve-list">
-                                        @if ($isSubmitted)
+                                        @if ($isWorkSubmitted || $isLotSubmitted)
                                             <a href="{{ route('admin.bookings.show', $booking) }}#installation-review" class="workflow-approve-button" style="text-decoration:none;text-align:center;">
-                                                <i class="fa-solid fa-images"></i> ตรวจและอนุมัติ
+                                                <i class="fa-solid fa-images"></i> {{ $isWorkSubmitted ? 'ตรวจรูปงาน' : 'ตรวจรูป LOT' }}
                                             </a>
                                         @elseif ($isCompleted)
                                             <span style="color:#15803d;font-weight:800;"><i class="fa-solid fa-check"></i> อนุมัติแล้ว</span>

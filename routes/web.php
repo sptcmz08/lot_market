@@ -47,8 +47,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('/lots', AdminLotController::class)->except(['show']);
     Route::get('/map', [AdminMapController::class, 'index'])->name('map.index');
 
-    Route::post('/bookings/{booking}/installation-review/approve', [AdminInstallationReviewController::class, 'approve'])->name('bookings.installation_review.approve');
-    Route::post('/bookings/{booking}/installation-review/reject', [AdminInstallationReviewController::class, 'reject'])->name('bookings.installation_review.reject');
+    Route::post('/bookings/{booking}/lot-review/approve', [AdminInstallationReviewController::class, 'approveLot'])->name('bookings.lot_review.approve');
+    Route::post('/bookings/{booking}/lot-review/reject', [AdminInstallationReviewController::class, 'rejectLot'])->name('bookings.lot_review.reject');
+    Route::post('/bookings/{booking}/work-review/approve', [AdminInstallationReviewController::class, 'approveWork'])->name('bookings.work_review.approve');
+    Route::post('/bookings/{booking}/work-review/reject', [AdminInstallationReviewController::class, 'rejectWork'])->name('bookings.work_review.reject');
 
     Route::resource('/users', AdminUserController::class)->except(['show']);
     Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
@@ -59,7 +61,8 @@ Route::middleware(['auth', 'role:staff,admin'])->prefix('staff')->name('staff.')
     Route::get('/bookings', [StaffBookingController::class, 'index'])->name('bookings.index');
     Route::get('/bookings/{booking}/camera', [StaffBookingController::class, 'camera'])->name('bookings.camera');
     Route::post('/bookings/{booking}/photos', [StaffBookingController::class, 'uploadPhotos'])->name('bookings.photos');
-    Route::post('/bookings/{booking}/submit', [StaffBookingController::class, 'submit'])->name('bookings.submit');
+    Route::post('/bookings/{booking}/submit-lot', [StaffBookingController::class, 'submitLot'])->name('bookings.submit_lot');
+    Route::post('/bookings/{booking}/submit-work', [StaffBookingController::class, 'submitWork'])->name('bookings.submit_work');
     Route::get('/tasks', [StaffTaskController::class, 'index'])->name('tasks.index');
     Route::get('/tasks/{task}', [StaffTaskController::class, 'show'])->name('tasks.show');
     Route::post('/tasks/{task}/start', [StaffTaskController::class, 'start'])->name('tasks.start');

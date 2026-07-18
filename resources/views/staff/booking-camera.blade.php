@@ -13,13 +13,37 @@
         $photos = $booking->deliveryTasks->flatMap->photos->sortByDesc('id');
         $lotPhotos = $photos->where('photo_type', 'lot_number');
         $afterPhotos = $photos->where('photo_type', 'after');
+        $lotApproved = $lotPhotos->contains('ocr_status', 'approved');
+        $lotSubmitted = $lotPhotos->contains('ocr_status', 'submitted');
+        $lotRejection = $booking->deliveryTasks->pluck('problem_note')
+            ->filter(fn ($note) => str_starts_with((string) $note, 'ตีกลับรูป LOT โดยแอดมิน:'))
+            ->first();
     @endphp
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px"><a class="back-btn" href="{{ route('staff.bookings.index') }}"><i class="fa-solid fa-arrow-left"></i></a><div><h1 style="font-size:22px;margin:0">เพิ่มรูปส่งงาน</h1><small style="color:var(--text-muted)">{{ $booking->shop_name }} · {{ $booking->lots->pluck('lot_code')->implode(', ') }}</small></div></div>
     @if($errors->any())<div class="alert-cute alert-danger"><i class="fa-solid fa-circle-exclamation"></i>{{ $errors->first() }}</div>@endif
     <div class="camera-grid">
         <div class="upload-stack">
             @foreach(['lot_number' => ['รูปเลข LOT', 'ถ่ายให้เห็นเลขแผงชัดเจน', 'panel-lot'], 'after' => ['รูปหลังติดตั้ง', 'ถ่ายภาพงานที่ติดตั้งเสร็จแล้ว', 'panel-after']] as $type => [$title, $description, $class])
-                <form class="panel photo-upload-form {{ $class }}" method="POST" enctype="multipart/form-data" action="{{ route('staff.bookings.photos',$booking) }}">@csrf
+                @if ($type === 'lot_number' && $lotApproved)
+                    <div class="panel {{ $class }}" style="text-align:center;">
+                        <i class="fa-solid fa-circle-check" style="font-size:38px;color:#14833b;"></i>
+                        <h2 style="font-size:18px;margin:10px 0 4px;">รูปเลข LOT อนุมัติแล้ว</h2>
+                        <p style="margin:0;color:var(--text-muted);font-size:13px;">สามารถถ่ายและแนบรูปงานติดตั้งได้แล้ว</p>
+                    </div>
+                @elseif ($type === 'lot_number' && $lotSubmitted)
+                    <div class="panel {{ $class }}" style="text-align:center;">
+                        <i class="fa-solid fa-hourglass-half" style="font-size:38px;color:#8a6500;"></i>
+                        <h2 style="font-size:18px;margin:10px 0 4px;">ส่งรูป LOT แล้ว</h2>
+                        <p style="margin:0;color:var(--text-muted);font-size:13px;">กำลังรอ Admin อนุมัติ จึงยังแนบรูปงานติดตั้งไม่ได้</p>
+                    </div>
+                @elseif ($type === 'after' && !$lotApproved)
+                    <div class="panel {{ $class }}" style="text-align:center;opacity:.72;">
+                        <i class="fa-solid fa-lock" style="font-size:38px;color:var(--text-muted);"></i>
+                        <h2 style="font-size:18px;margin:10px 0 4px;">รูปงานติดตั้งยังถูกล็อก</h2>
+                        <p style="margin:0;color:var(--text-muted);font-size:13px;">ต้องให้ Admin อนุมัติรูปเลข LOT ก่อน</p>
+                    </div>
+                @else
+                    <form class="panel photo-upload-form {{ $class }}" method="POST" enctype="multipart/form-data" action="{{ route('staff.bookings.photos',$booking) }}">@csrf
                     <input type="hidden" name="photo_type" value="{{ $type }}">
                     <h2 style="font-size:18px;margin:0">{{ $title }}</h2><p style="color:var(--text-muted);font-size:13px;margin:5px 0 0">{{ $description }} แนบหลายรูปและเพิ่มซ้ำได้</p>
                     <div class="upload-choice">
@@ -30,7 +54,8 @@
                     </div>
                     <div class="selection" style="font-size:13px;color:var(--text-muted);margin-bottom:12px">ยังไม่ได้เลือกรูป</div>
                     <button class="btn-large {{ $type === 'lot_number' ? 'btn-large-primary' : 'btn-large-success' }}" type="submit"><i class="fa-solid fa-plus"></i> เพิ่ม{{ $title }}</button>
-                </form>
+                    </form>
+                @endif
             @endforeach
         </div>
         <div class="panel">
@@ -40,8 +65,14 @@
                     @if($group->isEmpty())<div style="padding:22px 10px;text-align:center;color:var(--text-muted);background:var(--bg-page);border-radius:14px">ยังไม่มีรูป</div>@else<div class="thumbs">@foreach($group as $photo)<button type="button" class="thumb image-lightbox-trigger" data-lightbox-src="{{ route('media.show',['path'=>$photo->image_path]) }}"><img src="{{ route('media.show',['path'=>$photo->image_path]) }}" alt="{{ $title }}"><span>{{ $title }}</span></button>@endforeach</div>@endif
                 </div>
             @endforeach
-            <form method="POST" action="{{ route('staff.bookings.submit',$booking) }}" style="margin-top:20px">@csrf<button class="btn-large btn-large-success" type="submit" @disabled($lotPhotos->isEmpty() || $afterPhotos->isEmpty()) onclick="return confirm('ยืนยันส่งรูป LOT และรูปหลังติดตั้งทั้งหมดให้แอดมินตรวจสอบ?')"><i class="fa-solid fa-paper-plane"></i> ส่งรูปทั้งหมดให้แอดมิน</button></form>
-            @if($lotPhotos->isEmpty() || $afterPhotos->isEmpty())<small style="display:block;text-align:center;color:var(--text-muted);margin-top:8px">ต้องมีรูปเลข LOT และรูปหลังติดตั้งอย่างน้อยประเภทละ 1 รูป</small>@endif
+            @if (!$lotApproved)
+                @if ($lotRejection)<div style="margin-top:18px;padding:11px;border-radius:12px;background:#ffe1e1;color:#b42318;font-weight:700;">เหตุผลที่ตีกลับ: {{ str($lotRejection)->after('ตีกลับรูป LOT โดยแอดมิน:')->trim() }}</div>@endif
+                <form method="POST" action="{{ route('staff.bookings.submit_lot',$booking) }}" style="margin-top:20px">@csrf<button class="btn-large btn-large-primary" type="submit" @disabled($lotPhotos->isEmpty() || $lotSubmitted) onclick="return confirm('ยืนยันส่งรูป LOT ให้ Admin ตรวจสอบ?')"><i class="fa-solid fa-paper-plane"></i> {{ $lotSubmitted ? 'ส่งรูป LOT แล้ว / รออนุมัติ' : 'ส่งรูป LOT ให้ Admin' }}</button></form>
+                @if($lotPhotos->isEmpty())<small style="display:block;text-align:center;color:var(--text-muted);margin-top:8px">ต้องเพิ่มรูปเลข LOT อย่างน้อย 1 รูปก่อนส่ง</small>@endif
+            @else
+                <form method="POST" action="{{ route('staff.bookings.submit_work',$booking) }}" style="margin-top:20px">@csrf<button class="btn-large btn-large-success" type="submit" @disabled($afterPhotos->isEmpty()) onclick="return confirm('ยืนยันส่งรูปงานติดตั้งให้ Admin ตรวจสอบ?')"><i class="fa-solid fa-paper-plane"></i> ส่งรูปงานติดตั้งให้ Admin</button></form>
+                @if($afterPhotos->isEmpty())<small style="display:block;text-align:center;color:var(--text-muted);margin-top:8px">รูป LOT ผ่านแล้ว กรุณาเพิ่มรูปงานติดตั้งอย่างน้อย 1 รูป</small>@endif
+            @endif
         </div>
     </div>
     <div class="camera-modal" id="browser-camera" aria-hidden="true">

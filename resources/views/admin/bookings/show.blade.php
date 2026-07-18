@@ -162,12 +162,18 @@
             <!-- Installation Photos and review actions -->
             @php
                 $allTaskPhotos = $booking->deliveryTasks->flatMap->photos;
-                $submittedPhotos = $allTaskPhotos->whereIn('photo_type', ['lot_number', 'after']);
-                $isReviewPending = $booking->deliveryTasks->contains('status', 'photo_uploaded');
-                $isInstallationApproved = $booking->deliveryTasks->isNotEmpty()
+                $lotPhotos = $allTaskPhotos->where('photo_type', 'lot_number');
+                $workPhotos = $allTaskPhotos->where('photo_type', 'after');
+                $isLotReviewPending = $lotPhotos->contains('ocr_status', 'submitted');
+                $isLotApproved = $lotPhotos->contains('ocr_status', 'approved');
+                $isWorkReviewPending = $booking->deliveryTasks->contains('status', 'photo_uploaded');
+                $isWorkApproved = $booking->deliveryTasks->isNotEmpty()
                     && $booking->deliveryTasks->every(fn ($task) => $task->status === 'completed');
-                $reviewRejection = $booking->deliveryTasks->pluck('problem_note')
-                    ->filter(fn ($note) => str_starts_with((string) $note, 'ตีกลับโดยแอดมิน:'))
+                $lotRejection = $booking->deliveryTasks->pluck('problem_note')
+                    ->filter(fn ($note) => str_starts_with((string) $note, 'ตีกลับรูป LOT โดยแอดมิน:'))
+                    ->first();
+                $workRejection = $booking->deliveryTasks->pluck('problem_note')
+                    ->filter(fn ($note) => str_starts_with((string) $note, 'ตีกลับรูปงานโดยแอดมิน:'))
                     ->first();
             @endphp
             <div class="cute-card" id="installation-review">
@@ -175,13 +181,7 @@
                     <h3 class="cute-card-title" style="margin:0;">
                         <i class="fa-solid fa-camera-retro"></i> ภาพถ่ายและอนุมัติงานติดตั้ง
                     </h3>
-                    @if ($isReviewPending)
-                        <span class="status-badge status-pending_admin"><i class="fa-solid fa-paper-plane"></i> ส่งแล้ว / รออนุมัติ</span>
-                    @elseif ($isInstallationApproved)
-                        <span class="status-badge status-completed"><i class="fa-solid fa-circle-check"></i> อนุมัติแล้ว</span>
-                    @elseif ($reviewRejection)
-                        <span class="status-badge status-problem"><i class="fa-solid fa-rotate-left"></i> ตีกลับ / รอส่งใหม่</span>
-                    @endif
+                    <span style="color:var(--text-muted);font-size:13px;">อนุมัติรูป LOT ก่อน จึงจะเปิดให้สตาฟแนบรูปงานติดตั้ง</span>
                 </div>
                 
                 @if ($allTaskPhotos->isNotEmpty())
@@ -229,30 +229,87 @@
                     </div>
                 @endif
 
-                @if ($isReviewPending)
-                    <div style="margin-top:20px;padding-top:18px;border-top:2px dashed var(--border-cute);">
-                        <p style="margin:0 0 14px;color:var(--text-muted);font-size:13px;">ตรวจรูปเลข LOT และรูปหลังติดตั้งให้ครบก่อนอนุมัติ เมื่ออนุมัติแล้วรูปจะแสดงในหน้าลูกค้า</p>
+                <div style="margin-top:20px;padding-top:18px;border-top:2px dashed var(--border-cute);">
+                    <div style="padding:16px;border:2px solid var(--border-cute);border-radius:16px;margin-bottom:14px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+                            <strong><i class="fa-solid fa-barcode"></i> ขั้นที่ 1: ตรวจและอนุมัติรูป LOT</strong>
+                            @if ($isLotReviewPending)
+                                <span class="status-badge status-pending_admin">รอตรวจสอบ</span>
+                            @elseif ($isLotApproved)
+                                <span class="status-badge status-completed">อนุมัติแล้ว</span>
+                            @elseif ($lotRejection)
+                                <span class="status-badge status-problem">ตีกลับแล้ว</span>
+                            @else
+                                <span class="status-badge status-pending">รอสตาฟส่งรูป</span>
+                            @endif
+                        </div>
+                        @if ($isLotReviewPending)
                         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                            <form method="POST" action="{{ route('admin.bookings.installation_review.approve', $booking) }}" style="margin:0;">
+                            <form method="POST" action="{{ route('admin.bookings.lot_review.approve', $booking) }}" style="margin:0;">
                                 @csrf
-                                <button class="btn-primary" type="submit" onclick="return confirm('อนุมัติรูปทั้งหมดและแสดงให้ลูกค้าเห็น?')">
-                                    <i class="fa-solid fa-circle-check"></i> อนุมัติรูปงาน
+                                <button class="btn-primary" type="submit" onclick="return confirm('อนุมัติรูป LOT และเปิดให้สตาฟแนบรูปงานติดตั้ง?')">
+                                    <i class="fa-solid fa-circle-check"></i> อนุมัติรูป LOT
                                 </button>
                             </form>
-                            <form method="POST" action="{{ route('admin.bookings.installation_review.reject', $booking) }}" style="margin:0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                            <form method="POST" action="{{ route('admin.bookings.lot_review.reject', $booking) }}" style="margin:0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                                 @csrf
-                                <input class="cute-input" name="reason" required maxlength="250" placeholder="เหตุผลที่ตีกลับ" style="width:280px;">
-                                <button class="btn-secondary" type="submit" style="border-color:#fca5a5;color:#b42318;" onclick="return confirm('ตีกลับให้ Staff เพิ่มรูปและส่งใหม่?')">
+                                <input class="cute-input" name="reason" required maxlength="250" placeholder="เหตุผลที่ตีกลับรูป LOT" style="width:280px;">
+                                <button class="btn-secondary" type="submit" style="border-color:#fca5a5;color:#b42318;" onclick="return confirm('ตีกลับรูป LOT ให้สตาฟส่งใหม่?')">
                                     <i class="fa-solid fa-rotate-left"></i> ตีกลับ
                                 </button>
                             </form>
                         </div>
+                        @elseif ($lotRejection)
+                            <div style="padding:12px 14px;border-radius:14px;background:#fff1f1;color:#b42318;font-weight:700;">
+                                เหตุผลที่ตีกลับ: {{ str($lotRejection)->after('ตีกลับรูป LOT โดยแอดมิน:')->trim() }}
+                            </div>
+                        @elseif ($isLotApproved)
+                            <div style="color:#1E7E34;font-weight:700;">รูป LOT ผ่านแล้ว สตาฟสามารถแนบรูปงานติดตั้งได้</div>
+                        @endif
                     </div>
-                @elseif ($reviewRejection)
-                    <div style="margin-top:18px;padding:12px 14px;border-radius:14px;background:#fff1f1;color:#b42318;font-weight:700;">
-                        เหตุผลที่ตีกลับ: {{ str($reviewRejection)->after('ตีกลับโดยแอดมิน:')->trim() }}
+
+                    <div style="padding:16px;border:2px solid var(--border-cute);border-radius:16px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+                            <strong><i class="fa-solid fa-screwdriver-wrench"></i> ขั้นที่ 2: ตรวจและอนุมัติรูปงานติดตั้ง</strong>
+                            @if (!$isLotApproved)
+                                <span class="status-badge status-pending">ล็อกอยู่</span>
+                            @elseif ($isWorkReviewPending)
+                                <span class="status-badge status-pending_admin">รอตรวจสอบ</span>
+                            @elseif ($isWorkApproved)
+                                <span class="status-badge status-completed">อนุมัติแล้ว</span>
+                            @elseif ($workRejection)
+                                <span class="status-badge status-problem">ตีกลับแล้ว</span>
+                            @else
+                                <span class="status-badge status-pending">รอสตาฟส่งรูป</span>
+                            @endif
+                        </div>
+                        @if (!$isLotApproved)
+                            <div style="color:var(--text-muted);font-weight:700;"><i class="fa-solid fa-lock"></i> ต้องอนุมัติรูป LOT ก่อนจึงจะส่งรูปงานติดตั้งได้</div>
+                        @elseif ($isWorkReviewPending)
+                            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                                <form method="POST" action="{{ route('admin.bookings.work_review.approve', $booking) }}" style="margin:0;">
+                                    @csrf
+                                    <button class="btn-primary" type="submit" onclick="return confirm('อนุมัติรูปงานติดตั้งและแสดงให้ลูกค้าเห็น?')">
+                                        <i class="fa-solid fa-circle-check"></i> อนุมัติรูปงานติดตั้ง
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ route('admin.bookings.work_review.reject', $booking) }}" style="margin:0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                                    @csrf
+                                    <input class="cute-input" name="reason" required maxlength="250" placeholder="เหตุผลที่ตีกลับรูปงาน" style="width:280px;">
+                                    <button class="btn-secondary" type="submit" style="border-color:#fca5a5;color:#b42318;" onclick="return confirm('ตีกลับรูปงานให้สตาฟส่งใหม่?')">
+                                        <i class="fa-solid fa-rotate-left"></i> ตีกลับ
+                                    </button>
+                                </form>
+                            </div>
+                        @elseif ($workRejection)
+                            <div style="padding:12px 14px;border-radius:14px;background:#fff1f1;color:#b42318;font-weight:700;">
+                                เหตุผลที่ตีกลับ: {{ str($workRejection)->after('ตีกลับรูปงานโดยแอดมิน:')->trim() }}
+                            </div>
+                        @elseif ($isWorkApproved)
+                            <div style="color:#1E7E34;font-weight:700;">อนุมัติรูปงานติดตั้งแล้ว และแสดงรูปให้ลูกค้าแล้ว</div>
+                        @endif
                     </div>
-                @endif
+                </div>
             </div>
         </div>
 

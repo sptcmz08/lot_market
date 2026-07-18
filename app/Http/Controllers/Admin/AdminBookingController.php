@@ -27,7 +27,12 @@ class AdminBookingController extends Controller
 
         if ($request->filled('status')) {
             if ($request->status === 'photo_review') {
-                $query->whereHas('deliveryTasks', fn ($tasks) => $tasks->where('status', 'photo_uploaded'));
+                $query->where(function ($review) {
+                    $review->whereHas('deliveryTasks', fn ($tasks) => $tasks->where('status', 'photo_uploaded'))
+                        ->orWhereHas('deliveryTasks.photos', fn ($photos) => $photos
+                            ->where('photo_type', 'lot_number')
+                            ->where('ocr_status', 'submitted'));
+                });
             } else {
                 $query->where('status', $request->status);
             }

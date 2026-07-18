@@ -67,9 +67,10 @@ class StaffMultipleAfterPhotoUploadTest extends TestCase
 
         $page = $this->actingAs($staff)->get(route('staff.tasks.show', $task));
 
-        $page->assertOk()
-            ->assertSee('มีรูปหลังติดตั้งแล้ว 2 รูป')
-            ->assertSee('เพิ่มรูปหลังติดตั้ง')
+        $page->assertRedirect(route('staff.bookings.camera', $booking));
+        $this->actingAs($staff)->get(route('staff.bookings.camera', $booking))
+            ->assertOk()
+            ->assertSee('รูปที่เพิ่มแล้ว')
             ->assertSee('name="photos[]"', false)
             ->assertSee('multiple', false);
     }

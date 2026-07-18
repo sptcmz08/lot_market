@@ -138,13 +138,16 @@
                 @forelse ($bookings as $booking)
                     @php
                         $taskPhotos = $booking->deliveryTasks->flatMap->photos;
-                        $isPhotoReviewPending = $booking->deliveryTasks->contains('status', 'photo_uploaded');
+                        $isLotReviewPending = $taskPhotos->where('photo_type', 'lot_number')->contains('ocr_status', 'submitted');
+                        $isWorkReviewPending = $booking->deliveryTasks->contains('status', 'photo_uploaded');
+                        $isPhotoReviewPending = $isLotReviewPending || $isWorkReviewPending;
                         $isPhotoRejected = $booking->deliveryTasks->pluck('problem_note')
-                            ->filter(fn ($note) => str_starts_with((string) $note, 'ตีกลับโดยแอดมิน:'))
+                            ->filter(fn ($note) => str_starts_with((string) $note, 'ตีกลับรูป'))
                             ->isNotEmpty();
+                        $isLotApproved = $taskPhotos->where('photo_type', 'lot_number')->contains('ocr_status', 'approved');
                         $hasDraftPhotos = !$isPhotoReviewPending
                             && $booking->status !== 'completed'
-                            && $taskPhotos->whereIn('photo_type', ['lot_number', 'after'])->isNotEmpty();
+                            && $taskPhotos->where('photo_type', 'after')->isNotEmpty();
                     @endphp
                     <tr>
                         <td>
@@ -183,12 +186,16 @@
                             @endif
                         </td>
                         <td>
-                            @if ($isPhotoReviewPending)
-                                <span class="status-badge status-pending_admin"><i class="fa-solid fa-camera"></i> ส่งรูปแล้ว / รอตรวจ</span>
+                            @if ($isWorkReviewPending)
+                                <span class="status-badge status-pending_admin"><i class="fa-solid fa-camera"></i> รูปงานรอตรวจ</span>
+                            @elseif ($isLotReviewPending)
+                                <span class="status-badge status-pending_admin"><i class="fa-solid fa-map-pin"></i> รูป LOT รอตรวจ</span>
                             @elseif ($isPhotoRejected)
                                 <span class="status-badge status-problem"><i class="fa-solid fa-rotate-left"></i> ตีกลับ / รอส่งใหม่</span>
                             @elseif ($hasDraftPhotos)
-                                <span class="status-badge status-installing"><i class="fa-solid fa-images"></i> เพิ่มรูปแล้ว / ยังไม่ส่ง</span>
+                                <span class="status-badge status-installing"><i class="fa-solid fa-images"></i> LOT ผ่าน / รูปงานยังไม่ส่ง</span>
+                            @elseif ($isLotApproved)
+                                <span class="status-badge status-confirmed"><i class="fa-solid fa-circle-check"></i> LOT ผ่าน / รอรูปงาน</span>
                             @else
                                 @php
                                     $statusClass = 'status-' . $booking->status;
@@ -209,7 +216,7 @@
                         <td>
                             <div style="display: flex; gap: 5px; flex-wrap: wrap;">
                                 <a href="{{ route('admin.bookings.show', $booking) }}{{ $isPhotoReviewPending ? '#installation-review' : '' }}" class="{{ $isPhotoReviewPending ? 'btn-primary' : 'btn-secondary' }}" style="padding: 6px 12px; font-size: 13px; border-radius: 10px;" title="{{ $isPhotoReviewPending ? 'เปิดตรวจและอนุมัติรูป' : 'เปิดดูรายละเอียด' }}">
-                                    <i class="fa-solid {{ $isPhotoReviewPending ? 'fa-camera-retro' : 'fa-eye' }}"></i> {{ $isPhotoReviewPending ? 'ตรวจรูป' : 'ดูรายละเอียด' }}
+                                    <i class="fa-solid {{ $isPhotoReviewPending ? 'fa-camera-retro' : 'fa-eye' }}"></i> {{ $isWorkReviewPending ? 'ตรวจรูปงาน' : ($isLotReviewPending ? 'ตรวจรูป LOT' : 'ดูรายละเอียด') }}
                                 </a>
                                 @if (!$booking->collect_front_store && !$booking->payment_slip_path)
                                     <form action="{{ route('admin.bookings.payment_slip', $booking) }}" method="POST" enctype="multipart/form-data" style="margin:0;">

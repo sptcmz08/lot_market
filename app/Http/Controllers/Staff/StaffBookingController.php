@@ -68,6 +68,15 @@ class StaffBookingController extends Controller
             'photos.required_without' => 'กรุณาถ่ายรูปหรือเลือกรูปอย่างน้อย 1 รูป',
         ]);
 
+        $lotPhotos = $booking->deliveryTasks->flatMap->photos->where('photo_type', 'lot_number');
+        if ($validated['photo_type'] === 'after') {
+            abort_unless($lotPhotos->contains('ocr_status', 'approved'), 403, 'ต้องรอแอดมินอนุมัติรูป LOT ก่อนแนบรูปงานติดตั้ง');
+        }
+        if ($validated['photo_type'] === 'lot_number') {
+            abort_if($lotPhotos->contains('ocr_status', 'submitted'), 403, 'รูป LOT ถูกส่งแล้วและกำลังรอแอดมินอนุมัติ');
+            abort_if($lotPhotos->contains('ocr_status', 'approved'), 403, 'รูป LOT ได้รับการอนุมัติแล้ว');
+        }
+
         $files = collect($request->file('photos', []));
         if ($request->hasFile('camera_photo')) {
             $files->prepend($request->file('camera_photo'));
@@ -94,14 +103,20 @@ class StaffBookingController extends Controller
         return back()->with('success', 'เพิ่มรูปเรียบร้อยแล้ว '.$files->count().' รูป สามารถเพิ่มรูปต่อหรือกดส่งได้');
     }
 
-    public function submit(Booking $booking)
+    public function submitLot(Booking $booking)
     {
         $booking->load('deliveryTasks.photos');
         $this->ensurePhotoAccess($booking);
 
-        $photos = $booking->deliveryTasks->flatMap->photos;
-        if (! $photos->contains('photo_type', 'lot_number') || ! $photos->contains('photo_type', 'after')) {
-            return back()->with('error', 'กรุณาเพิ่มรูปเลข LOT และรูปหลังติดตั้งอย่างน้อยประเภทละ 1 รูปก่อนส่ง');
+        $lotPhotos = $booking->deliveryTasks->flatMap->photos->where('photo_type', 'lot_number');
+        if ($lotPhotos->contains('ocr_status', 'approved')) {
+            return back()->with('error', 'รูป LOT ได้รับการอนุมัติแล้ว');
+        }
+        if ($lotPhotos->contains('ocr_status', 'submitted')) {
+            return back()->with('error', 'รูป LOT ถูกส่งแล้ว กรุณารอแอดมินอนุมัติ');
+        }
+        if ($lotPhotos->isEmpty()) {
+            return back()->with('error', 'กรุณาถ่ายหรือแนบรูปเลข LOT อย่างน้อย 1 รูปก่อนส่ง');
         }
 
         DB::transaction(function () use ($booking) {
@@ -110,6 +125,32 @@ class StaffBookingController extends Controller
                 ->where('ocr_status', '!=', 'approved')
                 ->update(['ocr_status' => 'submitted']);
 
+            foreach ($booking->deliveryTasks as $task) {
+                if (str_starts_with((string) $task->problem_note, 'ตีกลับรูป LOT โดยแอดมิน:')) {
+                    $task->update(['problem_note' => null]);
+                }
+            }
+
+            StatusLogService::log(Booking::class, $booking->id, $booking->status, $booking->status, auth()->id(), 'Staff ส่งรูป LOT แล้ว รอแอดมินอนุมัติ');
+        });
+
+        return redirect()->route('staff.bookings.index')->with('success', 'ส่งรูป LOT เรียบร้อยแล้ว กรุณารอแอดมินอนุมัติก่อนแนบรูปงานติดตั้ง');
+    }
+
+    public function submitWork(Booking $booking)
+    {
+        $booking->load('deliveryTasks.photos');
+        $this->ensurePhotoAccess($booking);
+
+        $photos = $booking->deliveryTasks->flatMap->photos;
+        if (! $photos->where('photo_type', 'lot_number')->contains('ocr_status', 'approved')) {
+            return back()->with('error', 'ต้องรอแอดมินอนุมัติรูป LOT ก่อนส่งรูปงานติดตั้ง');
+        }
+        if (! $photos->contains('photo_type', 'after')) {
+            return back()->with('error', 'กรุณาถ่ายหรือแนบรูปงานติดตั้งอย่างน้อย 1 รูปก่อนส่ง');
+        }
+
+        DB::transaction(function () use ($booking) {
             foreach ($booking->deliveryTasks as $task) {
                 if ($task->status === 'completed') {
                     continue;
@@ -121,7 +162,7 @@ class StaffBookingController extends Controller
                     'started_at' => $task->started_at ?: now(),
                     'problem_note' => null,
                 ]);
-                StatusLogService::log(DeliveryTask::class, $task->id, $oldStatus, 'photo_uploaded', auth()->id(), 'พนักงานส่งรูปงานให้แอดมินตรวจสอบ');
+                StatusLogService::log(DeliveryTask::class, $task->id, $oldStatus, 'photo_uploaded', auth()->id(), 'Staff ส่งรูปงานติดตั้งให้แอดมินตรวจสอบ');
             }
 
             $oldBookingStatus = $booking->status;
@@ -129,7 +170,7 @@ class StaffBookingController extends Controller
             StatusLogService::log(Booking::class, $booking->id, $oldBookingStatus, $newBookingStatus, auth()->id(), 'ส่งรูปงานแล้ว รอแอดมินอนุมัติ');
         });
 
-        return redirect()->route('staff.bookings.index')->with('success', 'ส่งรูปเรียบร้อยแล้ว กรุณารอแอดมินอนุมัติ');
+        return redirect()->route('staff.bookings.index')->with('success', 'ส่งรูปงานติดตั้งเรียบร้อยแล้ว กรุณารอแอดมินอนุมัติ');
     }
 
     private function ensurePhotoAccess(Booking $booking): void

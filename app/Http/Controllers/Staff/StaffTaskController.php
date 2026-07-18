@@ -27,14 +27,7 @@ class StaffTaskController extends Controller
 
     public function show(DeliveryTask $task)
     {
-        // Enforce ownership
-        if ($task->staff_id !== auth()->id() && auth()->user()->role !== 'admin') {
-            abort(403, 'Unauthorized access to this task.');
-        }
-
-        $task->load(['booking.lots', 'photos']);
-
-        return view('staff.task-show', compact('task'));
+        return redirect()->route('staff.bookings.camera', $task->booking_id);
     }
 
     public function start(DeliveryTask $task)
@@ -74,7 +67,7 @@ class StaffTaskController extends Controller
         $validated = $request->validate([
             'photo_type' => 'required|in:lot_number,before,after,problem',
             'photo' => 'nullable|required_without:photos|image',
-            'photos' => 'nullable|required_without:photo|array|min:1|max:10',
+            'photos' => 'nullable|required_without:photo|array|min:1',
             'photos.*' => 'required|image',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
@@ -82,8 +75,17 @@ class StaffTaskController extends Controller
         ], [
             'photo.required_without' => 'กรุณาเลือกรูปภาพ',
             'photos.required_without' => 'กรุณาเลือกรูปภาพ',
-            'photos.max' => 'อัปโหลดรูปได้ครั้งละไม่เกิน 10 รูป',
         ]);
+
+        $task->load('booking.deliveryTasks.photos');
+        $lotPhotos = $task->booking->deliveryTasks->flatMap->photos->where('photo_type', 'lot_number');
+        if ($validated['photo_type'] === 'after') {
+            abort_unless($lotPhotos->contains('ocr_status', 'approved'), 403, 'ต้องรอแอดมินอนุมัติรูป LOT ก่อนแนบรูปงานติดตั้ง');
+        }
+        if ($validated['photo_type'] === 'lot_number') {
+            abort_if($lotPhotos->contains('ocr_status', 'submitted'), 403, 'รูป LOT ถูกส่งแล้วและกำลังรอแอดมินอนุมัติ');
+            abort_if($lotPhotos->contains('ocr_status', 'approved'), 403, 'รูป LOT ได้รับการอนุมัติแล้ว');
+        }
 
         $files = $request->hasFile('photos')
             ? $request->file('photos')
@@ -101,12 +103,12 @@ class StaffTaskController extends Controller
                 'taken_at' => now(),
                 'uploaded_by' => auth()->id(),
                 'note' => $validated['note'] ?? null,
-                'ocr_status' => $validated['photo_type'] === 'lot_number' ? 'pending_review' : null,
+                'ocr_status' => $validated['photo_type'] === 'lot_number' ? 'draft' : null,
             ]);
         }
 
         if ($validated['photo_type'] === 'lot_number') {
-            return back()->with('success', 'อัปโหลดรูปเลขล็อตสำเร็จแล้ว รอแอดมินตรวจสอบยืนยัน');
+            return back()->with('success', 'เพิ่มรูปเลข LOT แล้ว กรุณากดส่งรูป LOT ให้แอดมินตรวจสอบ');
         }
 
         return back()->with('success', 'อัปโหลดรูปหลังติดตั้งสำเร็จ ' . count($files) . ' รูป สามารถเพิ่มรูปหรือกดส่งงานได้');
