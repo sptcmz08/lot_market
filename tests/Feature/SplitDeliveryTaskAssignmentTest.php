@@ -26,7 +26,9 @@ class SplitDeliveryTaskAssignmentTest extends TestCase
             'customer_phone' => '0811111111',
             'tent_size' => '2x2',
             'tent_color' => 'ขาว',
+            'tent_quantity' => 3,
             'counter_size' => '2 ล็อค 140x75 cm.',
+            'counter_quantity' => 2,
             'collect_front_store' => true,
             'status' => 'pending_admin',
         ]);
@@ -66,8 +68,13 @@ class SplitDeliveryTaskAssignmentTest extends TestCase
         $bookingList = $this->actingAs($tentStaff)->get(route('staff.bookings.index'));
         $bookingList->assertOk()
             ->assertSee('ร้านแบ่งงาน')
+            ->assertSee('เต็นท์')
+            ->assertSee('เคาน์เตอร์')
+            ->assertSee('อื่น ๆ')
             ->assertSee('เต็นท์ 2x2 สีขาว')
-            ->assertSee('เคาน์เตอร์ 2 ล็อค 140x75 cm.');
+            ->assertSee('3 หลัง')
+            ->assertSee('เคาน์เตอร์ 2 ล็อค 140x75 cm.')
+            ->assertSee('2 ชุด');
 
         $counterList = $this->actingAs($counterStaff)->get(route('staff.bookings.index'));
         $counterList->assertOk()->assertSee('ร้านแบ่งงาน');
