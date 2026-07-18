@@ -76,10 +76,13 @@ class SplitDeliveryTaskAssignmentTest extends TestCase
             ->assertSee('คนส่งอุปกรณ์');
 
         $tentTasks = $this->actingAs($tentStaff)->get(route('staff.tasks.index'));
-        $tentTasks->assertOk()
-            ->assertSee('งานเต็นท์')
+        $tentTasks->assertRedirect(route('staff.bookings.index'));
+
+        $bookingList = $this->actingAs($tentStaff)->get(route('staff.bookings.index'));
+        $bookingList->assertOk()
+            ->assertSee('ร้านแบ่งงาน')
             ->assertSee('เต็นท์ 2x2 สีขาว')
-            ->assertDontSee('งานเคาน์เตอร์');
+            ->assertSee('เคาน์เตอร์ 2 ล็อค 140x75 cm.');
 
         $tentTask = $booking->deliveryTasks()->where('task_type', 'tent')->firstOrFail();
         $lotPhoto = DeliveryPhoto::create([

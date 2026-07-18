@@ -22,15 +22,7 @@ class StaffTaskController extends Controller
 
     public function index()
     {
-        $today = now()->format('Y-m-d');
-        $staffId = auth()->id();
-
-        $tasks = DeliveryTask::where('staff_id', $staffId)
-            ->whereDate('task_date', $today)
-            ->with(['booking.lots'])
-            ->get();
-
-        return view('staff.tasks-index', compact('tasks', 'today'));
+        return redirect()->route('staff.bookings.index');
     }
 
     public function show(DeliveryTask $task)
