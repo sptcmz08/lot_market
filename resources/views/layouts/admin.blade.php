@@ -419,11 +419,6 @@
                 </a>
             </li>
             <li>
-                <a href="{{ route('admin.installation_reviews.index') }}" class="sidebar-link {{ Route::is('admin.installation_reviews.*') ? 'active' : '' }}">
-                    <i class="fa-solid fa-images"></i> อนุมัติรูปส่งงาน
-                </a>
-            </li>
-            <li>
                 <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ Route::is('admin.users.*') ? 'active' : '' }}">
                     <i class="fa-solid fa-users-cog"></i> ผู้ใช้งานพนักงาน
                 </a>

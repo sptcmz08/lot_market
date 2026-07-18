@@ -78,7 +78,7 @@ class AdminBookingController extends Controller
 
     public function show(Booking $booking)
     {
-        $booking->load(['lots', 'deliveryTasks.photos']);
+        $booking->load(['lots', 'deliveryTasks.photos.uploadedBy']);
         
         // Fetch status logs
         $logs = \App\Models\StatusLog::where('loggable_type', Booking::class)

@@ -159,15 +159,34 @@
                 @endif
             </div>
 
-            <!-- Installation Photos -->
-            <div class="cute-card">
-                <h3 class="cute-card-title">
-                    <i class="fa-solid fa-camera-retro"></i> ภาพถ่ายตรวจสอบหน้างาน
-                </h3>
+            <!-- Installation Photos and review actions -->
+            @php
+                $allTaskPhotos = $booking->deliveryTasks->flatMap->photos;
+                $submittedPhotos = $allTaskPhotos->whereIn('photo_type', ['lot_number', 'after']);
+                $isReviewPending = $booking->deliveryTasks->contains('status', 'photo_uploaded');
+                $isInstallationApproved = $booking->deliveryTasks->isNotEmpty()
+                    && $booking->deliveryTasks->every(fn ($task) => $task->status === 'completed');
+                $reviewRejection = $booking->deliveryTasks->pluck('problem_note')
+                    ->filter(fn ($note) => str_starts_with((string) $note, 'ตีกลับโดยแอดมิน:'))
+                    ->first();
+            @endphp
+            <div class="cute-card" id="installation-review">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
+                    <h3 class="cute-card-title" style="margin:0;">
+                        <i class="fa-solid fa-camera-retro"></i> ภาพถ่ายและอนุมัติงานติดตั้ง
+                    </h3>
+                    @if ($isReviewPending)
+                        <span class="status-badge status-pending_admin"><i class="fa-solid fa-paper-plane"></i> ส่งแล้ว / รออนุมัติ</span>
+                    @elseif ($isInstallationApproved)
+                        <span class="status-badge status-completed"><i class="fa-solid fa-circle-check"></i> อนุมัติแล้ว</span>
+                    @elseif ($reviewRejection)
+                        <span class="status-badge status-problem"><i class="fa-solid fa-rotate-left"></i> ตีกลับ / รอส่งใหม่</span>
+                    @endif
+                </div>
                 
-                @if ($booking->deliveryTasks->flatMap->photos->isNotEmpty())
+                @if ($allTaskPhotos->isNotEmpty())
                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px;">
-                        @foreach ($booking->deliveryTasks->flatMap->photos as $photo)
+                        @foreach ($allTaskPhotos as $photo)
                             <div style="border: 2px solid var(--border-cute); border-radius: 18px; overflow: hidden; background-color: var(--bg-page); text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
                                 <button type="button" class="image-lightbox-trigger" data-lightbox-src="{{ route('media.show', ['path' => $photo->image_path]) }}" data-lightbox-alt="ภาพถ่ายยืนยัน" style="display:block;width:100%;">
                                     <img src="{{ route('media.show', ['path' => $photo->image_path]) }}" style="width: 100%; height: 140px; object-fit: cover; display: block;" alt="ภาพถ่ายยืนยัน">
@@ -181,10 +200,10 @@
                                         @endif
                                     </strong>
                                     @if($photo->photo_type === 'lot_number')
-                                        <small style="display:block;font-weight:800;color:@if($photo->ocr_status === 'approved') #1E7E34 @elseif($photo->ocr_status === 'pending_review') #856404 @else #D35400 @endif;">
+                                        <small style="display:block;font-weight:800;color:@if($photo->ocr_status === 'approved') #1E7E34 @elseif(in_array($photo->ocr_status, ['pending_review', 'submitted'], true)) #856404 @else #D35400 @endif;">
                                             ตรวจเลขล็อต:
                                             @if($photo->ocr_status === 'approved') ผ่าน
-                                            @elseif($photo->ocr_status === 'pending_review') รอตรวจ
+                                            @elseif(in_array($photo->ocr_status, ['pending_review', 'submitted'], true)) รออนุมัติ
                                             @elseif($photo->ocr_status === 'rejected') ไม่ผ่าน
                                             @else ยังไม่ตรวจ
                                             @endif
@@ -196,6 +215,9 @@
                                     @if($photo->taken_at)
                                         <small style="color: var(--text-muted); font-size: 11px;">เวลา: {{ $photo->taken_at->format('H:i น.') }}</small>
                                     @endif
+                                    @if($photo->uploadedBy)
+                                        <small style="display:block;color:var(--text-muted);font-size:11px;">ส่งโดย: {{ $photo->uploadedBy->name }}</small>
+                                    @endif
                                 </div>
                             </div>
                         @endforeach
@@ -204,6 +226,31 @@
                     <div style="text-align: center; padding: 40px; color: var(--text-muted);">
                         <i class="fa-solid fa-image" style="font-size: 40px; color: var(--border-cute); margin-bottom: 10px; display: block;"></i>
                         พนักงานติดตั้งยังไม่ได้อัปโหลดภาพถ่ายการส่งงาน
+                    </div>
+                @endif
+
+                @if ($isReviewPending)
+                    <div style="margin-top:20px;padding-top:18px;border-top:2px dashed var(--border-cute);">
+                        <p style="margin:0 0 14px;color:var(--text-muted);font-size:13px;">ตรวจรูปเลข LOT และรูปหลังติดตั้งให้ครบก่อนอนุมัติ เมื่ออนุมัติแล้วรูปจะแสดงในหน้าลูกค้า</p>
+                        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                            <form method="POST" action="{{ route('admin.bookings.installation_review.approve', $booking) }}" style="margin:0;">
+                                @csrf
+                                <button class="btn-primary" type="submit" onclick="return confirm('อนุมัติรูปทั้งหมดและแสดงให้ลูกค้าเห็น?')">
+                                    <i class="fa-solid fa-circle-check"></i> อนุมัติรูปงาน
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ route('admin.bookings.installation_review.reject', $booking) }}" style="margin:0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                                @csrf
+                                <input class="cute-input" name="reason" required maxlength="250" placeholder="เหตุผลที่ตีกลับ" style="width:280px;">
+                                <button class="btn-secondary" type="submit" style="border-color:#fca5a5;color:#b42318;" onclick="return confirm('ตีกลับให้ Staff เพิ่มรูปและส่งใหม่?')">
+                                    <i class="fa-solid fa-rotate-left"></i> ตีกลับ
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @elseif ($reviewRejection)
+                    <div style="margin-top:18px;padding:12px 14px;border-radius:14px;background:#fff1f1;color:#b42318;font-weight:700;">
+                        เหตุผลที่ตีกลับ: {{ str($reviewRejection)->after('ตีกลับโดยแอดมิน:')->trim() }}
                     </div>
                 @endif
             </div>

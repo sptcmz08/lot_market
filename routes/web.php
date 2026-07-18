@@ -47,9 +47,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('/lots', AdminLotController::class)->except(['show']);
     Route::get('/map', [AdminMapController::class, 'index'])->name('map.index');
 
-    Route::get('/installation-reviews', [AdminInstallationReviewController::class, 'index'])->name('installation_reviews.index');
-    Route::post('/installation-reviews/{booking}/approve', [AdminInstallationReviewController::class, 'approve'])->name('installation_reviews.approve');
-    Route::post('/installation-reviews/{booking}/reject', [AdminInstallationReviewController::class, 'reject'])->name('installation_reviews.reject');
+    Route::post('/bookings/{booking}/installation-review/approve', [AdminInstallationReviewController::class, 'approve'])->name('bookings.installation_review.approve');
+    Route::post('/bookings/{booking}/installation-review/reject', [AdminInstallationReviewController::class, 'reject'])->name('bookings.installation_review.reject');
 
     Route::resource('/users', AdminUserController::class)->except(['show']);
     Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');

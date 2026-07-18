@@ -61,10 +61,13 @@ class StaffBookingPhotoSubmissionTest extends TestCase
         $this->assertSame('photo_uploaded', $task->fresh()->status);
 
         $this->actingAs($staff)->get(route('staff.bookings.camera', $booking))->assertForbidden();
-        $this->actingAs($admin)->get(route('admin.installation_reviews.index'))
-            ->assertOk()->assertSee('BKSTAFFPHOTO001')->assertSee('2');
+        $this->actingAs($admin)->get(route('admin.bookings.show', $booking))
+            ->assertOk()
+            ->assertSee('ภาพถ่ายและอนุมัติงานติดตั้ง')
+            ->assertSee('อนุมัติรูปงาน')
+            ->assertSee(route('admin.bookings.installation_review.approve', $booking), false);
 
-        $this->actingAs($admin)->post(route('admin.installation_reviews.approve', $booking))
+        $this->actingAs($admin)->post(route('admin.bookings.installation_review.approve', $booking))
             ->assertRedirect()->assertSessionHas('success');
         $this->assertSame('completed', $task->fresh()->status);
         $this->assertSame('completed', $booking->fresh()->status);

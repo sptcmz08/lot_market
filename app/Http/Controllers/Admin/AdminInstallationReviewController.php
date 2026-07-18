@@ -12,16 +12,6 @@ use Illuminate\Support\Facades\DB;
 
 class AdminInstallationReviewController extends Controller
 {
-    public function index()
-    {
-        $bookings = Booking::whereHas('deliveryTasks', fn ($tasks) => $tasks->where('status', 'photo_uploaded'))
-            ->with(['lots', 'deliveryTasks.photos.uploadedBy'])
-            ->orderByDesc('use_date')
-            ->paginate(15);
-
-        return view('admin.installation-reviews.index', compact('bookings'));
-    }
-
     public function approve(Booking $booking)
     {
         $booking->load('deliveryTasks.photos');

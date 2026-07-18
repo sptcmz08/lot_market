@@ -76,7 +76,7 @@ class SplitDeliveryTaskAssignmentTest extends TestCase
         $dashboard->assertOk()
             ->assertDontSee('งานจัดส่งพนักงาน')
             ->assertDontSee('ตรวจรูปเลขล็อต')
-            ->assertSee('อนุมัติรูปส่งงาน');
+            ->assertDontSee('อนุมัติรูปส่งงาน');
     }
 
     public function test_booking_completes_only_after_every_split_task_is_completed(): void

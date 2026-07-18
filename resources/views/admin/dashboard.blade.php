@@ -465,7 +465,7 @@
                                 <td>
                                     <div class="workflow-approve-list">
                                         @if ($isSubmitted)
-                                            <a href="{{ route('admin.installation_reviews.index') }}" class="workflow-approve-button" style="text-decoration:none;text-align:center;">
+                                            <a href="{{ route('admin.bookings.show', $booking) }}#installation-review" class="workflow-approve-button" style="text-decoration:none;text-align:center;">
                                                 <i class="fa-solid fa-images"></i> ตรวจและอนุมัติ
                                             </a>
                                         @elseif ($isCompleted)
