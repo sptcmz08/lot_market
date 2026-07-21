@@ -23,55 +23,171 @@
     @if($errors->any())<div class="alert-cute alert-danger"><i class="fa-solid fa-circle-exclamation"></i>{{ $errors->first() }}</div>@endif
     <div class="camera-grid">
         <div class="upload-stack">
-            @foreach(['lot_number' => ['รูปเลข LOT', 'ถ่ายให้เห็นเลขแผงชัดเจน', 'panel-lot'], 'after' => ['รูปหลังติดตั้ง', 'ถ่ายภาพงานที่ติดตั้งเสร็จแล้ว', 'panel-after']] as $type => [$title, $description, $class])
-                @if ($type === 'lot_number' && $lotApproved)
-                    <div class="panel {{ $class }}" style="text-align:center;">
-                        <i class="fa-solid fa-circle-check" style="font-size:38px;color:#14833b;"></i>
-                        <h2 style="font-size:18px;margin:10px 0 4px;">รูปเลข LOT อนุมัติแล้ว</h2>
-                        <p style="margin:0;color:var(--text-muted);font-size:13px;">สามารถถ่ายและแนบรูปงานติดตั้งได้แล้ว</p>
-                    </div>
-                @elseif ($type === 'lot_number' && $lotSubmitted)
-                    <div class="panel {{ $class }}" style="text-align:center;">
-                        <i class="fa-solid fa-hourglass-half" style="font-size:38px;color:#8a6500;"></i>
-                        <h2 style="font-size:18px;margin:10px 0 4px;">ส่งรูป LOT แล้ว</h2>
-                        <p style="margin:0;color:var(--text-muted);font-size:13px;">กำลังรอ Admin อนุมัติ จึงยังแนบรูปงานติดตั้งไม่ได้</p>
-                    </div>
-                @elseif ($type === 'after' && !$lotApproved)
-                    <div class="panel {{ $class }}" style="text-align:center;opacity:.72;">
-                        <i class="fa-solid fa-lock" style="font-size:38px;color:var(--text-muted);"></i>
-                        <h2 style="font-size:18px;margin:10px 0 4px;">รูปงานติดตั้งยังถูกล็อก</h2>
-                        <p style="margin:0;color:var(--text-muted);font-size:13px;">ต้องให้ Admin อนุมัติรูปเลข LOT ก่อน</p>
-                    </div>
-                @else
-                    <form class="panel photo-upload-form {{ $class }}" method="POST" enctype="multipart/form-data" action="{{ route('staff.bookings.photos',$booking) }}">@csrf
-                    <input type="hidden" name="photo_type" value="{{ $type }}">
-                    <h2 style="font-size:18px;margin:0">{{ $title }}</h2><p style="color:var(--text-muted);font-size:13px;margin:5px 0 0">{{ $description }} แนบหลายรูปและเพิ่มซ้ำได้</p>
+            <!-- Lot Number Upload Section -->
+            @if ($lotApproved)
+                <div class="panel panel-lot" style="text-align:center;">
+                    <i class="fa-solid fa-circle-check" style="font-size:38px;color:#14833b;"></i>
+                    <h2 style="font-size:18px;margin:10px 0 4px;">รูปเลข LOT อนุมัติแล้ว</h2>
+                    <p style="margin:0;color:var(--text-muted);font-size:13px;">สามารถถ่ายและแนบรูปงานติดตั้งได้แล้ว</p>
+                </div>
+            @elseif ($lotSubmitted)
+                <div class="panel panel-lot" style="text-align:center;">
+                    <i class="fa-solid fa-hourglass-half" style="font-size:38px;color:#8a6500;"></i>
+                    <h2 style="font-size:18px;margin:10px 0 4px;">ส่งรูป LOT แล้ว</h2>
+                    <p style="margin:0;color:var(--text-muted);font-size:13px;">กำลังรอ Admin อนุมัติ จึงยังแนบรูปงานติดตั้งไม่ได้</p>
+                </div>
+            @else
+                <form class="panel photo-upload-form panel-lot" method="POST" enctype="multipart/form-data" action="{{ route('staff.bookings.photos', $booking) }}">
+                    @csrf
+                    <input type="hidden" name="photo_type" value="lot_number">
+                    <h2 style="font-size:18px;margin:0">รูปเลข LOT</h2>
+                    <p style="color:var(--text-muted);font-size:13px;margin:5px 0 0">ถ่ายให้เห็นเลขแผงชัดเจน แนบหลายรูปและเพิ่มซ้ำได้</p>
                     <div class="upload-choice">
                         <button class="pick" type="button" data-camera-trigger><i class="fa-solid fa-camera"></i>ถ่ายรูป</button>
-                        <input class="file-input camera-input" type="file" id="camera_{{ $type }}" name="camera_photo" accept="image/*" capture="environment">
+                        <input class="file-input camera-input" type="file" id="camera_lot_number" name="camera_photo" accept="image/*">
                         <button class="pick" type="button" data-gallery-trigger><i class="fa-solid fa-images"></i>แนบรูป</button>
-                        <input class="file-input gallery-input" type="file" id="gallery_{{ $type }}" name="photos[]" accept="image/*" multiple>
+                        <input class="file-input gallery-input" type="file" id="gallery_lot_number" name="photos[]" accept="image/*" multiple>
                     </div>
                     <div class="selection" style="font-size:13px;color:var(--text-muted);margin-bottom:12px">ยังไม่ได้เลือกรูป</div>
-                    <button class="btn-large {{ $type === 'lot_number' ? 'btn-large-primary' : 'btn-large-success' }}" type="submit"><i class="fa-solid fa-plus"></i> เพิ่ม{{ $title }}</button>
+                    <button class="btn-large btn-large-primary" type="submit"><i class="fa-solid fa-plus"></i> เพิ่มรูปเลข LOT</button>
+                </form>
+            @endif
+
+            <!-- Work/After Upload Sections for each task -->
+            @foreach($booking->deliveryTasks as $task)
+                @php
+                    $taskFinished = $task->status === 'completed';
+                    $taskSubmitted = $task->status === 'photo_uploaded';
+                @endphp
+                @if (!$lotApproved)
+                    <div class="panel panel-after" style="text-align:center;opacity:.72;border-top-color:#bbb;">
+                        <i class="fa-solid fa-lock" style="font-size:38px;color:var(--text-muted);"></i>
+                        <h2 style="font-size:18px;margin:10px 0 4px;">รูปงานติดตั้ง ({{ $task->typeLabel() }}) ยังถูกล็อก</h2>
+                        <p style="margin:0;color:var(--text-muted);font-size:13px;">ต้องให้ Admin อนุมัติรูปเลข LOT ก่อน</p>
+                    </div>
+                @elseif ($taskFinished)
+                    <div class="panel panel-after" style="text-align:center;border-top-color:#28a745;">
+                        <i class="fa-solid fa-circle-check" style="font-size:38px;color:#28a745;"></i>
+                        <h2 style="font-size:18px;margin:10px 0 4px;">{{ $task->typeLabel() }} เสร็จสมบูรณ์แล้ว</h2>
+                        <p style="margin:0;color:var(--text-muted);font-size:13px;">Admin อนุมัติงานติดตั้งนี้เรียบร้อยแล้ว</p>
+                    </div>
+                @elseif ($taskSubmitted)
+                    <div class="panel panel-after" style="text-align:center;border-top-color:#6f42c1;">
+                        <i class="fa-solid fa-hourglass-half" style="font-size:38px;color:#6f42c1;"></i>
+                        <h2 style="font-size:18px;margin:10px 0 4px;">{{ $task->typeLabel() }} รออนุมัติ</h2>
+                        <p style="margin:0;color:var(--text-muted);font-size:13px;">ส่งงานติดตั้งนี้ให้ Admin ตรวจสอบแล้ว</p>
+                    </div>
+                @else
+                    <form class="panel photo-upload-form panel-after" method="POST" enctype="multipart/form-data" action="{{ route('staff.bookings.photos', [$booking, $task]) }}">
+                        @csrf
+                        <input type="hidden" name="photo_type" value="after">
+                        <h2 style="font-size:18px;margin:0">รูปหลังติดตั้ง ({{ $task->typeLabel() }})</h2>
+                        <p style="color:var(--text-muted);font-size:13px;margin:5px 0 0">ถ่ายภาพงานที่ติดตั้งเสร็จแล้ว แนบหลายรูปและเพิ่มซ้ำได้</p>
+                        <div class="upload-choice">
+                            <button class="pick" type="button" data-camera-trigger><i class="fa-solid fa-camera"></i>ถ่ายรูป</button>
+                            <input class="file-input camera-input" type="file" id="camera_after_{{ $task->id }}" name="camera_photo" accept="image/*">
+                            <button class="pick" type="button" data-gallery-trigger><i class="fa-solid fa-images"></i>แนบรูป</button>
+                            <input class="file-input gallery-input" type="file" id="gallery_after_{{ $task->id }}" name="photos[]" accept="image/*" multiple>
+                        </div>
+                        <div class="selection" style="font-size:13px;color:var(--text-muted);margin-bottom:12px">ยังไม่ได้เลือกรูป</div>
+                        <button class="btn-large btn-large-success" type="submit"><i class="fa-solid fa-plus"></i> เพิ่มรูปงาน{{ $task->typeLabel() }}</button>
                     </form>
                 @endif
             @endforeach
         </div>
         <div class="panel">
-            <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:14px"><h2 style="font-size:18px;margin:0">รูปที่เพิ่มแล้ว</h2><strong>{{ $photos->whereIn('photo_type',['lot_number','after'])->count() }} รูป</strong></div>
-            @foreach([['รูปเลข LOT',$lotPhotos],['รูปหลังติดตั้ง',$afterPhotos]] as [$title,$group])
-                <div class="thumb-section"><div style="display:flex;justify-content:space-between;margin-bottom:10px"><strong>{{ $title }}</strong><small>{{ $group->count() }} รูป</small></div>
-                    @if($group->isEmpty())<div style="padding:22px 10px;text-align:center;color:var(--text-muted);background:var(--bg-page);border-radius:14px">ยังไม่มีรูป</div>@else<div class="thumbs">@foreach($group as $photo)<button type="button" class="thumb image-lightbox-trigger" data-lightbox-src="{{ route('media.show',['path'=>$photo->image_path]) }}"><img src="{{ route('media.show',['path'=>$photo->image_path]) }}" alt="{{ $title }}"><span>{{ $title }}</span></button>@endforeach</div>@endif
+            <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:14px">
+                <h2 style="font-size:18px;margin:0">รูปที่เพิ่มแล้ว</h2>
+                <strong>{{ $photos->whereIn('photo_type',['lot_number','after'])->count() }} รูป</strong>
+            </div>
+
+            <!-- Lot Photos Group -->
+            <div class="thumb-section">
+                <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+                    <strong>รูปเลข LOT (ป้ายเลขแผง)</strong>
+                    <small>{{ $lotPhotos->count() }} รูป</small>
                 </div>
-            @endforeach
-            @if (!$lotApproved)
-                @if ($lotRejection)<div style="margin-top:18px;padding:11px;border-radius:12px;background:#ffe1e1;color:#b42318;font-weight:700;">เหตุผลที่ตีกลับ: {{ str($lotRejection)->after('ตีกลับรูป LOT โดยแอดมิน:')->trim() }}</div>@endif
-                <form method="POST" action="{{ route('staff.bookings.submit_lot',$booking) }}" style="margin-top:20px">@csrf<button class="btn-large btn-large-primary" type="submit" @disabled($lotPhotos->isEmpty() || $lotSubmitted) onclick="return confirm('ยืนยันส่งรูป LOT ให้ Admin ตรวจสอบ?')"><i class="fa-solid fa-paper-plane"></i> {{ $lotSubmitted ? 'ส่งรูป LOT แล้ว / รออนุมัติ' : 'ส่งรูป LOT ให้ Admin' }}</button></form>
-                @if($lotPhotos->isEmpty())<small style="display:block;text-align:center;color:var(--text-muted);margin-top:8px">ต้องเพิ่มรูปเลข LOT อย่างน้อย 1 รูปก่อนส่ง</small>@endif
-            @else
-                <form method="POST" action="{{ route('staff.bookings.submit_work',$booking) }}" style="margin-top:20px">@csrf<button class="btn-large btn-large-success" type="submit" @disabled($afterPhotos->isEmpty()) onclick="return confirm('ยืนยันส่งรูปงานติดตั้งให้ Admin ตรวจสอบ?')"><i class="fa-solid fa-paper-plane"></i> ส่งรูปงานติดตั้งให้ Admin</button></form>
-                @if($afterPhotos->isEmpty())<small style="display:block;text-align:center;color:var(--text-muted);margin-top:8px">รูป LOT ผ่านแล้ว กรุณาเพิ่มรูปงานติดตั้งอย่างน้อย 1 รูป</small>@endif
+                @if($lotPhotos->isEmpty())
+                    <div style="padding:22px 10px;text-align:center;color:var(--text-muted);background:var(--bg-page);border-radius:14px">ยังไม่มีรูป</div>
+                @else
+                    <div class="thumbs">
+                        @foreach($lotPhotos as $photo)
+                            <button type="button" class="thumb image-lightbox-trigger" data-lightbox-src="{{ route('media.show',['path'=>$photo->image_path]) }}">
+                                <img src="{{ route('media.show',['path'=>$photo->image_path]) }}" alt="รูปเลข LOT">
+                                <span>รูปเลข LOT</span>
+                            </button>
+                        @endforeach
+                    </div>
+                @endif
+                
+                @if (!$lotApproved)
+                    @if ($lotRejection)
+                        <div style="margin-top:10px;padding:11px;border-radius:12px;background:#ffe1e1;color:#b42318;font-weight:700;font-size:13px;">
+                            เหตุผลที่ตีกลับ: {{ str($lotRejection)->after('ตีกลับรูป LOT โดยแอดมิน:')->trim() }}
+                        </div>
+                    @endif
+                    <form method="POST" action="{{ route('staff.bookings.submit_lot',$booking) }}" style="margin-top:12px">
+                        @csrf
+                        <button class="btn-large btn-large-primary" type="submit" @disabled($lotPhotos->isEmpty() || $lotSubmitted) onclick="return confirm('ยืนยันส่งรูป LOT ให้ Admin ตรวจสอบ?')">
+                            <i class="fa-solid fa-paper-plane"></i> {{ $lotSubmitted ? 'ส่งรูป LOT แล้ว / รออนุมัติ' : 'ส่งรูป LOT ให้ Admin' }}
+                        </button>
+                    </form>
+                    @if($lotPhotos->isEmpty())
+                        <small style="display:block;text-align:center;color:var(--text-muted);margin-top:6px;font-size:12px;">ต้องเพิ่มรูปเลข LOT อย่างน้อย 1 รูปก่อนส่ง</small>
+                    @endif
+                @endif
+            </div>
+
+            <!-- After/Work Photos for each task -->
+            @if ($lotApproved)
+                @foreach($booking->deliveryTasks as $task)
+                    @php
+                        $taskAfterPhotos = $task->photos->where('photo_type', 'after');
+                        $taskFinished = $task->status === 'completed';
+                        $taskSubmitted = $task->status === 'photo_uploaded';
+                        $taskRejection = $task->problem_note && str_starts_with((string)$task->problem_note, 'ตีกลับรูปงานโดยแอดมิน: ') ? $task->problem_note : null;
+                    @endphp
+                    <div class="thumb-section">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+                            <strong>รูปผลงานติดตั้ง: {{ $task->typeLabel() }}</strong>
+                            <small>{{ $taskAfterPhotos->count() }} รูป</small>
+                        </div>
+                        @if($taskAfterPhotos->isEmpty())
+                            <div style="padding:22px 10px;text-align:center;color:var(--text-muted);background:var(--bg-page);border-radius:14px">ยังไม่มีรูป</div>
+                        @else
+                            <div class="thumbs">
+                                @foreach($taskAfterPhotos as $photo)
+                                    <button type="button" class="thumb image-lightbox-trigger" data-lightbox-src="{{ route('media.show',['path'=>$photo->image_path]) }}">
+                                        <img src="{{ route('media.show',['path'=>$photo->image_path]) }}" alt="รูปงาน{{ $task->typeLabel() }}">
+                                        <span>{{ $task->typeLabel() }}</span>
+                                    </button>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        @if ($taskRejection)
+                            <div style="margin-top:10px;padding:11px;border-radius:12px;background:#ffe1e1;color:#b42318;font-weight:700;font-size:13px;">
+                                เหตุผลที่ตีกลับ: {{ str($taskRejection)->after('ตีกลับรูปงานโดยแอดมิน:')->trim() }}
+                            </div>
+                        @endif
+
+                        @if (!$taskFinished)
+                            <form method="POST" action="{{ route('staff.bookings.submit_work', [$booking, $task]) }}" style="margin-top:12px">
+                                @csrf
+                                <button class="btn-large btn-large-success" type="submit" @disabled($taskAfterPhotos->isEmpty() || $taskSubmitted) onclick="return confirm('ยืนยันส่งรูปงานติดตั้ง{{ $task->typeLabel() }} ให้ Admin ตรวจสอบ?')">
+                                    <i class="fa-solid fa-paper-plane"></i> {{ $taskSubmitted ? 'ส่งรูปงานแล้ว / รออนุมัติ' : 'ส่งรูปงาน'.$task->typeLabel() }}
+                                </button>
+                            </form>
+                            @if($taskAfterPhotos->isEmpty())
+                                <small style="display:block;text-align:center;color:var(--text-muted);margin-top:6px;font-size:12px;">ต้องถ่ายหรือแนบรูปงานติดตั้ง{{ $task->typeLabel() }} อย่างน้อย 1 รูปก่อนส่ง</small>
+                            @endif
+                        @else
+                            <div style="margin-top:12px;text-align:center;color:#28a745;font-weight:bold;font-size:14px;">
+                                <i class="fa-solid fa-circle-check"></i> อนุมัติสำเร็จแล้ว
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
             @endif
         </div>
     </div>

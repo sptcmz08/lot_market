@@ -89,14 +89,37 @@
                     </td>
                     <td data-label="อื่น ๆ">@if($otherEquipment)<div class="equipment-detail"><strong>{{ $otherEquipment }}</strong></div>@else<span class="equipment-empty">ไม่มี</span>@endif</td>
                     <td data-label="สถานะรูป">
-                        @if($isApproved)<span class="badge badge-approved"><i class="fa-solid fa-circle-check"></i> อนุมัติแล้ว</span>
-                        @elseif($isSent)<span class="badge badge-sent"><i class="fa-solid fa-paper-plane"></i> ส่งรูปงาน / รออนุมัติ</span>
-                        @elseif($rejectNote)<span class="badge badge-rejected"><i class="fa-solid fa-rotate-left"></i> ตีกลับ / รอส่งใหม่</span><small style="display:block;margin-top:5px;color:#b42318">{{ str($rejectNote)->after(':')->trim() }}</small>
-                        @elseif($lotSubmitted)<span class="badge badge-sent"><i class="fa-solid fa-paper-plane"></i> ส่งรูป LOT / รออนุมัติ</span>
-                        @elseif($lotApproved && $afterPhotoCount)<span class="badge badge-waiting"><i class="fa-solid fa-images"></i> LOT ผ่าน / เพิ่มรูปงานแล้ว</span>
-                        @elseif($lotApproved)<span class="badge badge-approved"><i class="fa-solid fa-circle-check"></i> LOT ผ่าน / รอรูปงาน</span>
-                        @elseif($lotPhotoCount)<span class="badge badge-waiting"><i class="fa-solid fa-images"></i> เพิ่มรูป LOT แล้ว / ยังไม่ส่ง</span>
-                        @else<span class="badge badge-waiting"><i class="fa-solid fa-clock"></i> รอรูป LOT</span>@endif
+                        @if (!$lotApproved)
+                            @if ($lotSubmitted)
+                                <span class="badge badge-sent" style="margin-bottom:4px;"><i class="fa-solid fa-paper-plane"></i> ส่งรูป LOT / รออนุมัติ</span>
+                            @elseif ($lotPhotoCount)
+                                <span class="badge badge-waiting" style="margin-bottom:4px;"><i class="fa-solid fa-images"></i> เพิ่มรูป LOT แล้ว / ยังไม่ส่ง</span>
+                            @else
+                                <span class="badge badge-waiting" style="margin-bottom:4px;"><i class="fa-solid fa-clock"></i> รอรูป LOT</span>
+                            @endif
+                        @else
+                            <span class="badge badge-approved" style="margin-bottom:4px;"><i class="fa-solid fa-circle-check"></i> LOT อนุมัติแล้ว</span>
+                        @endif
+
+                        @foreach($tasks as $task)
+                            <div style="margin-top:6px;font-size:12px;display:flex;align-items:center;gap:4px;">
+                                <strong>{{ $task->typeLabel() }}:</strong>
+                                @if ($task->status === 'completed')
+                                    <span class="badge badge-approved" style="padding:3px 7px;font-size:10px;"><i class="fa-solid fa-circle-check"></i> อนุมัติแล้ว</span>
+                                @elseif ($task->status === 'photo_uploaded')
+                                    <span class="badge badge-sent" style="padding:3px 7px;font-size:10px;"><i class="fa-solid fa-paper-plane"></i> รออนุมัติ</span>
+                                @elseif ($task->problem_note)
+                                    <span class="badge badge-rejected" style="padding:3px 7px;font-size:10px;"><i class="fa-solid fa-rotate-left"></i> ตีกลับ</span>
+                                @elseif ($task->photos->where('photo_type', 'after')->count() > 0)
+                                    <span class="badge badge-waiting" style="padding:3px 7px;font-size:10px;"><i class="fa-solid fa-images"></i> เพิ่มรูปแล้ว</span>
+                                @else
+                                    <span class="badge badge-waiting" style="padding:3px 7px;font-size:10px;background:#e5e7eb;color:#6b7280;"><i class="fa-solid fa-clock"></i> รอรูป</span>
+                                @endif
+                            </div>
+                            @if ($task->problem_note)
+                                <small style="display:block;margin-top:2px;color:#b42318;padding-left:10px;">• {{ str($task->problem_note)->after(':')->trim() }}</small>
+                            @endif
+                        @endforeach
                     </td>
                     <td data-label="กล้อง / ส่งรูป"><div class="actions">
                         @if($canUseCamera)

@@ -52,7 +52,7 @@ class StaffBookingController extends Controller
         return view('staff.booking-camera', compact('booking'));
     }
 
-    public function uploadPhotos(Request $request, Booking $booking)
+    public function uploadPhotos(Request $request, Booking $booking, DeliveryTask $task = null)
     {
         $booking->load('deliveryTasks.photos');
         $this->ensurePhotoAccess($booking);
@@ -84,10 +84,15 @@ class StaffBookingController extends Controller
 
         // Keep newly uploaded evidence on a task that is still awaiting review,
         // so it cannot appear on the customer page before admin approval.
-        $task = $booking->deliveryTasks
-            ->where('status', '!=', 'completed')
-            ->sortBy('id')
-            ->firstOrFail();
+        if (!$task) {
+            $task = $booking->deliveryTasks
+                ->where('status', '!=', 'completed')
+                ->sortBy('id')
+                ->firstOrFail();
+        } else {
+            abort_unless($task->booking_id === $booking->id, 404);
+        }
+
         foreach ($files as $file) {
             DeliveryPhoto::create([
                 'delivery_task_id' => $task->id,
@@ -137,7 +142,7 @@ class StaffBookingController extends Controller
         return redirect()->route('staff.bookings.index')->with('success', 'ส่งรูป LOT เรียบร้อยแล้ว กรุณารอแอดมินอนุมัติก่อนแนบรูปงานติดตั้ง');
     }
 
-    public function submitWork(Booking $booking)
+    public function submitWork(Booking $booking, DeliveryTask $task = null)
     {
         $booking->load('deliveryTasks.photos');
         $this->ensurePhotoAccess($booking);
@@ -146,12 +151,23 @@ class StaffBookingController extends Controller
         if (! $photos->where('photo_type', 'lot_number')->contains('ocr_status', 'approved')) {
             return back()->with('error', 'ต้องรอแอดมินอนุมัติรูป LOT ก่อนส่งรูปงานติดตั้ง');
         }
-        if (! $photos->contains('photo_type', 'after')) {
-            return back()->with('error', 'กรุณาถ่ายหรือแนบรูปงานติดตั้งอย่างน้อย 1 รูปก่อนส่ง');
+
+        if ($task) {
+            abort_unless($task->booking_id === $booking->id, 404);
+            $tasksToSubmit = collect([$task]);
+        } else {
+            $tasksToSubmit = $booking->deliveryTasks->where('status', '!=', 'completed');
         }
 
-        DB::transaction(function () use ($booking) {
-            foreach ($booking->deliveryTasks as $task) {
+        // Check if there is at least one after photo for the task(s) we are submitting
+        foreach ($tasksToSubmit as $t) {
+            if (!$t->photos->contains('photo_type', 'after')) {
+                return back()->with('error', 'กรุณาถ่ายหรือแนบรูปงานติดตั้งอย่างน้อย 1 รูปก่อนส่งสำหรับ' . $t->typeLabel());
+            }
+        }
+
+        DB::transaction(function () use ($booking, $tasksToSubmit) {
+            foreach ($tasksToSubmit as $task) {
                 if ($task->status === 'completed') {
                     continue;
                 }
@@ -177,7 +193,10 @@ class StaffBookingController extends Controller
     {
         abort_if(in_array($booking->status, ['pending_admin', 'cancelled'], true), 403, 'รายการนี้ยังไม่พร้อมส่งรูป');
         abort_if($booking->deliveryTasks->isEmpty(), 403, 'รายการนี้ยังไม่มีงานติดตั้ง');
-        abort_if($booking->deliveryTasks->contains('status', 'photo_uploaded'), 403, 'รายการนี้ส่งแล้วและกำลังรอแอดมินอนุมัติ');
-        abort_if($booking->deliveryTasks->every(fn (DeliveryTask $task) => $task->status === 'completed'), 403, 'รายการนี้อนุมัติเรียบร้อยแล้ว');
+
+        $nonCompletedTasks = $booking->deliveryTasks->where('status', '!=', 'completed');
+
+        abort_if($nonCompletedTasks->isEmpty(), 403, 'รายการนี้อนุมัติเรียบร้อยแล้ว');
+        abort_if($nonCompletedTasks->every(fn (DeliveryTask $task) => $task->status === 'photo_uploaded'), 403, 'รายการนี้ส่งรูปครบแล้วและกำลังรอแอดมินอนุมัติ');
     }
 }

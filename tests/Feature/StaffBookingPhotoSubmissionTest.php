@@ -47,9 +47,9 @@ class StaffBookingPhotoSubmissionTest extends TestCase
             ->assertSee('data-camera-trigger', false)
             ->assertSee('data-gallery-trigger', false)
             ->assertSee('navigator.mediaDevices.getUserMedia', false)
-            ->assertSee('capture="environment"', false);
+            ->assertDontSee('capture="environment"', false);
 
-        $this->actingAs($staff)->post(route('staff.bookings.photos', $booking), [
+        $this->actingAs($staff)->post(route('staff.bookings.photos', [$booking, $task]), [
             'photo_type' => 'after',
             'photos' => [$this->photo('one.png'), $this->photo('two.png')],
         ])->assertForbidden();
@@ -77,9 +77,9 @@ class StaffBookingPhotoSubmissionTest extends TestCase
             ->assertOk()
             ->assertSee('ภาพถ่ายและอนุมัติงานติดตั้ง')
             ->assertSee('อนุมัติรูป LOT')
-            ->assertSee('ต้องอนุมัติรูป LOT ก่อนจึงจะส่งรูปงานติดตั้งได้')
+            ->assertSee('ต้องอนุมัติรูป LOT ก่อนจึงจะตรวจสอบงานติดตั้งได้')
             ->assertSee(route('admin.bookings.lot_review.approve', $booking), false);
-        $this->actingAs($admin)->post(route('admin.bookings.work_review.approve', $booking))
+        $this->actingAs($admin)->post(route('admin.tasks.work_review.approve', $task))
             ->assertForbidden();
 
         $this->actingAs($admin)->post(route('admin.bookings.lot_review.approve', $booking))
@@ -90,19 +90,18 @@ class StaffBookingPhotoSubmissionTest extends TestCase
         $this->actingAs($staff)->get(route('staff.bookings.camera', $booking))
             ->assertOk()
             ->assertSee('รูปเลข LOT อนุมัติแล้ว')
-            ->assertSee('รูปงานติดตั้ง');
+            ->assertSee('รูปผลงานติดตั้ง:');
 
-        $this->actingAs($staff)->post(route('staff.bookings.photos', $booking), [
+        $this->actingAs($staff)->post(route('staff.bookings.photos', [$booking, $task]), [
             'photo_type' => 'after',
             'photos' => [$this->photo('one.png'), $this->photo('two.png')],
         ])->assertRedirect()->assertSessionHas('success');
         $this->assertCount(2, $task->photos()->where('photo_type', 'after')->get());
 
-        $this->actingAs($staff)->post(route('staff.bookings.submit_work', $booking))
+        $this->actingAs($staff)->post(route('staff.bookings.submit_work', [$booking, $task]))
             ->assertRedirect(route('staff.bookings.index'))
             ->assertSessionHas('success');
         $this->assertSame('photo_uploaded', $task->fresh()->status);
-        $this->actingAs($staff)->get(route('staff.bookings.camera', $booking))->assertForbidden();
 
         $this->actingAs($admin)->get(route('admin.bookings.index'))
             ->assertOk()
@@ -110,10 +109,10 @@ class StaffBookingPhotoSubmissionTest extends TestCase
             ->assertSee('ตรวจรูปงาน');
         $this->actingAs($admin)->get(route('admin.bookings.show', $booking))
             ->assertOk()
-            ->assertSee('อนุมัติรูปงานติดตั้ง')
-            ->assertSee(route('admin.bookings.work_review.approve', $booking), false);
+            ->assertSee('อนุมัติรูปงาน')
+            ->assertSee(route('admin.tasks.work_review.approve', $task), false);
 
-        $this->actingAs($admin)->post(route('admin.bookings.work_review.approve', $booking))
+        $this->actingAs($admin)->post(route('admin.tasks.work_review.approve', $task))
             ->assertRedirect()->assertSessionHas('success');
         $this->assertSame('completed', $task->fresh()->status);
         $this->assertSame('completed', $booking->fresh()->status);
