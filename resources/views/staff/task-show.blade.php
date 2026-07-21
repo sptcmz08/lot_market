@@ -137,7 +137,7 @@
                         <input type="hidden" name="photo_type" value="lot_number">
                         <input type="hidden" name="latitude" class="gps-lat">
                         <input type="hidden" name="longitude" class="gps-lng">
-                        <input type="file" id="lot-photo" name="photo" class="auto-upload-photo" accept="image/*" capture="environment" required style="display:none;">
+                        <input type="file" id="lot-photo" name="photo" class="auto-upload-photo" accept="image/*" required style="display:none;">
 
                         <label for="lot-photo" class="btn-large btn-large-primary" style="height: 56px;">
                             <i class="fa-solid fa-camera"></i> ถ่ายรูป LOT ส่งให้แอดมินตรวจ
@@ -166,7 +166,7 @@
                         <input type="hidden" name="photo_type" value="after">
                         <input type="hidden" name="latitude" class="gps-lat">
                         <input type="hidden" name="longitude" class="gps-lng">
-                        <input type="file" id="after-photo" name="photos[]" class="auto-upload-photo" accept="image/*" capture="environment" multiple required style="display:none;">
+                        <input type="file" id="after-photo" name="photos[]" class="auto-upload-photo" accept="image/*" multiple required style="display:none;">
 
                         <label for="after-photo" class="btn-large btn-large-secondary" style="height: 56px;">
                             <i class="fa-solid fa-camera-retro"></i> {{ $hasAfter ? 'เพิ่มรูปหลังติดตั้ง' : 'ถ่ายรูปหลังติดตั้งเสร็จ' }}
@@ -197,7 +197,7 @@
 
                 <div class="cute-input-group">
                     <label class="cute-label" for="problem_photo" style="color: #856404;">แนบรูปหลักฐานปัญหา (ถ้ามี)</label>
-                    <input type="file" id="problem_photo" name="problem_photo" class="cute-input" accept="image/*" capture="environment">
+                    <input type="file" id="problem_photo" name="problem_photo" class="cute-input" accept="image/*">
                 </div>
 
                 <button type="submit" class="btn-large btn-large-danger" style="height: 48px;">
