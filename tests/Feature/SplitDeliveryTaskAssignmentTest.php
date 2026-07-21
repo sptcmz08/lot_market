@@ -83,7 +83,7 @@ class SplitDeliveryTaskAssignmentTest extends TestCase
             ->assertSee('แดง')
             ->assertSee('x1', false)
             ->assertSee('สรุป เต็นท์ = 4')
-            ->assertSee('2 ล็อค 140x75 cm.')
+            ->assertSee('2 ล็อค')
             ->assertSee('x2', false);
 
         $counterList = $this->actingAs($counterStaff)->get(route('staff.bookings.index'));

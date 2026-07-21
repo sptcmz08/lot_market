@@ -85,7 +85,8 @@ class StaffBookingController extends Controller
             $counterItems = $b->counterEquipmentItems() ?: [];
             foreach ($counterItems as $item) {
                 $qty = (int)($item['quantity'] ?? 0);
-                $size = $item['size'] ?? '';
+                $rawSize = $item['size'] ?? '';
+                $size = preg_match('/^\d+\s*ล็อค/u', $rawSize, $matches) ? $matches[0] : $rawSize;
                 
                 $counterSummary['total'] += $qty;
                 if (!isset($counterSummary['sizes'][$size])) {

@@ -206,7 +206,10 @@
                     <td>
                         @if($counterItems)
                             @foreach($counterItems as $item)
-                                <div style="font-size:13px; font-weight: bold;">{{ $item['size'] }} <span style="color:#0874a6; font-size:12px;">x{{ $item['quantity'] }}</span></div>
+                                @php
+                                    $displaySize = preg_match('/^\d+\s*ล็อค/u', $item['size'], $matches) ? $matches[0] : $item['size'];
+                                @endphp
+                                <div style="font-size:13px; font-weight: bold;">{{ $displaySize }} <span style="color:#0874a6; font-size:12px;">x{{ $item['quantity'] }}</span></div>
                             @endforeach
                         @else
                             <span class="equipment-empty">-</span>
