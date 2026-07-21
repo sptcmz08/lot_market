@@ -32,57 +32,35 @@
 @section('content')
     <h1 class="page-heading">รายการจองทั้งหมด</h1>
 
-    <!-- แผงสรุปจำนวนอุปกรณ์ -->
-    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:16px; margin-bottom:20px;">
-        <!-- สรุปเต็นท์ -->
-        <div style="background:#fff; border:1px solid var(--border-cute); border-radius:20px; padding:18px; box-shadow:0 4px 12px rgba(0,0,0,0.02);">
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px; border-bottom: 2px solid #fff3f6; padding-bottom:8px;">
-                <span style="font-size:24px;">⛺</span>
-                <div>
-                    <div style="font-size:13px; color:var(--text-muted); font-weight:700;">ยอดจองเต็นท์รวม</div>
-                    <div style="font-size:22px; font-weight:900; color:#b4235a;">{{ $tentSummary['total'] }} หลัง</div>
-                </div>
-            </div>
-            <div style="display:flex; flex-direction:column; gap:8px;">
-                @forelse($tentSummary['sizes'] as $size => $data)
-                    <div style="font-size:13px; background:#fafafa; border-radius:12px; padding:8px 12px; border:1px solid var(--border-cute);">
-                        <div style="display:flex; justify-content:space-between; font-weight:bold; color:var(--text-dark);">
-                            <span>ขนาด {{ $size }}</span>
-                            <span style="color:#0874a6;">{{ $data['total'] }} หลัง</span>
-                        </div>
-                        @if(!empty($data['colors']))
-                            <div style="margin-top:6px; display:flex; gap:8px; flex-wrap:wrap; font-size:11px; color:var(--text-muted);">
-                                @foreach($data['colors'] as $color => $qty)
-                                    <span style="background:#fff; border:1px solid var(--border-cute); padding:2px 6px; border-radius:6px;">สี{{ $color }}: <b>{{ $qty }}</b></span>
-                                @endforeach
-                            </div>
-                        @endif
+    <!-- แผงสรุปจำนวนอุปกรณ์ (รูปแบบ Excel) -->
+    <div style="background:#fff; border:1px solid var(--border-cute); border-radius:20px; padding:18px; margin-bottom:20px; font-family: inherit; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+        <!-- สรุป เต็นท์ -->
+        <div style="margin-bottom: 12px; font-size:14px; line-height: 1.8;">
+            <span style="background: #ffd966; color: #7f6000; padding: 4px 10px; border-radius: 6px; font-weight: bold; margin-right: 15px; display: inline-block; min-width: 100px; text-align: center;">สรุป เต็นท์ = {{ $tentSummary['total'] }}</span>
+            @php $firstTentSize = true; @endphp
+            @foreach($tentSummary['sizes'] as $size => $data)
+                @if(!$firstTentSize)
+                    <div style="padding-left: 120px; margin-top: 4px;">
+                @endif
+                <strong style="color: #333; font-size: 14px; margin-right: 15px;">{{ $size }} = {{ $data['total'] }}</strong>
+                @if(!empty($data['colors']))
+                    @foreach($data['colors'] as $color => $qty)
+                        <span style="margin-right: 15px; color: #b4235a; font-weight: bold;">สี{{ $color }} = {{ $qty }}</span>
+                    @endforeach
+                @endif
+                @if(!$firstTentSize)
                     </div>
-                @empty
-                    <div style="color:var(--text-muted); font-size:13px; text-align:center; padding:10px 0;">ไม่มีข้อมูลจองเต็นท์</div>
-                @endforelse
-            </div>
+                @endif
+                @php $firstTentSize = false; @endphp
+            @endforeach
         </div>
 
-        <!-- สรุปเคาน์เตอร์ -->
-        <div style="background:#fff; border:1px solid var(--border-cute); border-radius:20px; padding:18px; box-shadow:0 4px 12px rgba(0,0,0,0.02);">
-            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px; border-bottom: 2px solid #f0f9ff; padding-bottom:8px;">
-                <span style="font-size:24px;">🪟</span>
-                <div>
-                    <div style="font-size:13px; color:var(--text-muted); font-weight:700;">ยอดจองเคาน์เตอร์รวม</div>
-                    <div style="font-size:22px; font-weight:900; color:#0874a6;">{{ $counterSummary['total'] }} ชุด</div>
-                </div>
-            </div>
-            <div style="display:flex; flex-direction:column; gap:8px;">
-                @forelse($counterSummary['sizes'] as $size => $qty)
-                    <div style="font-size:13px; background:#fafafa; border-radius:12px; padding:8px 12px; border:1px solid var(--border-cute); display:flex; justify-content:space-between; font-weight:bold; color:var(--text-dark);">
-                        <span>ขนาด {{ $size }}</span>
-                        <span style="color:#0874a6;">{{ $qty }} ชุด</span>
-                    </div>
-                @empty
-                    <div style="color:var(--text-muted); font-size:13px; text-align:center; padding:10px 0;">ไม่มีข้อมูลจองเคาน์เตอร์</div>
-                @endforelse
-            </div>
+        <!-- สรุป เคาเตอร์ -->
+        <div style="font-size:14px; line-height: 1.8; border-top: 1px dashed var(--border-cute); padding-top: 10px;">
+            <span style="background: #9bc2e6; color: #1f4e78; padding: 4px 10px; border-radius: 6px; font-weight: bold; margin-right: 15px; display: inline-block; min-width: 100px; text-align: center;">สรุปเคาเตอร์</span>
+            @foreach($counterSummary['sizes'] as $size => $qty)
+                <span style="margin-right: 25px; font-weight: bold; color: #333;">{{ $size }} = {{ $qty }}</span>
+            @endforeach
         </div>
     </div>
 

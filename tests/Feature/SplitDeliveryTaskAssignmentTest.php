@@ -82,8 +82,7 @@ class SplitDeliveryTaskAssignmentTest extends TestCase
             ->assertSee('3x4.5')
             ->assertSee('แดง')
             ->assertSee('x1', false)
-            ->assertSee('ยอดจองเต็นท์รวม')
-            ->assertSee('4 หลัง')
+            ->assertSee('สรุป เต็นท์ = 4')
             ->assertSee('2 ล็อค 140x75 cm.')
             ->assertSee('x2', false);
 
