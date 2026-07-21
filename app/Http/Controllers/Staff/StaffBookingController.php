@@ -22,7 +22,11 @@ class StaffBookingController extends Controller
         $query = Booking::with(['lots', 'deliveryTasks.photos']);
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            if ($request->status !== 'all') {
+                $query->where('status', $request->status);
+            }
+        } else {
+            $query->where('status', '!=', 'completed');
         }
 
         if ($request->filled('search')) {

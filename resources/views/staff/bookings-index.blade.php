@@ -6,7 +6,7 @@
 <style>
     .page-heading { margin: 4px 0 18px; font-size: 24px; }
     .filter-card { background:#fff;border:1px solid var(--border-cute);border-radius:20px;padding:18px;margin-bottom:18px; }
-    .filter-grid { display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:12px;align-items:end; }
+    .filter-grid { display:grid;grid-template-columns:2fr 1fr auto;gap:12px;align-items:end; }
     .field label { display:block;font-size:13px;font-weight:700;margin-bottom:6px; }
     .field input,.field select { width:100%;height:44px;border:2px solid var(--border-cute);border-radius:13px;padding:0 12px;font:inherit;box-sizing:border-box;background:#fff; }
     .table-wrap { overflow:auto;background:#fff;border:1px solid var(--border-cute);border-radius:20px; }
@@ -64,12 +64,75 @@
         </div>
     </div>
 
+    <!-- ปุ่มเลือกสถานะ (Status Tabs) -->
+    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
+        @php
+            $currentStatus = request('status');
+            $statusTabs = [
+                '' => 'งานค้างส่ง (ไม่รวมเสร็จแล้ว)',
+                'all' => 'รวมทั้งหมด',
+                'confirmed' => 'ยืนยันแล้ว',
+                'assigned' => 'มอบหมายแล้ว',
+                'installing' => 'กำลังติดตั้ง',
+                'problem' => 'มีปัญหา',
+                'completed' => 'เสร็จแล้ว',
+                'cancelled' => 'ยกเลิก',
+            ];
+        @endphp
+        @foreach($statusTabs as $val => $lbl)
+            @php
+                $isActive = ($currentStatus === $val || ($val === '' && $currentStatus === null));
+                $bg = '#f3f4f6';
+                $color = '#374151';
+                $border = '1px solid #e5e7eb';
+                if ($isActive) {
+                    $bg = 'var(--primary)';
+                    $color = '#fff';
+                    $border = '1px solid var(--primary)';
+                    if ($val === 'completed') {
+                        $bg = '#14833b';
+                        $border = '1px solid #14833b';
+                    } elseif ($val === 'problem') {
+                        $bg = '#b42318';
+                        $border = '1px solid #b42318';
+                    } elseif ($val === '') {
+                        $bg = '#0874a6';
+                        $border = '1px solid #0874a6';
+                    }
+                }
+            @endphp
+            <a href="{{ route('staff.bookings.index', array_merge(request()->except(['page', 'status']), $val !== '' ? ['status' => $val] : [])) }}" 
+               style="text-decoration: none; padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: bold; background: {{ $bg }}; color: {{ $color }}; border: {{ $border }}; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                @if($val === '')
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                @elseif($val === 'all')
+                    <i class="fa-solid fa-list"></i>
+                @elseif($val === 'confirmed')
+                    <i class="fa-solid fa-circle-check"></i>
+                @elseif($val === 'assigned')
+                    <i class="fa-solid fa-user-check"></i>
+                @elseif($val === 'installing')
+                    <i class="fa-solid fa-screwdriver-wrench"></i>
+                @elseif($val === 'problem')
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                @elseif($val === 'completed')
+                    <i class="fa-solid fa-circle-check"></i>
+                @elseif($val === 'cancelled')
+                    <i class="fa-solid fa-circle-xmark"></i>
+                @endif
+                {{ $lbl }}
+            </a>
+        @endforeach
+    </div>
+
     <form class="filter-card" method="GET" action="{{ route('staff.bookings.index') }}">
+        @if(request()->filled('status'))
+            <input type="hidden" name="status" value="{{ request('status') }}">
+        @endif
         <div class="filter-grid">
             <div class="field"><label for="search">ค้นหา</label><input id="search" name="search" value="{{ request('search') }}" placeholder="รหัสจอง, ร้านค้า, เบอร์โทร, เลขล็อต..."></div>
-            <div class="field"><label for="status">สถานะการจอง</label><select id="status" name="status"><option value="">ทั้งหมด</option>@foreach(['pending_admin'=>'รอยืนยัน','confirmed'=>'ยืนยันแล้ว','assigned'=>'มอบหมายแล้ว','installing'=>'กำลังติดตั้ง','completed'=>'เสร็จแล้ว','cancelled'=>'ยกเลิก','problem'=>'มีปัญหา'] as $value=>$label)<option value="{{ $value }}" @selected(request('status')===$value)>{{ $label }}</option>@endforeach</select></div>
             <div class="field"><label for="date">วันที่ใช้งาน</label><input type="date" id="date" name="date" value="{{ request('date') }}"></div>
-            <div class="actions"><button class="action-btn send" type="submit"><i class="fa-solid fa-filter"></i> กรอง</button><a class="action-btn" href="{{ route('staff.bookings.index') }}">ล้าง</a></div>
+            <div class="actions"><button class="action-btn send" type="submit"><i class="fa-solid fa-filter"></i> กรอง</button><a class="action-btn" href="{{ route('staff.bookings.index', request()->only('status')) }}">ล้าง</a></div>
         </div>
     </form>
 
