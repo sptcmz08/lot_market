@@ -20,27 +20,71 @@
     .action-btn { min-height:39px;padding:0 13px;border-radius:12px;border:2px solid var(--border-cute);background:#fff;color:var(--text-dark);font:inherit;font-size:13px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:7px;cursor:pointer; }
     .action-btn.send { border:0;background:linear-gradient(135deg,var(--primary),var(--primary-hover));color:#fff; }
     .action-btn[disabled] { opacity:.55;cursor:not-allowed; }
-    th:nth-child(5),td:nth-child(5){min-width:170px}th:nth-child(6),td:nth-child(6){min-width:210px}
-    .equipment-detail { display:grid;gap:5px;min-width:0; }
-    .equipment-item { display:flex;align-items:baseline;justify-content:space-between;gap:10px;padding:4px 0;border-bottom:1px dashed var(--border-cute); }
-    .equipment-item:last-child { border-bottom:0; }
-    .equipment-item strong { line-height:1.4;font-size:13px; }
-    .equipment-quantity { flex:none;color:#0874a6;font-size:12px;font-weight:800;white-space:nowrap; }
-    .equipment-quantity b { font-size:17px;color:#075d87; }
-    .equipment-total { margin-bottom:2px;color:#b4235a;font-size:12px;font-weight:800; }
-    .equipment-total b { font-size:16px; }
     .equipment-empty { color:var(--text-muted);font-weight:700; }
     .pagination { margin-top:18px; }
     @media(max-width:900px){
         .filter-grid{grid-template-columns:1fr}.page-heading{font-size:21px}.filter-card{padding:14px}.filter-card .actions{display:grid;grid-template-columns:1fr 1fr}.filter-card .action-btn{justify-content:center}
-        .table-wrap{overflow:visible;background:transparent;border:0;border-radius:0}table{display:block;min-width:0}thead{display:none}tbody{display:grid;gap:14px}tr{display:block;background:#fff;border:1px solid var(--border-cute);border-radius:18px;padding:8px 14px;box-shadow:0 5px 16px rgba(47,47,55,.04)}td{display:grid;grid-template-columns:105px minmax(0,1fr);gap:10px;align-items:start;padding:10px 0;border-bottom:1px dashed var(--border-cute);font-size:13px;overflow-wrap:anywhere}td::before{content:attr(data-label);font-weight:900;color:var(--text-muted);font-size:12px}td:last-child{border-bottom:0}.equipment-detail{min-width:0}.actions{white-space:normal;flex-wrap:wrap}.action-btn{flex:1;justify-content:center;min-width:100px}.badge{white-space:normal}.empty-row{display:block;text-align:center;padding:30px 10px}.empty-row::before{display:none}
+        .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 20px; border: 1px solid var(--border-cute); background: #fff; }
     }
-    @media(max-width:390px){td{grid-template-columns:88px minmax(0,1fr)}.action-btn{min-width:0;padding:0 9px;font-size:12px}}
 </style>
 @endsection
 
 @section('content')
     <h1 class="page-heading">รายการจองทั้งหมด</h1>
+
+    <!-- แผงสรุปจำนวนอุปกรณ์ -->
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:16px; margin-bottom:20px;">
+        <!-- สรุปเต็นท์ -->
+        <div style="background:#fff; border:1px solid var(--border-cute); border-radius:20px; padding:18px; box-shadow:0 4px 12px rgba(0,0,0,0.02);">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px; border-bottom: 2px solid #fff3f6; padding-bottom:8px;">
+                <span style="font-size:24px;">⛺</span>
+                <div>
+                    <div style="font-size:13px; color:var(--text-muted); font-weight:700;">ยอดจองเต็นท์รวม</div>
+                    <div style="font-size:22px; font-weight:900; color:#b4235a;">{{ $tentSummary['total'] }} หลัง</div>
+                </div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+                @forelse($tentSummary['sizes'] as $size => $data)
+                    <div style="font-size:13px; background:#fafafa; border-radius:12px; padding:8px 12px; border:1px solid var(--border-cute);">
+                        <div style="display:flex; justify-content:space-between; font-weight:bold; color:var(--text-dark);">
+                            <span>ขนาด {{ $size }}</span>
+                            <span style="color:#0874a6;">{{ $data['total'] }} หลัง</span>
+                        </div>
+                        @if(!empty($data['colors']))
+                            <div style="margin-top:6px; display:flex; gap:8px; flex-wrap:wrap; font-size:11px; color:var(--text-muted);">
+                                @foreach($data['colors'] as $color => $qty)
+                                    <span style="background:#fff; border:1px solid var(--border-cute); padding:2px 6px; border-radius:6px;">สี{{ $color }}: <b>{{ $qty }}</b></span>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                @empty
+                    <div style="color:var(--text-muted); font-size:13px; text-align:center; padding:10px 0;">ไม่มีข้อมูลจองเต็นท์</div>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- สรุปเคาน์เตอร์ -->
+        <div style="background:#fff; border:1px solid var(--border-cute); border-radius:20px; padding:18px; box-shadow:0 4px 12px rgba(0,0,0,0.02);">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px; border-bottom: 2px solid #f0f9ff; padding-bottom:8px;">
+                <span style="font-size:24px;">🪟</span>
+                <div>
+                    <div style="font-size:13px; color:var(--text-muted); font-weight:700;">ยอดจองเคาน์เตอร์รวม</div>
+                    <div style="font-size:22px; font-weight:900; color:#0874a6;">{{ $counterSummary['total'] }} ชุด</div>
+                </div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+                @forelse($counterSummary['sizes'] as $size => $qty)
+                    <div style="font-size:13px; background:#fafafa; border-radius:12px; padding:8px 12px; border:1px solid var(--border-cute); display:flex; justify-content:space-between; font-weight:bold; color:var(--text-dark);">
+                        <span>ขนาด {{ $size }}</span>
+                        <span style="color:#0874a6;">{{ $qty }} ชุด</span>
+                    </div>
+                @empty
+                    <div style="color:var(--text-muted); font-size:13px; text-align:center; padding:10px 0;">ไม่มีข้อมูลจองเคาน์เตอร์</div>
+                @endforelse
+            </div>
+        </div>
+    </div>
 
     <form class="filter-card" method="GET" action="{{ route('staff.bookings.index') }}">
         <div class="filter-grid">
@@ -53,7 +97,20 @@
 
     <div class="table-wrap">
         <table>
-            <thead><tr><th>วันที่ใช้งาน</th><th>รหัสจอง</th><th>ชื่อร้านค้า / เบอร์โทร</th><th>ล็อตแผงที่จอง</th><th>เต็นท์</th><th>เคาน์เตอร์</th><th>อื่น ๆ</th><th>สถานะรูป</th><th>กล้อง / ส่งรูป</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>วันที่ใช้งาน</th>
+                    <th>ชื่อร้านค้า / เบอร์โทร</th>
+                    <th>เลขล็อค</th>
+                    <th>เต็นท์ (ขนาด)</th>
+                    <th>สี</th>
+                    <th>เคาน์เตอร์</th>
+                    <th>อื่น ๆ</th>
+                    <th>รูปภาพ (กล้อง)</th>
+                    <th>สถานะรูป</th>
+                    <th>แอดมินยืนยัน</th>
+                </tr>
+            </thead>
             <tbody>
             @forelse($bookings as $booking)
                 @php
@@ -73,68 +130,150 @@
                     $counterItems = $booking->counterEquipmentItems();
                 @endphp
                 <tr>
-                    <td data-label="วันที่ใช้งาน"><strong>{{ $booking->use_date->format('d/m/Y') }}</strong></td>
-                    <td data-label="รหัสจอง"><strong>{{ $booking->booking_code }}</strong></td>
-                    <td data-label="ร้านค้า"><div><strong>{{ $booking->shop_name }}</strong><small style="display:block;color:var(--text-muted)">โทร: {{ $booking->customer_phone }}</small></div></td>
-                    <td data-label="ล็อตแผง"><strong style="color:var(--primary-hover)">{{ $booking->lots->pluck('lot_code')->implode(', ') ?: '-' }}</strong></td>
-                    <td data-label="เต็นท์">
+                    <td><strong>{{ $booking->use_date->format('d/m/Y') }}</strong></td>
+                    <td>
+                        <div>
+                            <strong>{{ $booking->shop_name }}</strong>
+                            <small style="display:block;color:var(--text-muted)">โทร: {{ $booking->customer_phone }}</small>
+                        </div>
+                    </td>
+                    <td><strong style="color:var(--primary-hover)">{{ $booking->lots->pluck('lot_code')->implode(', ') ?: '-' }}</strong></td>
+                    
+                    <!-- เต็นท์ (ขนาด) -->
+                    <td>
                         @if($tentItems)
-                            <div class="equipment-detail">@if(count($tentItems) > 1)<div class="equipment-total">รวมทั้งหมด <b>{{ collect($tentItems)->sum('quantity') }} หลัง</b></div>@endif @foreach($tentItems as $item)<div class="equipment-item"><strong>{{ $item['size'] }}{{ !empty($item['color']) ? ' สี'.$item['color'] : '' }}</strong><span class="equipment-quantity">จำนวน <b>{{ $item['quantity'] }}</b> หลัง</span></div>@endforeach</div>
-                        @else<span class="equipment-empty">ไม่จอง</span>@endif
+                            @foreach($tentItems as $item)
+                                <div style="font-size:13px; font-weight: bold;">{{ $item['size'] }} <span style="color:#0874a6; font-size:12px;">x{{ $item['quantity'] }}</span></div>
+                            @endforeach
+                        @else
+                            <span class="equipment-empty">-</span>
+                        @endif
                     </td>
-                    <td data-label="เคาน์เตอร์">
+
+                    <!-- สี -->
+                    <td>
+                        @if($tentItems)
+                            @foreach($tentItems as $item)
+                                <div style="font-size:13px;">{{ $item['color'] ?: '-' }}</div>
+                            @endforeach
+                        @else
+                            <span class="equipment-empty">-</span>
+                        @endif
+                    </td>
+
+                    <!-- เคาน์เตอร์ -->
+                    <td>
                         @if($counterItems)
-                            <div class="equipment-detail">@if(count($counterItems) > 1)<div class="equipment-total">รวมทั้งหมด <b>{{ collect($counterItems)->sum('quantity') }} ชุด</b></div>@endif @foreach($counterItems as $item)<div class="equipment-item"><strong>{{ $item['size'] }}{{ !empty($item['color']) ? ' สี'.$item['color'] : '' }}</strong><span class="equipment-quantity">จำนวน <b>{{ $item['quantity'] }}</b> ชุด</span></div>@endforeach</div>
-                        @else<span class="equipment-empty">ไม่จอง</span>@endif
+                            @foreach($counterItems as $item)
+                                <div style="font-size:13px; font-weight: bold;">{{ $item['size'] }} <span style="color:#0874a6; font-size:12px;">x{{ $item['quantity'] }}</span></div>
+                            @endforeach
+                        @else
+                            <span class="equipment-empty">-</span>
+                        @endif
                     </td>
-                    <td data-label="อื่น ๆ">@if($otherEquipment)<div class="equipment-detail"><strong>{{ $otherEquipment }}</strong></div>@else<span class="equipment-empty">ไม่มี</span>@endif</td>
-                    <td data-label="สถานะรูป">
+
+                    <td>@if($otherEquipment)<div style="font-size:13px;">{{ $otherEquipment }}</div>@else<span class="equipment-empty">-</span>@endif</td>
+                    
+                    <!-- รูปภาพ (กล้อง) -->
+                    <td>
+                        <div style="display:flex; flex-direction:column; gap:5px; align-items: stretch; width: 100%;">
+                            @if($canUseCamera)
+                                <a class="action-btn" href="{{ route('staff.bookings.camera',$booking) }}" style="padding:4px 8px; min-height:30px; font-size:12px; justify-content:center;"><i class="fa-solid fa-camera"></i> กล้อง</a>
+                                @if(!$lotApproved)
+                                    <form method="POST" action="{{ route('staff.bookings.submit_lot',$booking) }}" style="margin:0; width: 100%;">
+                                        @csrf
+                                        <button class="action-btn send" type="submit" @disabled($lotPhotoCount===0 || $lotSubmitted) onclick="return confirm('ยืนยันส่งรูป LOT ให้ Admin ตรวจสอบ?')" style="padding:4px 8px; min-height:30px; font-size:12px; width: 100%; justify-content:center;">
+                                            <i class="fa-solid fa-paper-plane"></i> ส่ง LOT
+                                        </button>
+                                    </form>
+                                @else
+                                    @foreach($tasks as $task)
+                                        @if($task->status !== 'completed' && $task->status !== 'photo_uploaded')
+                                            @php
+                                                $taskPhotoCount = $task->photos->where('photo_type', 'after')->count();
+                                            @endphp
+                                            <form method="POST" action="{{ route('staff.bookings.submit_work',[$booking, $task]) }}" style="margin:0; width: 100%;">
+                                                @csrf
+                                                <button class="action-btn send" type="submit" @disabled($taskPhotoCount===0) onclick="return confirm('ยืนยันส่งรูปงานติดตั้งสำหรับ {{ $task->typeLabel() }} ให้ Admin ตรวจสอบ?')" style="padding:4px 8px; min-height:30px; font-size:12px; width: 100%; justify-content:center; background: linear-gradient(135deg, #0284c7, #0369a1);">
+                                                    <i class="fa-solid fa-paper-plane"></i> ส่งงาน {{ $task->typeLabel() }}
+                                                </button>
+                                            </form>
+                                        @endif
+                                    @endforeach
+                                @endif
+                            @else
+                                <button class="action-btn" disabled style="padding:4px 8px; min-height:30px; font-size:12px; justify-content:center;"><i class="fa-solid fa-camera"></i> กล้อง</button>
+                            @endif
+                        </div>
+                    </td>
+
+                    <!-- สถานะรูป -->
+                    <td>
                         @if (!$lotApproved)
                             @if ($lotSubmitted)
-                                <span class="badge badge-sent" style="margin-bottom:4px;"><i class="fa-solid fa-paper-plane"></i> ส่งรูป LOT / รออนุมัติ</span>
+                                <span class="badge badge-sent" style="padding:3px 7px;font-size:10px;margin-bottom:4px;"><i class="fa-solid fa-paper-plane"></i> LOT: ส่งแล้ว</span>
                             @elseif ($lotPhotoCount)
-                                <span class="badge badge-waiting" style="margin-bottom:4px;"><i class="fa-solid fa-images"></i> เพิ่มรูป LOT แล้ว / ยังไม่ส่ง</span>
+                                <span class="badge badge-waiting" style="padding:3px 7px;font-size:10px;margin-bottom:4px;"><i class="fa-solid fa-images"></i> LOT: มีรูป</span>
                             @else
-                                <span class="badge badge-waiting" style="margin-bottom:4px;"><i class="fa-solid fa-clock"></i> รอรูป LOT</span>
+                                <span class="badge badge-waiting" style="padding:3px 7px;font-size:10px;margin-bottom:4px;background:#e5e7eb;color:#6b7280;"><i class="fa-solid fa-clock"></i> LOT: รอรูป</span>
                             @endif
                         @else
-                            <span class="badge badge-approved" style="margin-bottom:4px;"><i class="fa-solid fa-circle-check"></i> LOT อนุมัติแล้ว</span>
+                            <span class="badge badge-approved" style="padding:3px 7px;font-size:10px;margin-bottom:4px;"><i class="fa-solid fa-circle-check"></i> LOT: อนุมัติ</span>
                         @endif
 
                         @foreach($tasks as $task)
-                            <div style="margin-top:6px;font-size:12px;display:flex;align-items:center;gap:4px;">
+                            <div style="margin-top:6px;font-size:11px;">
                                 <strong>{{ $task->typeLabel() }}:</strong>
                                 @if ($task->status === 'completed')
-                                    <span class="badge badge-approved" style="padding:3px 7px;font-size:10px;"><i class="fa-solid fa-circle-check"></i> อนุมัติแล้ว</span>
+                                    <span class="badge badge-approved" style="padding:2px 6px;font-size:9px;">เสร็จสิ้น</span>
                                 @elseif ($task->status === 'photo_uploaded')
-                                    <span class="badge badge-sent" style="padding:3px 7px;font-size:10px;"><i class="fa-solid fa-paper-plane"></i> รออนุมัติ</span>
+                                    <span class="badge badge-sent" style="padding:2px 6px;font-size:9px;">ส่งแล้ว</span>
                                 @elseif ($task->problem_note)
-                                    <span class="badge badge-rejected" style="padding:3px 7px;font-size:10px;"><i class="fa-solid fa-rotate-left"></i> ตีกลับ</span>
+                                    <span class="badge badge-rejected" style="padding:2px 6px;font-size:9px;">ตีกลับ</span>
                                 @elseif ($task->photos->where('photo_type', 'after')->count() > 0)
-                                    <span class="badge badge-waiting" style="padding:3px 7px;font-size:10px;"><i class="fa-solid fa-images"></i> เพิ่มรูปแล้ว</span>
+                                    <span class="badge badge-waiting" style="padding:2px 6px;font-size:9px;">มีรูป</span>
                                 @else
-                                    <span class="badge badge-waiting" style="padding:3px 7px;font-size:10px;background:#e5e7eb;color:#6b7280;"><i class="fa-solid fa-clock"></i> รอรูป</span>
+                                    <span class="badge badge-waiting" style="padding:2px 6px;font-size:9px;background:#e5e7eb;color:#6b7280;">รอรูป</span>
                                 @endif
                             </div>
-                            @if ($task->problem_note)
-                                <small style="display:block;margin-top:2px;color:#b42318;padding-left:10px;">• {{ str($task->problem_note)->after(':')->trim() }}</small>
-                            @endif
                         @endforeach
                     </td>
-                    <td data-label="กล้อง / ส่งรูป"><div class="actions">
-                        @if($canUseCamera)
-                            <a class="action-btn" href="{{ route('staff.bookings.camera',$booking) }}"><i class="fa-solid fa-camera"></i> กล้อง</a>
-                            @if(!$lotApproved)
-                                <form method="POST" action="{{ route('staff.bookings.submit_lot',$booking) }}" style="margin:0">@csrf<button class="action-btn send" type="submit" @disabled($lotPhotoCount===0 || $lotSubmitted) onclick="return confirm('ยืนยันส่งรูป LOT ให้ Admin ตรวจสอบ?')"><i class="fa-solid fa-paper-plane"></i> ส่ง LOT</button></form>
-                            @else
-                                <form method="POST" action="{{ route('staff.bookings.submit_work',$booking) }}" style="margin:0">@csrf<button class="action-btn send" type="submit" @disabled($afterPhotoCount===0) onclick="return confirm('ยืนยันส่งรูปงานติดตั้งให้ Admin ตรวจสอบ?')"><i class="fa-solid fa-paper-plane"></i> ส่งรูปงาน</button></form>
-                            @endif
+
+                    <!-- แอดมินยืนยัน -->
+                    <td>
+                        @if(!$lotApproved)
+                            <div style="font-size:11px; margin-bottom: 4px;">
+                                <strong>LOT:</strong>
+                                @if($lotSubmitted)
+                                    <span style="color:#8a6500;font-weight:bold;">รอตรวจ</span>
+                                @else
+                                    <span style="color:var(--text-muted);">-</span>
+                                @endif
+                            </div>
                         @else
-                            <button class="action-btn" disabled><i class="fa-solid fa-camera"></i> กล้อง</button><button class="action-btn send" disabled><i class="fa-solid fa-paper-plane"></i> ส่ง</button>
+                            <div style="font-size:11px; margin-bottom: 4px;">
+                                <strong>LOT:</strong> <span style="color:#14833b;font-weight:bold;">Pass</span>
+                            </div>
                         @endif
-                    </div></td>
+                        @foreach($tasks as $task)
+                            <div style="font-size:11px; margin-bottom:4px;">
+                                <strong>{{ $task->typeLabel() }}:</strong>
+                                @if ($task->status === 'completed')
+                                    <span style="color:#14833b;font-weight:bold;">Pass</span>
+                                @elseif ($task->problem_note)
+                                    <span style="color:#b42318;font-weight:bold;" title="{{ $task->problem_note }}">Reject</span>
+                                @elseif ($task->status === 'photo_uploaded')
+                                    <span style="color:#8a6500;font-weight:bold;">รอตรวจ</span>
+                                @else
+                                    <span style="color:var(--text-muted);">-</span>
+                                @endif
+                            </div>
+                        @endforeach
+                    </td>
                 </tr>
-            @empty<tr><td colspan="9" class="empty-row" style="text-align:center;padding:40px;color:var(--text-muted)">ไม่พบรายการจอง</td></tr>@endforelse
+            @empty
+                <tr><td colspan="10" class="empty-row" style="text-align:center;padding:40px;color:var(--text-muted)">ไม่พบรายการจอง</td></tr>
+            @endforelse
             </tbody>
         </table>
     </div>

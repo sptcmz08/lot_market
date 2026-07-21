@@ -76,14 +76,16 @@ class SplitDeliveryTaskAssignmentTest extends TestCase
             ->assertSee('เต็นท์')
             ->assertSee('เคาน์เตอร์')
             ->assertSee('อื่น ๆ')
-            ->assertSee('2x2 สีขาว')
-            ->assertSee('<b>3</b> หลัง', false)
-            ->assertSee('3x4.5 สีแดง')
-            ->assertSee('<b>1</b> หลัง', false)
-            ->assertSee('รวมทั้งหมด')
+            ->assertSee('2x2')
+            ->assertSee('ขาว')
+            ->assertSee('x3', false)
+            ->assertSee('3x4.5')
+            ->assertSee('แดง')
+            ->assertSee('x1', false)
+            ->assertSee('ยอดจองเต็นท์รวม')
             ->assertSee('4 หลัง')
             ->assertSee('2 ล็อค 140x75 cm.')
-            ->assertSee('<b>2</b> ชุด', false);
+            ->assertSee('x2', false);
 
         $counterList = $this->actingAs($counterStaff)->get(route('staff.bookings.index'));
         $counterList->assertOk()->assertSee('ร้านแบ่งงาน');

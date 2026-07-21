@@ -41,7 +41,57 @@ class StaffBookingController extends Controller
 
         $bookings = $query->orderByDesc('use_date')->orderByDesc('id')->paginate(15)->withQueryString();
 
-        return view('staff.bookings-index', compact('bookings'));
+        // Calculate summary statistics for filtered results
+        $allFilteredBookings = (clone $query)->get();
+        
+        $tentSummary = [
+            'total' => 0,
+            'sizes' => []
+        ];
+        
+        $counterSummary = [
+            'total' => 0,
+            'sizes' => []
+        ];
+
+        foreach ($allFilteredBookings as $b) {
+            $tentItems = $b->tentEquipmentItems() ?: [];
+            foreach ($tentItems as $item) {
+                $qty = (int)($item['quantity'] ?? 0);
+                $size = $item['size'] ?? '';
+                $color = $item['color'] ?? '';
+                
+                $tentSummary['total'] += $qty;
+                if (!isset($tentSummary['sizes'][$size])) {
+                    $tentSummary['sizes'][$size] = [
+                        'total' => 0,
+                        'colors' => []
+                    ];
+                }
+                $tentSummary['sizes'][$size]['total'] += $qty;
+                
+                if ($color) {
+                    if (!isset($tentSummary['sizes'][$size]['colors'][$color])) {
+                        $tentSummary['sizes'][$size]['colors'][$color] = 0;
+                    }
+                    $tentSummary['sizes'][$size]['colors'][$color] += $qty;
+                }
+            }
+
+            $counterItems = $b->counterEquipmentItems() ?: [];
+            foreach ($counterItems as $item) {
+                $qty = (int)($item['quantity'] ?? 0);
+                $size = $item['size'] ?? '';
+                
+                $counterSummary['total'] += $qty;
+                if (!isset($counterSummary['sizes'][$size])) {
+                    $counterSummary['sizes'][$size] = 0;
+                }
+                $counterSummary['sizes'][$size] += $qty;
+            }
+        }
+
+        return view('staff.bookings-index', compact('bookings', 'tentSummary', 'counterSummary'));
     }
 
     public function camera(Booking $booking)
