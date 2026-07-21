@@ -43,7 +43,7 @@ class StaffBookingController extends Controller
             $query->whereDate('use_date', $request->date);
         }
 
-        $bookings = $query->orderByDesc('use_date')->orderByDesc('id')->paginate(15)->withQueryString();
+        $bookings = $query->orderByDesc('use_date')->orderByDesc('created_at')->paginate(15)->withQueryString();
 
         // Calculate summary statistics for filtered results
         $allFilteredBookings = (clone $query)->get();

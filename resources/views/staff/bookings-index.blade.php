@@ -141,6 +141,7 @@
             <thead>
                 <tr>
                     <th>วันที่ใช้งาน</th>
+                    <th>เวลาที่จอง</th>
                     <th>ชื่อร้านค้า / เบอร์โทร</th>
                     <th>เลขล็อค</th>
                     <th>เต็นท์ (ขนาด)</th>
@@ -172,6 +173,7 @@
                 @endphp
                 <tr>
                     <td><strong>{{ $booking->use_date->format('d/m/Y') }}</strong></td>
+                    <td><strong>{{ $booking->created_at->format('H:i') }} น.</strong></td>
                     <td>
                         <div>
                             <strong>{{ $booking->shop_name }}</strong>
@@ -316,7 +318,7 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="10" class="empty-row" style="text-align:center;padding:40px;color:var(--text-muted)">ไม่พบรายการจอง</td></tr>
+                <tr><td colspan="11" class="empty-row" style="text-align:center;padding:40px;color:var(--text-muted)">ไม่พบรายการจอง</td></tr>
             @endforelse
             </tbody>
         </table>
