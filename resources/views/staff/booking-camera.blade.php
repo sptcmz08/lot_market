@@ -37,13 +37,13 @@
                     <p style="margin:0;color:var(--text-muted);font-size:13px;">กำลังรอ Admin อนุมัติ จึงยังแนบรูปงานติดตั้งไม่ได้</p>
                 </div>
             @else
-                <form class="panel photo-upload-form panel-lot" method="POST" enctype="multipart/form-data" action="{{ route('staff.bookings.photos', $booking) }}">
+                <form class="panel photo-upload-form panel-lot" data-camera-key="lot_number" method="POST" enctype="multipart/form-data" action="{{ route('staff.bookings.photos', $booking) }}">
                     @csrf
                     <input type="hidden" name="photo_type" value="lot_number">
                     <h2 style="font-size:18px;margin:0">รูปเลข LOT</h2>
                     <p style="color:var(--text-muted);font-size:13px;margin:5px 0 0">ถ่ายให้เห็นเลขแผงชัดเจน แนบหลายรูปและเพิ่มซ้ำได้</p>
                     <div class="upload-choice">
-                        <label class="pick native-camera-pick" for="camera_lot_number"><i class="fa-solid fa-camera"></i>ถ่ายรูปด้วยกล้อง</label>
+                        <label class="pick native-camera-pick" data-native-camera-trigger for="camera_lot_number"><i class="fa-solid fa-camera"></i>ถ่ายรูปด้วยกล้อง</label>
                         <button class="pick browser-camera-pick" type="button" data-camera-trigger><i class="fa-solid fa-camera"></i>ถ่ายรูป</button>
                         <input class="file-input camera-input" type="file" id="camera_lot_number" name="camera_photo" accept="image/*;capture=camera" capture="environment">
                         <button class="pick" type="button" data-gallery-trigger><i class="fa-solid fa-images"></i>แนบรูป</button>
@@ -79,13 +79,13 @@
                         <p style="margin:0;color:var(--text-muted);font-size:13px;">ส่งงานติดตั้งนี้ให้ Admin ตรวจสอบแล้ว</p>
                     </div>
                 @else
-                    <form class="panel photo-upload-form panel-after" method="POST" enctype="multipart/form-data" action="{{ route('staff.bookings.photos', [$booking, $task]) }}">
+                    <form class="panel photo-upload-form panel-after" data-camera-key="after_{{ $task->id }}" method="POST" enctype="multipart/form-data" action="{{ route('staff.bookings.photos', [$booking, $task]) }}">
                         @csrf
                         <input type="hidden" name="photo_type" value="after">
                         <h2 style="font-size:18px;margin:0">รูปหลังติดตั้ง ({{ $task->typeLabel() }})</h2>
                         <p style="color:var(--text-muted);font-size:13px;margin:5px 0 0">ถ่ายภาพงานที่ติดตั้งเสร็จแล้ว แนบหลายรูปและเพิ่มซ้ำได้</p>
                         <div class="upload-choice">
-                            <label class="pick native-camera-pick" for="camera_after_{{ $task->id }}"><i class="fa-solid fa-camera"></i>ถ่ายรูปด้วยกล้อง</label>
+                            <label class="pick native-camera-pick" data-native-camera-trigger for="camera_after_{{ $task->id }}"><i class="fa-solid fa-camera"></i>ถ่ายรูปด้วยกล้อง</label>
                             <button class="pick browser-camera-pick" type="button" data-camera-trigger><i class="fa-solid fa-camera"></i>ถ่ายรูป</button>
                             <input class="file-input camera-input" type="file" id="camera_after_{{ $task->id }}" name="camera_photo" accept="image/*;capture=camera" capture="environment">
                             <button class="pick" type="button" data-gallery-trigger><i class="fa-solid fa-images"></i>แนบรูป</button>
@@ -220,6 +220,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorBox = document.getElementById('camera-error');
     let activeForm = null;
     let cameraStream = null;
+    const isAndroidInAppBrowser = /Android/i.test(navigator.userAgent)
+        && (/Line\//i.test(navigator.userAgent)
+            || /FBAN|FBAV|Instagram/i.test(navigator.userAgent)
+            || /;\s*wv\)/i.test(navigator.userAgent));
 
     const updateSelection = (form) => {
         const camera = form.querySelector('.camera-input');
@@ -268,42 +272,60 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const openBrowserCamera = async (form) => {
+        activeForm = form;
+        const cameraInput = form.querySelector('.camera-input');
+
+        if (!navigator.mediaDevices?.getUserMedia || typeof DataTransfer === 'undefined') {
+            cameraInput.click();
+            return;
+        }
+
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+        errorBox.style.display = 'none';
+        video.style.display = 'block';
+        nativeCameraButton.style.display = 'none';
+        captureButton.style.display = 'flex';
+
+        try {
+            cameraStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: { ideal: 'environment' } },
+                audio: false
+            });
+            video.srcObject = cameraStream;
+            await video.play();
+            captureButton.disabled = false;
+        } catch (_) {
+            cameraStream?.getTracks().forEach(track => track.stop());
+            cameraStream = null;
+            video.srcObject = null;
+            video.style.display = 'none';
+            errorBox.style.display = 'block';
+            nativeCameraButton.style.display = 'flex';
+            captureButton.style.display = 'none';
+        }
+    };
+
+    document.querySelectorAll('[data-native-camera-trigger]').forEach(trigger => {
+        trigger.addEventListener('click', event => {
+            if (!isAndroidInAppBrowser) return;
+
+            event.preventDefault();
+            const cameraKey = trigger.closest('.photo-upload-form')?.dataset.cameraKey;
+            const externalUrl = new URL(window.location.href);
+            externalUrl.searchParams.set('direct_camera', cameraKey || 'lot_number');
+            window.location.href = `intent://${externalUrl.host}${externalUrl.pathname}${externalUrl.search}#Intent;scheme=https;package=com.android.chrome;end`;
+        });
+    });
+
     document.querySelectorAll('.photo-upload-form').forEach(form => {
         const cameraInput = form.querySelector('.camera-input');
         const galleryInput = form.querySelector('.gallery-input');
         const submitButton = form.querySelector('button[type="submit"]');
 
         form.querySelector('[data-gallery-trigger]').addEventListener('click', () => galleryInput.click());
-        form.querySelector('[data-camera-trigger]').addEventListener('click', async () => {
-            activeForm = form;
-            if (!navigator.mediaDevices?.getUserMedia || typeof DataTransfer === 'undefined') {
-                cameraInput.click();
-                return;
-            }
-
-            modal.classList.add('is-open');
-            modal.setAttribute('aria-hidden', 'false');
-            errorBox.style.display = 'none';
-            video.style.display = 'block';
-            nativeCameraButton.style.display = 'none';
-            try {
-                cameraStream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: { ideal: 'environment' } },
-                    audio: false
-                });
-                video.srcObject = cameraStream;
-                await video.play();
-                captureButton.disabled = false;
-            } catch (_) {
-                cameraStream?.getTracks().forEach(track => track.stop());
-                cameraStream = null;
-                video.srcObject = null;
-                video.style.display = 'none';
-                errorBox.style.display = 'block';
-                nativeCameraButton.style.display = 'flex';
-                captureButton.style.display = 'none';
-            }
-        });
+        form.querySelector('[data-camera-trigger]').addEventListener('click', () => openBrowserCamera(form));
 
         cameraInput.addEventListener('change', () => {
             updateSelection(form);
@@ -336,6 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     captureButton.addEventListener('click', () => {
         if (!activeForm || !video.videoWidth) return;
+        const capturedForm = activeForm;
         const scale = Math.min(1, 1920 / video.videoWidth, 1920 / video.videoHeight);
         canvas.width = Math.max(1, Math.round(video.videoWidth * scale));
         canvas.height = Math.max(1, Math.round(video.videoHeight * scale));
@@ -343,9 +366,10 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.toBlob(blob => {
             if (!blob) return;
             const file = new File([blob], `camera-${Date.now()}.jpg`, { type: 'image/jpeg' });
-            putFiles(activeForm.querySelector('.camera-input'), [file]);
-            updateSelection(activeForm);
+            putFiles(capturedForm.querySelector('.camera-input'), [file]);
+            updateSelection(capturedForm);
             stopCamera();
+            capturedForm.requestSubmit();
         }, 'image/jpeg', 0.88);
     });
 
@@ -358,6 +382,15 @@ document.addEventListener('DOMContentLoaded', () => {
     closeButton.addEventListener('click', stopCamera);
     modal.addEventListener('click', event => { if (event.target === modal) stopCamera(); });
     document.addEventListener('keydown', event => { if (event.key === 'Escape') stopCamera(); });
+
+    const directCameraKey = new URLSearchParams(window.location.search).get('direct_camera');
+    const directCameraForm = directCameraKey
+        ? Array.from(document.querySelectorAll('.photo-upload-form'))
+            .find(form => form.dataset.cameraKey === directCameraKey)
+        : null;
+    if (directCameraForm) {
+        window.setTimeout(() => openBrowserCamera(directCameraForm), 250);
+    }
 });
 </script>
 @endsection
