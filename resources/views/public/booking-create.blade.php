@@ -378,7 +378,7 @@
             @php
                 $tentItemRows = old('tent_items', [['size' => '', 'color' => '', 'quantity' => 1]]);
             @endphp
-            <div class="equip-box" id="box_tent" style="{{ old('wants_tent', old('wants_counter') ? null : true) ? '' : 'display:none;' }}">
+            <div class="equip-box" id="box_tent" data-equipment-row style="{{ old('wants_tent', old('wants_counter') ? null : true) ? '' : 'display:none;' }}">
                 <div class="equipment-list" id="tent-item-list">
                     @foreach($tentItemRows as $index => $item)
                         <div class="equip-item-row">
@@ -401,7 +401,7 @@
                             <span class="paper-label" style="border:none;background:transparent;">จำนวน</span>
                             <input type="number" name="tent_items[{{ $index }}][quantity]" class="p-input tent-qty" value="{{ $item['quantity'] ?? 1 }}" min="1" max="99" style="text-align:center;">
 
-                            <button type="button" class="btn-add-inline" id="add-tent-item">+เพิ่ม</button>
+                            <button type="button" class="btn-add-inline" id="add-tent-item" title="เพิ่มเต็นท์ต่างขนาดหรือสี" aria-label="เพิ่มเต็นท์ต่างขนาดหรือสี">+เพิ่ม</button>
                             <button type="button" class="btn-remove-inline remove-equip-btn" style="{{ count($tentItemRows) > 1 ? '' : 'opacity:0.3;' }}">&times;</button>
                         </div>
                     @endforeach
@@ -412,7 +412,7 @@
             @php
                 $counterItemRows = old('counter_items', [['size' => '', 'quantity' => 1]]);
             @endphp
-            <div class="equip-box" id="box_counter" style="{{ old('wants_counter') ? '' : 'display:none;' }}">
+            <div class="equip-box" id="box_counter" data-equipment-row style="{{ old('wants_counter') ? '' : 'display:none;' }}">
                 <div class="equipment-list" id="counter-item-list">
                     @foreach($counterItemRows as $index => $item)
                         <div class="equip-item-row counter-row">
@@ -427,7 +427,7 @@
                             <span class="paper-label" style="border:none;background:transparent;">เลขเคาน์เตอร์</span>
                             <input type="number" name="counter_items[{{ $index }}][quantity]" class="p-input counter-qty" value="{{ $item['quantity'] ?? 1 }}" min="1" max="99" style="text-align:center;">
 
-                            <button type="button" class="btn-add-inline" id="add-counter-item">+เพิ่ม</button>
+                            <button type="button" class="btn-add-inline" id="add-counter-item" title="เพิ่มเคาน์เตอร์ต่างขนาด" aria-label="เพิ่มเคาน์เตอร์ต่างขนาด">+เพิ่ม</button>
                             <button type="button" class="btn-remove-inline remove-equip-btn" style="{{ count($counterItemRows) > 1 ? '' : 'opacity:0.3;' }}">&times;</button>
                         </div>
                     @endforeach
