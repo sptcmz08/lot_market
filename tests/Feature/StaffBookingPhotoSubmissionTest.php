@@ -35,7 +35,7 @@ class StaffBookingPhotoSubmissionTest extends TestCase
             'status' => 'waiting',
         ]);
 
-        $this->actingAs($staff)->get(route('staff.bookings.index'))
+        $this->actingAs($staff)->get(route('staff.bookings.index', ['date' => $booking->use_date->format('Y-m-d')]))
             ->assertOk()
             ->assertSee('ร้านทดสอบส่งรูป')
             ->assertSee('กล้อง')

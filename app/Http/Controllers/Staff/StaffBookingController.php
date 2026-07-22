@@ -19,6 +19,8 @@ class StaffBookingController extends Controller
 
     public function index(Request $request)
     {
+        $todayDate = now('Asia/Bangkok')->format('Y-m-d');
+        $summaryDate = $request->filled('date') ? $request->date : $todayDate;
         $query = Booking::with(['lots', 'deliveryTasks.photos']);
 
         if ($request->filled('status')) {
@@ -39,9 +41,7 @@ class StaffBookingController extends Controller
             });
         }
 
-        if ($request->filled('date')) {
-            $query->whereDate('use_date', $request->date);
-        }
+        $query->whereDate('use_date', $summaryDate);
 
         $bookings = $query->orderByDesc('use_date')->orderByDesc('created_at')->paginate(15)->withQueryString();
 
@@ -51,10 +51,6 @@ class StaffBookingController extends Controller
                 $booking->load('deliveryTasks.photos');
             }
         }
-
-        // Target date for summary calculation (default: current date / today)
-        $todayDate = now()->format('Y-m-d');
-        $summaryDate = $request->filled('date') ? $request->date : $todayDate;
 
         // Calculate summary statistics specifically for the summary date (excluding cancelled bookings)
         $summaryBookings = Booking::whereDate('use_date', $summaryDate)
