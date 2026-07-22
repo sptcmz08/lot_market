@@ -48,7 +48,7 @@ class StaffBookingPhotoSubmissionTest extends TestCase
             ->assertSee('data-gallery-trigger', false)
             ->assertSee('navigator.mediaDevices.getUserMedia', false)
             ->assertSee('for="camera_lot_number"', false)
-            ->assertSee('accept="image/*" capture="environment"', false)
+            ->assertSee('accept="image/*;capture=camera" capture="environment"', false)
             ->assertSee("form.requestSubmit()", false)
             ->assertDontSee('เปิดด้วย Chrome เพื่อถ่ายรูป')
             ->assertSee('ถ่ายรูปด้วยกล้องมือถือ');

@@ -45,7 +45,7 @@
                     <div class="upload-choice">
                         <label class="pick native-camera-pick" for="camera_lot_number"><i class="fa-solid fa-camera"></i>ถ่ายรูปด้วยกล้อง</label>
                         <button class="pick browser-camera-pick" type="button" data-camera-trigger><i class="fa-solid fa-camera"></i>ถ่ายรูป</button>
-                        <input class="file-input camera-input" type="file" id="camera_lot_number" name="camera_photo" accept="image/*" capture="environment">
+                        <input class="file-input camera-input" type="file" id="camera_lot_number" name="camera_photo" accept="image/*;capture=camera" capture="environment">
                         <button class="pick" type="button" data-gallery-trigger><i class="fa-solid fa-images"></i>แนบรูป</button>
                         <input class="file-input gallery-input" type="file" id="gallery_lot_number" name="photos[]" accept="image/*" multiple>
                     </div>
@@ -87,7 +87,7 @@
                         <div class="upload-choice">
                             <label class="pick native-camera-pick" for="camera_after_{{ $task->id }}"><i class="fa-solid fa-camera"></i>ถ่ายรูปด้วยกล้อง</label>
                             <button class="pick browser-camera-pick" type="button" data-camera-trigger><i class="fa-solid fa-camera"></i>ถ่ายรูป</button>
-                            <input class="file-input camera-input" type="file" id="camera_after_{{ $task->id }}" name="camera_photo" accept="image/*" capture="environment">
+                            <input class="file-input camera-input" type="file" id="camera_after_{{ $task->id }}" name="camera_photo" accept="image/*;capture=camera" capture="environment">
                             <button class="pick" type="button" data-gallery-trigger><i class="fa-solid fa-images"></i>แนบรูป</button>
                             <input class="file-input gallery-input" type="file" id="gallery_after_{{ $task->id }}" name="photos[]" accept="image/*" multiple>
                         </div>
