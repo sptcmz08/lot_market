@@ -44,7 +44,7 @@
                     <p style="color:var(--text-muted);font-size:13px;margin:5px 0 0">ถ่ายให้เห็นเลขแผงชัดเจน แนบหลายรูปและเพิ่มซ้ำได้</p>
                     <div class="upload-choice">
                         <button class="pick" type="button" data-camera-trigger><i class="fa-solid fa-camera"></i>ถ่ายรูป</button>
-                        <input class="file-input camera-input" type="file" id="camera_lot_number" name="camera_photo" accept="image/*">
+                        <input class="file-input camera-input" type="file" id="camera_lot_number" name="camera_photo" accept="image/*" capture="environment">
                         <button class="pick" type="button" data-gallery-trigger><i class="fa-solid fa-images"></i>แนบรูป</button>
                         <input class="file-input gallery-input" type="file" id="gallery_lot_number" name="photos[]" accept="image/*" multiple>
                     </div>
@@ -85,7 +85,7 @@
                         <p style="color:var(--text-muted);font-size:13px;margin:5px 0 0">ถ่ายภาพงานที่ติดตั้งเสร็จแล้ว แนบหลายรูปและเพิ่มซ้ำได้</p>
                         <div class="upload-choice">
                             <button class="pick" type="button" data-camera-trigger><i class="fa-solid fa-camera"></i>ถ่ายรูป</button>
-                            <input class="file-input camera-input" type="file" id="camera_after_{{ $task->id }}" name="camera_photo" accept="image/*">
+                            <input class="file-input camera-input" type="file" id="camera_after_{{ $task->id }}" name="camera_photo" accept="image/*" capture="environment">
                             <button class="pick" type="button" data-gallery-trigger><i class="fa-solid fa-images"></i>แนบรูป</button>
                             <input class="file-input gallery-input" type="file" id="gallery_after_{{ $task->id }}" name="photos[]" accept="image/*" multiple>
                         </div>
@@ -194,11 +194,11 @@
     <div class="camera-modal" id="browser-camera" aria-hidden="true">
         <div class="camera-dialog" role="dialog" aria-modal="true" aria-label="ถ่ายรูป">
             <video class="camera-video" id="camera-video" autoplay muted playsinline></video>
-            <div class="camera-error" id="camera-error">ไม่สามารถเปิดกล้องผ่าน Browser ได้ กรุณาอนุญาตการใช้กล้องหรือเลือกแนบรูปแทน</div>
+            <div class="camera-error" id="camera-error">Browser นี้ไม่รองรับกล้องสด กรุณากดปุ่มถ่ายรูปด้วยกล้องมือถือ</div>
             <canvas id="camera-canvas" hidden></canvas>
             <div class="camera-actions">
                 <button class="btn-large btn-large-secondary" type="button" id="camera-close"><i class="fa-solid fa-xmark"></i> ปิด</button>
-                <button class="btn-large btn-large-secondary" type="button" id="camera-native" style="display:none;"><i class="fa-solid fa-mobile-screen"></i> เปิดกล้องของเครื่อง</button>
+                <button class="btn-large btn-large-primary" type="button" id="camera-native" style="display:none;"><i class="fa-solid fa-camera"></i> ถ่ายรูปด้วยกล้องมือถือ</button>
                 <button class="btn-large btn-large-primary" type="button" id="camera-capture" disabled><i class="fa-solid fa-camera"></i> ถ่ายภาพนี้</button>
             </div>
         </div>
@@ -218,6 +218,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorBox = document.getElementById('camera-error');
     let activeForm = null;
     let cameraStream = null;
+    const useNativeCamera = window.matchMedia('(pointer: coarse)').matches
+        || /Android|iPhone|iPad|iPod|Line\//i.test(navigator.userAgent);
 
     const updateSelection = (form) => {
         const camera = form.querySelector('.camera-input');
@@ -231,6 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cameraStream = null;
         video.srcObject = null;
         captureButton.disabled = true;
+        captureButton.style.display = 'flex';
         nativeCameraButton.style.display = 'none';
         errorBox.style.display = 'none';
         video.style.display = 'block';
@@ -273,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
         form.querySelector('[data-gallery-trigger]').addEventListener('click', () => galleryInput.click());
         form.querySelector('[data-camera-trigger]').addEventListener('click', async () => {
             activeForm = form;
-            if (!navigator.mediaDevices?.getUserMedia || typeof DataTransfer === 'undefined') {
+            if (useNativeCamera || !navigator.mediaDevices?.getUserMedia || typeof DataTransfer === 'undefined') {
                 cameraInput.click();
                 return;
             }
@@ -298,6 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 video.style.display = 'none';
                 errorBox.style.display = 'block';
                 nativeCameraButton.style.display = 'flex';
+                captureButton.style.display = 'none';
             }
         });
 
