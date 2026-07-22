@@ -4,25 +4,17 @@
 
 @section('styles')
 <style>
-    /* Mobile phone viewport optimization - Fits completely without scrolling */
+    /* Mobile phone optimization */
     @media (max-width: 767px) {
-        .header-bar, footer {
-            display: none !important;
-        }
         .content-container {
-            padding: 4px !important;
-            margin: 0 !important;
+            padding: 8px 6px !important;
+            margin: 0 auto !important;
             max-width: 100% !important;
-            height: 100dvh !important;
             box-sizing: border-box;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
         html, body {
-            height: 100dvh;
-            overflow: hidden !important;
             background-color: #8ec63f !important;
+            overflow-y: auto !important;
         }
     }
 
@@ -40,8 +32,6 @@
         gap: 4px;
         font-family: 'Prompt', sans-serif;
         color: #000;
-        max-height: calc(100dvh - 8px);
-        overflow-y: auto;
     }
 
     /* Scrollbar styling */
