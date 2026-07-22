@@ -49,6 +49,8 @@ class StaffBookingPhotoSubmissionTest extends TestCase
             ->assertSee('navigator.mediaDevices.getUserMedia', false)
             ->assertSee('for="camera_lot_number"', false)
             ->assertSee('accept="image/*" capture', false)
+            ->assertSee('เปิดด้วย Chrome เพื่อถ่ายรูป')
+            ->assertSee('package=com.android.chrome', false)
             ->assertSee('ถ่ายรูปด้วยกล้องมือถือ');
 
         $this->actingAs($staff)->post(route('staff.bookings.photos', [$booking, $task]), [

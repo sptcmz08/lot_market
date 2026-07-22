@@ -4,7 +4,7 @@
 
 @section('styles')
 <style>
-    .camera-grid{display:grid;grid-template-columns:minmax(280px,440px) 1fr;gap:18px}.upload-stack{display:grid;gap:18px}.panel{background:#fff;border:1px solid var(--border-cute);border-radius:22px;padding:20px}.panel-lot{border-top:5px solid var(--primary)}.panel-after{border-top:5px solid #4ECDC4}.back-btn{width:40px;height:40px;border:2px solid var(--border-cute);border-radius:12px;background:#fff;color:var(--text-dark);display:inline-flex;align-items:center;justify-content:center;text-decoration:none}.upload-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.pick{min-height:95px;border:2px dashed var(--border-cute);border-radius:18px;background:#fff;color:var(--text-dark);font:inherit;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;font-weight:800;cursor:pointer;text-align:center}.pick:active{transform:scale(.98)}.pick i{font-size:28px;color:var(--primary-hover)}.browser-camera-pick{display:none}.file-input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}.thumb-section+.thumb-section{margin-top:20px;padding-top:18px;border-top:1px dashed var(--border-cute)}.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}.thumb{position:relative;border:0;background:none;padding:0}.thumb img{width:100%;height:125px;object-fit:cover;border-radius:14px;border:1px solid var(--border-cute);display:block}.thumb span{position:absolute;left:6px;bottom:6px;padding:4px 7px;border-radius:999px;background:rgba(255,255,255,.92);font-size:10px;font-weight:800}.camera-modal{position:fixed;inset:0;z-index:10001;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(20,20,28,.86)}.camera-modal.is-open{display:flex}.camera-dialog{width:min(100%,680px);padding:16px;border-radius:22px;background:#11131a;color:#fff}.camera-video{display:block;width:100%;max-height:68vh;object-fit:contain;border-radius:16px;background:#000}.camera-actions{display:flex;gap:10px;margin-top:14px}.camera-actions button{flex:1}.camera-error{display:none;padding:18px;text-align:center;color:#ffd3d3}@media(hover:hover) and (pointer:fine){.native-camera-pick{display:none}.browser-camera-pick{display:flex}}@media(max-width:800px){.camera-grid{grid-template-columns:1fr}.upload-choice{grid-template-columns:1fr 1fr}}
+    .camera-grid{display:grid;grid-template-columns:minmax(280px,440px) 1fr;gap:18px}.upload-stack{display:grid;gap:18px}.panel{background:#fff;border:1px solid var(--border-cute);border-radius:22px;padding:20px}.panel-lot{border-top:5px solid var(--primary)}.panel-after{border-top:5px solid #4ECDC4}.back-btn{width:40px;height:40px;border:2px solid var(--border-cute);border-radius:12px;background:#fff;color:var(--text-dark);display:inline-flex;align-items:center;justify-content:center;text-decoration:none}.upload-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.pick{min-height:95px;border:2px dashed var(--border-cute);border-radius:18px;background:#fff;color:var(--text-dark);font:inherit;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;font-weight:800;cursor:pointer;text-align:center}.pick:active{transform:scale(.98)}.pick i{font-size:28px;color:var(--primary-hover)}.browser-camera-pick{display:none}.file-input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}.in-app-camera-notice{display:none;margin-bottom:14px;padding:14px;border:1px solid #f5c451;border-radius:16px;background:#fff7d6;color:#6f5200}.in-app-camera-notice.is-visible{display:block}.in-app-camera-notice strong,.in-app-camera-notice span{display:block}.in-app-camera-notice span{margin:4px 0 11px;font-size:12px;line-height:1.55}.external-browser-btn{min-height:44px;border-radius:12px;background:#15803d;color:#fff;text-decoration:none;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px}.thumb-section+.thumb-section{margin-top:20px;padding-top:18px;border-top:1px dashed var(--border-cute)}.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}.thumb{position:relative;border:0;background:none;padding:0}.thumb img{width:100%;height:125px;object-fit:cover;border-radius:14px;border:1px solid var(--border-cute);display:block}.thumb span{position:absolute;left:6px;bottom:6px;padding:4px 7px;border-radius:999px;background:rgba(255,255,255,.92);font-size:10px;font-weight:800}.camera-modal{position:fixed;inset:0;z-index:10001;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(20,20,28,.86)}.camera-modal.is-open{display:flex}.camera-dialog{width:min(100%,680px);padding:16px;border-radius:22px;background:#11131a;color:#fff}.camera-video{display:block;width:100%;max-height:68vh;object-fit:contain;border-radius:16px;background:#000}.camera-actions{display:flex;gap:10px;margin-top:14px}.camera-actions button{flex:1}.camera-error{display:none;padding:18px;text-align:center;color:#ffd3d3}@media(hover:hover) and (pointer:fine){.native-camera-pick{display:none}.browser-camera-pick{display:flex}}@media(max-width:800px){.camera-grid{grid-template-columns:1fr}.upload-choice{grid-template-columns:1fr 1fr}}
 </style>
 @endsection
 
@@ -20,6 +20,13 @@
             ->first();
     @endphp
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px"><a class="back-btn" href="{{ route('staff.bookings.index') }}"><i class="fa-solid fa-arrow-left"></i></a><div><h1 style="font-size:22px;margin:0">เพิ่มรูปส่งงาน</h1><small style="color:var(--text-muted)">{{ $booking->shop_name }} · {{ $booking->lots->pluck('lot_code')->implode(', ') }}</small></div></div>
+    <div class="in-app-camera-notice" id="in-app-camera-notice">
+        <strong><i class="fa-solid fa-triangle-exclamation"></i> Browser ภายในแอปไม่อนุญาตให้เปิดกล้อง</strong>
+        <span>กรุณาเปิดหน้านี้ด้วย Chrome แล้วกดถ่ายรูปอีกครั้ง</span>
+        <a class="external-browser-btn" id="open-external-browser" href="{{ request()->fullUrl() }}" target="_blank" rel="noopener">
+            <i class="fa-brands fa-chrome"></i> เปิดด้วย Chrome เพื่อถ่ายรูป
+        </a>
+    </div>
     @if($errors->any())<div class="alert-cute alert-danger"><i class="fa-solid fa-circle-exclamation"></i>{{ $errors->first() }}</div>@endif
     <div class="camera-grid">
         <div class="upload-stack">
@@ -211,6 +218,8 @@
 @section('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    const inAppNotice = document.getElementById('in-app-camera-notice');
+    const externalBrowserButton = document.getElementById('open-external-browser');
     const modal = document.getElementById('browser-camera');
     const video = document.getElementById('camera-video');
     const canvas = document.getElementById('camera-canvas');
@@ -220,6 +229,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorBox = document.getElementById('camera-error');
     let activeForm = null;
     let cameraStream = null;
+
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const isInAppBrowser = /Line\//i.test(navigator.userAgent)
+        || /FBAN|FBAV|Instagram/i.test(navigator.userAgent)
+        || (/; wv\)/i.test(navigator.userAgent));
+
+    if (isInAppBrowser) {
+        inAppNotice.classList.add('is-visible');
+
+        if (isAndroid) {
+            const chromeIntent = `intent://${window.location.host}${window.location.pathname}${window.location.search}#Intent;scheme=https;package=com.android.chrome;end`;
+            externalBrowserButton.href = chromeIntent;
+            externalBrowserButton.removeAttribute('target');
+        }
+    }
 
     const updateSelection = (form) => {
         const camera = form.querySelector('.camera-input');
