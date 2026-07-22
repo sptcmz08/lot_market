@@ -4,7 +4,7 @@
 
 @section('styles')
 <style>
-    .camera-grid{display:grid;grid-template-columns:minmax(280px,440px) 1fr;gap:18px}.upload-stack{display:grid;gap:18px}.panel{background:#fff;border:1px solid var(--border-cute);border-radius:22px;padding:20px}.panel-lot{border-top:5px solid var(--primary)}.panel-after{border-top:5px solid #4ECDC4}.back-btn{width:40px;height:40px;border:2px solid var(--border-cute);border-radius:12px;background:#fff;color:var(--text-dark);display:inline-flex;align-items:center;justify-content:center;text-decoration:none}.upload-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.pick{min-height:95px;border:2px dashed var(--border-cute);border-radius:18px;background:#fff;color:var(--text-dark);font:inherit;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;font-weight:800;cursor:pointer;text-align:center}.pick:active{transform:scale(.98)}.pick i{font-size:28px;color:var(--primary-hover)}.file-input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}.thumb-section+.thumb-section{margin-top:20px;padding-top:18px;border-top:1px dashed var(--border-cute)}.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}.thumb{position:relative;border:0;background:none;padding:0}.thumb img{width:100%;height:125px;object-fit:cover;border-radius:14px;border:1px solid var(--border-cute);display:block}.thumb span{position:absolute;left:6px;bottom:6px;padding:4px 7px;border-radius:999px;background:rgba(255,255,255,.92);font-size:10px;font-weight:800}.camera-modal{position:fixed;inset:0;z-index:10001;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(20,20,28,.86)}.camera-modal.is-open{display:flex}.camera-dialog{width:min(100%,680px);padding:16px;border-radius:22px;background:#11131a;color:#fff}.camera-video{display:block;width:100%;max-height:68vh;object-fit:contain;border-radius:16px;background:#000}.camera-actions{display:flex;gap:10px;margin-top:14px}.camera-actions button{flex:1}.camera-error{display:none;padding:18px;text-align:center;color:#ffd3d3}@media(max-width:800px){.camera-grid{grid-template-columns:1fr}.upload-choice{grid-template-columns:1fr 1fr}}
+    .camera-grid{display:grid;grid-template-columns:minmax(280px,440px) 1fr;gap:18px}.upload-stack{display:grid;gap:18px}.panel{background:#fff;border:1px solid var(--border-cute);border-radius:22px;padding:20px}.panel-lot{border-top:5px solid var(--primary)}.panel-after{border-top:5px solid #4ECDC4}.back-btn{width:40px;height:40px;border:2px solid var(--border-cute);border-radius:12px;background:#fff;color:var(--text-dark);display:inline-flex;align-items:center;justify-content:center;text-decoration:none}.upload-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.pick{min-height:95px;border:2px dashed var(--border-cute);border-radius:18px;background:#fff;color:var(--text-dark);font:inherit;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;font-weight:800;cursor:pointer;text-align:center}.pick:active{transform:scale(.98)}.pick i{font-size:28px;color:var(--primary-hover)}.browser-camera-pick{display:none}.file-input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none}.thumb-section+.thumb-section{margin-top:20px;padding-top:18px;border-top:1px dashed var(--border-cute)}.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}.thumb{position:relative;border:0;background:none;padding:0}.thumb img{width:100%;height:125px;object-fit:cover;border-radius:14px;border:1px solid var(--border-cute);display:block}.thumb span{position:absolute;left:6px;bottom:6px;padding:4px 7px;border-radius:999px;background:rgba(255,255,255,.92);font-size:10px;font-weight:800}.camera-modal{position:fixed;inset:0;z-index:10001;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(20,20,28,.86)}.camera-modal.is-open{display:flex}.camera-dialog{width:min(100%,680px);padding:16px;border-radius:22px;background:#11131a;color:#fff}.camera-video{display:block;width:100%;max-height:68vh;object-fit:contain;border-radius:16px;background:#000}.camera-actions{display:flex;gap:10px;margin-top:14px}.camera-actions button{flex:1}.camera-error{display:none;padding:18px;text-align:center;color:#ffd3d3}@media(hover:hover) and (pointer:fine){.native-camera-pick{display:none}.browser-camera-pick{display:flex}}@media(max-width:800px){.camera-grid{grid-template-columns:1fr}.upload-choice{grid-template-columns:1fr 1fr}}
 </style>
 @endsection
 
@@ -43,8 +43,9 @@
                     <h2 style="font-size:18px;margin:0">รูปเลข LOT</h2>
                     <p style="color:var(--text-muted);font-size:13px;margin:5px 0 0">ถ่ายให้เห็นเลขแผงชัดเจน แนบหลายรูปและเพิ่มซ้ำได้</p>
                     <div class="upload-choice">
-                        <button class="pick" type="button" data-camera-trigger><i class="fa-solid fa-camera"></i>ถ่ายรูป</button>
-                        <input class="file-input camera-input" type="file" id="camera_lot_number" name="camera_photo" accept="image/*" capture="environment">
+                        <label class="pick native-camera-pick" for="camera_lot_number"><i class="fa-solid fa-camera"></i>ถ่ายรูปด้วยกล้อง</label>
+                        <button class="pick browser-camera-pick" type="button" data-camera-trigger><i class="fa-solid fa-camera"></i>ถ่ายรูป</button>
+                        <input class="file-input camera-input" type="file" id="camera_lot_number" name="camera_photo" accept="image/*" capture>
                         <button class="pick" type="button" data-gallery-trigger><i class="fa-solid fa-images"></i>แนบรูป</button>
                         <input class="file-input gallery-input" type="file" id="gallery_lot_number" name="photos[]" accept="image/*" multiple>
                     </div>
@@ -84,8 +85,9 @@
                         <h2 style="font-size:18px;margin:0">รูปหลังติดตั้ง ({{ $task->typeLabel() }})</h2>
                         <p style="color:var(--text-muted);font-size:13px;margin:5px 0 0">ถ่ายภาพงานที่ติดตั้งเสร็จแล้ว แนบหลายรูปและเพิ่มซ้ำได้</p>
                         <div class="upload-choice">
-                            <button class="pick" type="button" data-camera-trigger><i class="fa-solid fa-camera"></i>ถ่ายรูป</button>
-                            <input class="file-input camera-input" type="file" id="camera_after_{{ $task->id }}" name="camera_photo" accept="image/*" capture="environment">
+                            <label class="pick native-camera-pick" for="camera_after_{{ $task->id }}"><i class="fa-solid fa-camera"></i>ถ่ายรูปด้วยกล้อง</label>
+                            <button class="pick browser-camera-pick" type="button" data-camera-trigger><i class="fa-solid fa-camera"></i>ถ่ายรูป</button>
+                            <input class="file-input camera-input" type="file" id="camera_after_{{ $task->id }}" name="camera_photo" accept="image/*" capture>
                             <button class="pick" type="button" data-gallery-trigger><i class="fa-solid fa-images"></i>แนบรูป</button>
                             <input class="file-input gallery-input" type="file" id="gallery_after_{{ $task->id }}" name="photos[]" accept="image/*" multiple>
                         </div>
@@ -218,8 +220,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const errorBox = document.getElementById('camera-error');
     let activeForm = null;
     let cameraStream = null;
-    const useNativeCamera = window.matchMedia('(pointer: coarse)').matches
-        || /Android|iPhone|iPad|iPod|Line\//i.test(navigator.userAgent);
 
     const updateSelection = (form) => {
         const camera = form.querySelector('.camera-input');
@@ -276,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
         form.querySelector('[data-gallery-trigger]').addEventListener('click', () => galleryInput.click());
         form.querySelector('[data-camera-trigger]').addEventListener('click', async () => {
             activeForm = form;
-            if (useNativeCamera || !navigator.mediaDevices?.getUserMedia || typeof DataTransfer === 'undefined') {
+            if (!navigator.mediaDevices?.getUserMedia || typeof DataTransfer === 'undefined') {
                 cameraInput.click();
                 return;
             }
