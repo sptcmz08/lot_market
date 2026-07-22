@@ -45,8 +45,21 @@ class StaffBookingController extends Controller
 
         $bookings = $query->orderByDesc('use_date')->orderByDesc('created_at')->paginate(15)->withQueryString();
 
-        // Calculate summary statistics for filtered results
-        $allFilteredBookings = (clone $query)->get();
+        foreach ($bookings as $booking) {
+            if ($booking->deliveryTasks->isEmpty() && $booking->status !== 'cancelled') {
+                $booking->ensureEquipmentTasks();
+                $booking->load('deliveryTasks.photos');
+            }
+        }
+
+        // Target date for summary calculation (default: current date / today)
+        $todayDate = now()->format('Y-m-d');
+        $summaryDate = $request->filled('date') ? $request->date : $todayDate;
+
+        // Calculate summary statistics specifically for the summary date (excluding cancelled bookings)
+        $summaryBookings = Booking::whereDate('use_date', $summaryDate)
+            ->where('status', '!=', 'cancelled')
+            ->get();
         
         $tentSummary = [
             'total' => 0,
@@ -58,7 +71,7 @@ class StaffBookingController extends Controller
             'sizes' => []
         ];
 
-        foreach ($allFilteredBookings as $b) {
+        foreach ($summaryBookings as $b) {
             $tentItems = $b->tentEquipmentItems() ?: [];
             foreach ($tentItems as $item) {
                 $qty = (int)($item['quantity'] ?? 0);
@@ -96,7 +109,9 @@ class StaffBookingController extends Controller
             }
         }
 
-        return view('staff.bookings-index', compact('bookings', 'tentSummary', 'counterSummary'));
+        $isToday = ($summaryDate === $todayDate);
+
+        return view('staff.bookings-index', compact('bookings', 'tentSummary', 'counterSummary', 'summaryDate', 'isToday'));
     }
 
     public function camera(Booking $booking)
@@ -246,8 +261,10 @@ class StaffBookingController extends Controller
 
     private function ensurePhotoAccess(Booking $booking): void
     {
-        abort_if(in_array($booking->status, ['pending_admin', 'cancelled'], true), 403, 'รายการนี้ยังไม่พร้อมส่งรูป');
-        abort_if($booking->deliveryTasks->isEmpty(), 403, 'รายการนี้ยังไม่มีงานติดตั้ง');
+        abort_if($booking->status === 'cancelled', 403, 'รายการนี้ถูกยกเลิกแล้ว');
+        
+        $booking->ensureEquipmentTasks();
+        $booking->load('deliveryTasks');
 
         $nonCompletedTasks = $booking->deliveryTasks->where('status', '!=', 'completed');
 

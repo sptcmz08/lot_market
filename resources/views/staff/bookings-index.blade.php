@@ -34,33 +34,57 @@
 
     <!-- แผงสรุปจำนวนอุปกรณ์ (รูปแบบ Excel) -->
     <div style="background:#fff; border:1px solid var(--border-cute); border-radius:20px; padding:18px; margin-bottom:20px; font-family: inherit; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+        <!-- หัวข้อระบุวันที่สรุป -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+            <div style="font-weight: 800; font-size: 15px; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-calendar-day" style="color: var(--primary); font-size: 18px;"></i>
+                <span>สรุปจำนวนอุปกรณ์ ประจำวันที่: <strong style="color: #0874a6; font-size: 16px;">{{ \Carbon\Carbon::parse($summaryDate)->format('d/m/Y') }}</strong></span>
+                @if(!empty($isToday))
+                    <span style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; font-size: 12px; padding: 2px 9px; border-radius: 999px; font-weight: 800;">(วันปัจจุบัน)</span>
+                @endif
+            </div>
+            @if(empty($isToday))
+                <a href="{{ route('staff.bookings.index', request()->except('date')) }}" style="font-size: 12px; color: #0284c7; text-decoration: none; font-weight: 700; background: #e0f2fe; padding: 4px 10px; border-radius: 8px;">
+                    <i class="fa-solid fa-rotate-left"></i> กลับมาวันปัจจุบัน
+                </a>
+            @endif
+        </div>
+
         <!-- สรุป เต็นท์ -->
         <div style="margin-bottom: 12px; font-size:14px; line-height: 1.8;">
             <span style="background: #ffd966; color: #7f6000; padding: 4px 10px; border-radius: 6px; font-weight: bold; margin-right: 15px; display: inline-block; min-width: 100px; text-align: center;">สรุป เต็นท์ = {{ $tentSummary['total'] }}</span>
             @php $firstTentSize = true; @endphp
-            @foreach($tentSummary['sizes'] as $size => $data)
-                @if(!$firstTentSize)
-                    <div style="padding-left: 120px; margin-top: 4px;">
-                @endif
-                <strong style="color: #333; font-size: 14px; margin-right: 15px;">{{ $size }} = {{ $data['total'] }}</strong>
-                @if(!empty($data['colors']))
-                    @foreach($data['colors'] as $color => $qty)
-                        <span style="margin-right: 15px; color: #b4235a; font-weight: bold;">สี{{ $color }} = {{ $qty }}</span>
-                    @endforeach
-                @endif
-                @if(!$firstTentSize)
-                    </div>
-                @endif
-                @php $firstTentSize = false; @endphp
-            @endforeach
+            @if(!empty($tentSummary['sizes']))
+                @foreach($tentSummary['sizes'] as $size => $data)
+                    @if(!$firstTentSize)
+                        <div style="padding-left: 120px; margin-top: 4px;">
+                    @endif
+                    <strong style="color: #333; font-size: 14px; margin-right: 15px;">{{ $size }} = {{ $data['total'] }}</strong>
+                    @if(!empty($data['colors']))
+                        @foreach($data['colors'] as $color => $qty)
+                            <span style="margin-right: 15px; color: #b4235a; font-weight: bold;">สี{{ $color }} = {{ $qty }}</span>
+                        @endforeach
+                    @endif
+                    @if(!$firstTentSize)
+                        </div>
+                    @endif
+                    @php $firstTentSize = false; @endphp
+                @endforeach
+            @else
+                <span style="color: #94a3b8; font-weight: 600;">ไม่มีรายการเต็นท์ในวันที่เลือก</span>
+            @endif
         </div>
 
         <!-- สรุป เคาเตอร์ -->
         <div style="font-size:14px; line-height: 1.8; border-top: 1px dashed var(--border-cute); padding-top: 10px;">
             <span style="background: #9bc2e6; color: #1f4e78; padding: 4px 10px; border-radius: 6px; font-weight: bold; margin-right: 15px; display: inline-block; min-width: 100px; text-align: center;">สรุปเคาเตอร์</span>
-            @foreach($counterSummary['sizes'] as $size => $qty)
-                <span style="margin-right: 25px; font-weight: bold; color: #333;">{{ $size }} = {{ $qty }}</span>
-            @endforeach
+            @if(!empty($counterSummary['sizes']))
+                @foreach($counterSummary['sizes'] as $size => $qty)
+                    <span style="margin-right: 25px; font-weight: bold; color: #333;">{{ $size }} = {{ $qty }}</span>
+                @endforeach
+            @else
+                <span style="color: #94a3b8; font-weight: 600;">ไม่มีรายการเคาน์เตอร์ในวันที่เลือก</span>
+            @endif
         </div>
     </div>
 
@@ -166,7 +190,8 @@
                     $isSent = $tasks->contains('status', 'photo_uploaded');
                     $isApproved = $tasks->isNotEmpty() && $tasks->every(fn($task) => $task->status === 'completed');
                     $rejectNote = $tasks->pluck('problem_note')->filter()->first();
-                    $canUseCamera = !$isSent && !$isApproved && $tasks->isNotEmpty() && !in_array($booking->status, ['pending_admin','cancelled'], true);
+                    $hasTasks = $tasks->isNotEmpty() || $booking->tent_size || !empty($booking->tent_items) || $booking->counter_size || !empty($booking->counter_items);
+                    $canUseCamera = !$isSent && !$isApproved && $hasTasks && $booking->status !== 'cancelled';
                     $otherEquipment = $tasks->where('task_type', 'other')->pluck('equipment_note')->filter()->implode(' / ');
                     $tentItems = $booking->tentEquipmentItems();
                     $counterItems = $booking->counterEquipmentItems();

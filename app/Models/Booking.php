@@ -131,12 +131,22 @@ class Booking extends Model
         ]] : [];
     }
 
-    private function normalizeEquipmentItems(array $items): array
+    public function ensureEquipmentTasks(): void
     {
-        return collect($items)->filter(fn ($item) => !empty($item['size']))->map(fn ($item) => [
-            'size' => (string) $item['size'],
-            'color' => $item['color'] ?? null,
-            'quantity' => max(1, (int) ($item['quantity'] ?? 1)),
-        ])->values()->all();
+        $types = [];
+        if ($this->tent_size || !empty($this->tent_items)) {
+            $types[] = DeliveryTask::TYPE_TENT;
+        }
+        if ($this->counter_size || !empty($this->counter_items)) {
+            $types[] = DeliveryTask::TYPE_COUNTER;
+        }
+
+        foreach ($types as $type) {
+            DeliveryTask::firstOrCreate(
+                ['booking_id' => $this->id, 'task_type' => $type],
+                ['task_date' => $this->use_date, 'status' => 'waiting']
+            );
+        }
     }
 }
+

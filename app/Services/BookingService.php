@@ -58,6 +58,8 @@ class BookingService
 
             $booking->lots()->sync($lotIds);
 
+            $booking->ensureEquipmentTasks();
+
             // Log status change
             StatusLogService::log(Booking::class, $booking->id, null, 'pending_admin', null, 'จองโดยลูกค้า');
 

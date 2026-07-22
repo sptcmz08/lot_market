@@ -33,7 +33,15 @@ class AdminInstallationReviewController extends Controller
                 }
             }
 
-            StatusLogService::log(Booking::class, $booking->id, $booking->status, $booking->status, auth()->id(), 'แอดมินอนุมัติรูป LOT แล้ว Staff สามารถแนบรูปงานติดตั้งได้');
+            if ($booking->status === 'pending_admin') {
+                $booking->update([
+                    'status' => 'confirmed',
+                    'confirmed_by' => auth()->id(),
+                    'confirmed_at' => now(),
+                ]);
+            }
+
+            StatusLogService::log(Booking::class, $booking->id, $booking->status, $booking->status, auth()->id(), 'แอดมินอนุมัติรูป LOT แล้ว ยืนยันการจองเรียบร้อย Staff สามารถแนบรูปงานติดตั้งได้');
         });
 
         return back()->with('success', 'อนุมัติรูป LOT เรียบร้อยแล้ว Staff สามารถแนบรูปงานติดตั้งได้');
