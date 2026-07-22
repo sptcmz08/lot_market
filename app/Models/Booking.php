@@ -148,5 +148,14 @@ class Booking extends Model
             );
         }
     }
+
+    private function normalizeEquipmentItems(array $items): array
+    {
+        return collect($items)->filter(fn ($item) => !empty($item['size']))->map(fn ($item) => [
+            'size' => (string) $item['size'],
+            'color' => $item['color'] ?? null,
+            'quantity' => max(1, (int) ($item['quantity'] ?? 1)),
+        ])->values()->all();
+    }
 }
 
