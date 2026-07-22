@@ -23,8 +23,12 @@
     .equipment-empty { color:var(--text-muted);font-weight:700; }
     .pagination { margin-top:18px; }
     @media(max-width:900px){
-        .filter-grid{grid-template-columns:1fr}.page-heading{font-size:21px}.filter-card{padding:14px}.filter-card .actions{display:grid;grid-template-columns:1fr 1fr}.filter-card .action-btn{justify-content:center}
+        .page-heading{font-size:18px;margin:3px 0 10px}.summary-card{padding:11px !important;margin-bottom:12px !important;border-radius:14px !important}.summary-header{margin-bottom:9px !important;padding-bottom:7px !important}.summary-header>div{font-size:12px !important}.summary-header strong{font-size:13px !important}.summary-card>div:not(.summary-header){font-size:11px !important;line-height:1.55 !important}.summary-card>div:not(.summary-header)>span:first-child{min-width:78px !important;padding:3px 7px !important;margin-right:7px !important}.status-tabs{gap:5px !important;margin-bottom:12px !important}.status-tab{padding:6px 10px !important;font-size:11px !important}.filter-grid{grid-template-columns:1fr 1fr auto;gap:7px}.filter-card{padding:9px;margin-bottom:12px;border-radius:13px}.filter-card .field:first-child{grid-column:1/-1}.filter-card .field label{font-size:11px;margin-bottom:3px}.filter-card .field input,.filter-card .field select{height:36px;border-width:1px;border-radius:9px;padding:0 8px;font-size:12px}.filter-card .actions{display:flex;gap:5px}.filter-card .action-btn{justify-content:center;min-height:36px;padding:0 9px;border-width:1px;border-radius:9px;font-size:11px}
         .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 20px; border: 1px solid var(--border-cute); background: #fff; }
+        table{min-width:980px}th,td{padding:8px 6px;font-size:11px}th{font-size:10px}.badge{padding:4px 7px;font-size:10px}.action-btn{min-height:34px;padding:0 8px;font-size:11px;border-radius:9px}
+    }
+    @media(max-width:480px){
+        table{min-width:920px}th,td{padding:7px 5px;font-size:10px}.filter-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.filter-card .actions{grid-column:1/-1}.filter-card .actions>*{flex:1}.summary-header{align-items:flex-start !important}.summary-header>a{font-size:10px !important}
     }
 </style>
 @endsection
@@ -33,9 +37,9 @@
     <h1 class="page-heading">รายการจองทั้งหมด</h1>
 
     <!-- แผงสรุปจำนวนอุปกรณ์ (รูปแบบ Excel) -->
-    <div style="background:#fff; border:1px solid var(--border-cute); border-radius:20px; padding:18px; margin-bottom:20px; font-family: inherit; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+    <div class="summary-card" style="background:#fff; border:1px solid var(--border-cute); border-radius:20px; padding:18px; margin-bottom:20px; font-family: inherit; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
         <!-- หัวข้อระบุวันที่สรุป -->
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+        <div class="summary-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; flex-wrap: wrap; gap: 8px;">
             <div style="font-weight: 800; font-size: 15px; color: #1e293b; display: flex; align-items: center; gap: 8px;">
                 <i class="fa-solid fa-calendar-day" style="color: var(--primary); font-size: 18px;"></i>
                 <span>สรุปจำนวนอุปกรณ์ ประจำวันที่: <strong style="color: #0874a6; font-size: 16px;">{{ \Carbon\Carbon::parse($summaryDate)->format('d/m/Y') }}</strong></span>
@@ -89,7 +93,7 @@
     </div>
 
     <!-- ปุ่มเลือกสถานะ (Status Tabs) -->
-    <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
+    <div class="status-tabs" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;">
         @php
             $currentStatus = request('status');
             $statusTabs = [
@@ -125,7 +129,7 @@
                     }
                 }
             @endphp
-            <a href="{{ route('staff.bookings.index', array_merge(request()->except(['page', 'status']), $val !== '' ? ['status' => $val] : [])) }}" 
+            <a class="status-tab" href="{{ route('staff.bookings.index', array_merge(request()->except(['page', 'status']), $val !== '' ? ['status' => $val] : [])) }}"
                style="text-decoration: none; padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: bold; background: {{ $bg }}; color: {{ $color }}; border: {{ $border }}; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
                 @if($val === '')
                     <i class="fa-solid fa-clock-rotate-left"></i>

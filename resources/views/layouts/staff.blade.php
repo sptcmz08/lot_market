@@ -227,6 +227,44 @@
         .has-sticky-bottom {
             padding-bottom: 95px; /* Offset to prevent overlap */
         }
+
+        @media (max-width: 900px) {
+            .staff-header {
+                padding: 10px 12px;
+                min-height: 48px;
+                box-sizing: border-box;
+            }
+
+            .staff-brand {
+                gap: 6px;
+                font-size: 15px;
+            }
+
+            .staff-brand i {
+                font-size: 18px;
+            }
+
+            .staff-header > div {
+                gap: 5px !important;
+            }
+
+            .staff-header > div > span {
+                max-width: 120px;
+                overflow: hidden;
+                font-size: 11px !important;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            .logout-link {
+                padding: 5px 6px;
+                font-size: 16px;
+            }
+
+            .staff-content {
+                padding: 8px;
+            }
+        }
     </style>
     @yield('styles')
 </head>
