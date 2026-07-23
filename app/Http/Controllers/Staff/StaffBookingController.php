@@ -10,6 +10,7 @@ use App\Services\PhotoUploadService;
 use App\Services\StatusLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class StaffBookingController extends Controller
 {
@@ -174,6 +175,30 @@ class StaffBookingController extends Controller
         return redirect()
             ->route('staff.bookings.camera', $booking)
             ->with('success', 'แนบรูปเรียบร้อยแล้ว '.$files->count().' รูป สามารถเพิ่มรูปต่อหรือกดส่งได้');
+    }
+
+    public function destroyPhoto(Booking $booking, DeliveryPhoto $photo)
+    {
+        $booking->load('deliveryTasks.photos');
+        $this->ensurePhotoAccess($booking);
+
+        $task = $booking->deliveryTasks->firstWhere('id', $photo->delivery_task_id);
+        abort_unless($task, 404);
+
+        if ($photo->photo_type === 'lot_number') {
+            abort_unless(in_array($photo->ocr_status, ['draft', 'rejected'], true), 403, 'รูป LOT ที่ส่งตรวจหรืออนุมัติแล้วไม่สามารถลบได้');
+        } else {
+            abort_if(in_array($task->status, ['photo_uploaded', 'completed'], true), 403, 'รูปงานที่ส่งตรวจหรืออนุมัติแล้วไม่สามารถลบได้');
+        }
+
+        DB::transaction(function () use ($photo) {
+            Storage::disk('public')->delete($photo->image_path);
+            $photo->delete();
+        });
+
+        return redirect()
+            ->route('staff.bookings.camera', $booking)
+            ->with('success', 'ลบรูปเรียบร้อยแล้ว');
     }
 
     public function submitLot(Booking $booking)

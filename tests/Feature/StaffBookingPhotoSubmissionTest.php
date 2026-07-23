@@ -197,6 +197,70 @@ class StaffBookingPhotoSubmissionTest extends TestCase
             ->assertSee('data-lightbox-alt="รูปงานเคาน์เตอร์"', false);
     }
 
+    public function test_staff_can_delete_draft_photos_but_not_photos_already_sent_for_review(): void
+    {
+        Storage::fake('public');
+        $staff = $this->user('staff-delete-photo', 'staff');
+        $booking = Booking::create([
+            'booking_code' => 'BKSTAFFPHOTO003',
+            'use_date' => now()->toDateString(),
+            'shop_name' => 'ร้านทดสอบลบรูป',
+            'customer_phone' => '0888888888',
+            'tent_size' => '2x2',
+            'tent_color' => 'แดง',
+            'status' => 'confirmed',
+        ]);
+        $task = DeliveryTask::create([
+            'booking_id' => $booking->id,
+            'staff_id' => $staff->id,
+            'task_type' => DeliveryTask::TYPE_TENT,
+            'task_date' => $booking->use_date,
+            'status' => 'waiting',
+        ]);
+
+        $this->actingAs($staff)->post(route('staff.bookings.photos', $booking), [
+            'photo_type' => 'lot_number',
+            'camera_photo' => $this->photo('draft-lot.png'),
+        ])->assertRedirect(route('staff.bookings.camera', $booking));
+
+        $draftPhoto = $task->photos()->where('photo_type', 'lot_number')->firstOrFail();
+        Storage::disk('public')->assertExists($draftPhoto->image_path);
+        $this->actingAs($staff)->get(route('staff.bookings.camera', $booking))
+            ->assertOk()
+            ->assertSee(route('staff.bookings.photos.destroy', [$booking, $draftPhoto]), false)
+            ->assertSee('aria-label="ลบรูปเลข LOT"', false);
+
+        $this->actingAs($staff)->delete(route('staff.bookings.photos.destroy', [$booking, $draftPhoto]))
+            ->assertRedirect(route('staff.bookings.camera', $booking))
+            ->assertSessionHas('success', 'ลบรูปเรียบร้อยแล้ว');
+        $this->assertDatabaseMissing('delivery_photos', ['id' => $draftPhoto->id]);
+        Storage::disk('public')->assertMissing($draftPhoto->image_path);
+
+        $this->actingAs($staff)->post(route('staff.bookings.photos', $booking), [
+            'photo_type' => 'lot_number',
+            'camera_photo' => $this->photo('submitted-lot.png'),
+        ])->assertRedirect(route('staff.bookings.camera', $booking));
+        $submittedPhoto = $task->photos()->where('photo_type', 'lot_number')->firstOrFail();
+
+        $this->actingAs($staff)->post(route('staff.bookings.submit_lot', $booking))->assertRedirect();
+        $this->actingAs($staff)->delete(route('staff.bookings.photos.destroy', [$booking, $submittedPhoto]))
+            ->assertForbidden();
+        $this->assertDatabaseHas('delivery_photos', ['id' => $submittedPhoto->id]);
+        Storage::disk('public')->assertExists($submittedPhoto->image_path);
+
+        $submittedPhoto->update(['ocr_status' => 'approved']);
+        $this->actingAs($staff)->post(route('staff.bookings.photos', [$booking, $task]), [
+            'photo_type' => 'after',
+            'camera_photo' => $this->photo('draft-work.png'),
+        ])->assertRedirect(route('staff.bookings.camera', $booking));
+        $draftWorkPhoto = $task->photos()->where('photo_type', 'after')->firstOrFail();
+
+        $this->actingAs($staff)->delete(route('staff.bookings.photos.destroy', [$booking, $draftWorkPhoto]))
+            ->assertRedirect(route('staff.bookings.camera', $booking));
+        $this->assertDatabaseMissing('delivery_photos', ['id' => $draftWorkPhoto->id]);
+        Storage::disk('public')->assertMissing($draftWorkPhoto->image_path);
+    }
+
     private function user(string $username, string $role): User
     {
         return User::create([

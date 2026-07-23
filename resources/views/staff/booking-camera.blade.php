@@ -4,7 +4,7 @@
 
 @section('styles')
 <style>
-    .camera-grid{display:grid;grid-template-columns:minmax(280px,440px) 1fr;gap:18px}.upload-stack{display:grid;gap:18px}.panel{background:#fff;border:1px solid var(--border-cute);border-radius:22px;padding:20px}.panel-lot{border-top:5px solid var(--primary)}.panel-after{border-top:5px solid #4ECDC4}.panel-task-tent{border-top-color:#e5b700;background:#fffdf3}.panel-task-counter{border-top-color:#e66bcf;background:#fff6fd}.panel-task-other{border-top-color:#39a9db;background:#f5fbff}.task-band{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:-20px -20px 16px;padding:11px 16px;border-radius:16px 16px 0 0;font-weight:900}.panel-task-tent .task-band{background:#ffe873;color:#604d00}.panel-task-counter .task-band{background:#f2a4e8;color:#6f1d63}.panel-task-other .task-band{background:#b9e7f8;color:#07546f}.task-band small{font-size:11px;font-weight:800;opacity:.82}.back-btn{width:40px;height:40px;border:2px solid var(--border-cute);border-radius:12px;background:#fff;color:var(--text-dark);display:inline-flex;align-items:center;justify-content:center;text-decoration:none}.upload-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.pick{min-height:95px;border:2px dashed var(--border-cute);border-radius:18px;background:#fff;color:var(--text-dark);font:inherit;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;font-weight:800;cursor:pointer;text-align:center}.pick:active{transform:scale(.98)}.pick i{font-size:28px;color:var(--primary-hover)}.browser-camera-pick{display:none}.file-input{display:none}.thumb-section+.thumb-section{margin-top:20px;padding-top:18px;border-top:1px dashed var(--border-cute)}.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}.thumb{position:relative;border:0;background:none;padding:0}.thumb img{width:100%;height:125px;object-fit:cover;border-radius:14px;border:1px solid var(--border-cute);display:block}.thumb span{position:absolute;left:6px;bottom:6px;padding:4px 7px;border-radius:999px;background:rgba(255,255,255,.92);font-size:10px;font-weight:800}.camera-modal{position:fixed;inset:0;z-index:10001;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(20,20,28,.86)}.camera-modal.is-open{display:flex}.camera-dialog{width:min(100%,680px);padding:16px;border-radius:22px;background:#11131a;color:#fff}.camera-video{display:block;width:100%;max-height:68vh;object-fit:contain;border-radius:16px;background:#000}.camera-actions{display:flex;gap:10px;margin-top:14px}.camera-actions button{flex:1}.camera-error{display:none;padding:18px;text-align:center;color:#ffd3d3}@media(hover:hover) and (pointer:fine){.native-camera-pick{display:none}.browser-camera-pick{display:flex}}@media(max-width:800px){.camera-grid{grid-template-columns:1fr}.upload-choice{grid-template-columns:1fr 1fr}.task-band{margin:-20px -20px 14px}}
+    .camera-grid{display:grid;grid-template-columns:minmax(280px,440px) 1fr;gap:18px}.upload-stack{display:grid;gap:18px}.panel{background:#fff;border:1px solid var(--border-cute);border-radius:22px;padding:20px}.panel-lot{border-top:5px solid var(--primary)}.panel-after{border-top:5px solid #4ECDC4}.panel-task-tent{border-top-color:#e5b700;background:#fffdf3}.panel-task-counter{border-top-color:#e66bcf;background:#fff6fd}.panel-task-other{border-top-color:#39a9db;background:#f5fbff}.task-band{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:-20px -20px 16px;padding:11px 16px;border-radius:16px 16px 0 0;font-weight:900}.panel-task-tent .task-band{background:#ffe873;color:#604d00}.panel-task-counter .task-band{background:#f2a4e8;color:#6f1d63}.panel-task-other .task-band{background:#b9e7f8;color:#07546f}.task-band small{font-size:11px;font-weight:800;opacity:.82}.back-btn{width:40px;height:40px;border:2px solid var(--border-cute);border-radius:12px;background:#fff;color:var(--text-dark);display:inline-flex;align-items:center;justify-content:center;text-decoration:none}.upload-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.pick{min-height:95px;border:2px dashed var(--border-cute);border-radius:18px;background:#fff;color:var(--text-dark);font:inherit;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;font-weight:800;cursor:pointer;text-align:center}.pick:active{transform:scale(.98)}.pick i{font-size:28px;color:var(--primary-hover)}.browser-camera-pick{display:none}.file-input{display:none}.thumb-section+.thumb-section{margin-top:20px;padding-top:18px;border-top:1px dashed var(--border-cute)}.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}.thumb-card{position:relative;min-width:0}.thumb{position:relative;width:100%;border:0;background:none;padding:0}.thumb img{width:100%;height:125px;object-fit:cover;border-radius:14px;border:1px solid var(--border-cute);display:block}.thumb span{position:absolute;left:6px;bottom:6px;padding:4px 7px;border-radius:999px;background:rgba(255,255,255,.92);font-size:10px;font-weight:800}.thumb-delete{position:absolute;top:6px;right:6px;z-index:2;width:34px;height:34px;border:0;border-radius:50%;background:rgba(180,35,24,.94);color:#fff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.2)}.thumb-delete:active{transform:scale(.94)}.camera-modal{position:fixed;inset:0;z-index:10001;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(20,20,28,.86)}.camera-modal.is-open{display:flex}.camera-dialog{width:min(100%,680px);padding:16px;border-radius:22px;background:#11131a;color:#fff}.camera-video{display:block;width:100%;max-height:68vh;object-fit:contain;border-radius:16px;background:#000}.camera-actions{display:flex;gap:10px;margin-top:14px}.camera-actions button{flex:1}.camera-error{display:none;padding:18px;text-align:center;color:#ffd3d3}@media(hover:hover) and (pointer:fine){.native-camera-pick{display:none}.browser-camera-pick{display:flex}}@media(max-width:800px){.camera-grid{grid-template-columns:1fr}.upload-choice{grid-template-columns:1fr 1fr}.task-band{margin:-20px -20px 14px}}
 </style>
 @endsection
 
@@ -129,10 +129,19 @@
                 @else
                     <div class="thumbs">
                         @foreach($lotPhotos as $photo)
-                            <button type="button" class="thumb image-lightbox-trigger" data-lightbox-src="{{ route('media.show',['path'=>$photo->image_path]) }}">
-                                <img src="{{ route('media.show',['path'=>$photo->image_path]) }}" alt="รูปเลข LOT">
-                                <span>รูปเลข LOT</span>
-                            </button>
+                            <div class="thumb-card">
+                                <button type="button" class="thumb image-lightbox-trigger" data-lightbox-src="{{ route('media.show',['path'=>$photo->image_path]) }}">
+                                    <img src="{{ route('media.show',['path'=>$photo->image_path]) }}" alt="รูปเลข LOT">
+                                    <span>รูปเลข LOT</span>
+                                </button>
+                                @if(in_array($photo->ocr_status, ['draft', 'rejected'], true))
+                                    <form method="POST" action="{{ route('staff.bookings.photos.destroy', [$booking, $photo]) }}" onsubmit="return confirm('ลบรูปเลข LOT ใบนี้ใช่หรือไม่?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="thumb-delete" type="submit" title="ลบรูป" aria-label="ลบรูปเลข LOT"><i class="fa-solid fa-trash"></i></button>
+                                    </form>
+                                @endif
+                            </div>
                         @endforeach
                     </div>
                 @endif
@@ -174,10 +183,19 @@
                         @else
                             <div class="thumbs">
                                 @foreach($taskAfterPhotos as $photo)
-                                    <button type="button" class="thumb image-lightbox-trigger" data-lightbox-src="{{ route('media.show',['path'=>$photo->image_path]) }}">
-                                        <img src="{{ route('media.show',['path'=>$photo->image_path]) }}" alt="รูปงาน{{ $task->typeLabel() }}">
-                                        <span>{{ $task->typeLabel() }}</span>
-                                    </button>
+                                    <div class="thumb-card">
+                                        <button type="button" class="thumb image-lightbox-trigger" data-lightbox-src="{{ route('media.show',['path'=>$photo->image_path]) }}">
+                                            <img src="{{ route('media.show',['path'=>$photo->image_path]) }}" alt="รูปงาน{{ $task->typeLabel() }}">
+                                            <span>{{ $task->typeLabel() }}</span>
+                                        </button>
+                                        @if(!in_array($task->status, ['photo_uploaded', 'completed'], true))
+                                            <form method="POST" action="{{ route('staff.bookings.photos.destroy', [$booking, $photo]) }}" onsubmit="return confirm('ลบรูปงาน{{ $task->typeLabel() }}ใบนี้ใช่หรือไม่?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="thumb-delete" type="submit" title="ลบรูป" aria-label="ลบรูปงาน{{ $task->typeLabel() }}"><i class="fa-solid fa-trash"></i></button>
+                                            </form>
+                                        @endif
+                                    </div>
                                 @endforeach
                             </div>
                         @endif

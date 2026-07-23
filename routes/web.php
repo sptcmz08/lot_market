@@ -63,6 +63,7 @@ Route::middleware(['auth', 'role:staff,admin'])->prefix('staff')->name('staff.')
     Route::get('/bookings', [StaffBookingController::class, 'index'])->name('bookings.index');
     Route::get('/bookings/{booking}/camera', [StaffBookingController::class, 'camera'])->name('bookings.camera');
     Route::post('/bookings/{booking}/photos/{task?}', [StaffBookingController::class, 'uploadPhotos'])->name('bookings.photos');
+    Route::delete('/bookings/{booking}/photos/{photo}', [StaffBookingController::class, 'destroyPhoto'])->name('bookings.photos.destroy');
     Route::post('/bookings/{booking}/submit-lot', [StaffBookingController::class, 'submitLot'])->name('bookings.submit_lot');
     Route::post('/bookings/{booking}/submit-work/{task?}', [StaffBookingController::class, 'submitWork'])->name('bookings.submit_work');
     Route::get('/tasks', [StaffTaskController::class, 'index'])->name('tasks.index');
