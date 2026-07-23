@@ -4,7 +4,7 @@
 
 @section('styles')
 <style>
-    .camera-grid{display:grid;grid-template-columns:minmax(280px,440px) 1fr;gap:18px}.upload-stack{display:grid;gap:18px}.panel{background:#fff;border:1px solid var(--border-cute);border-radius:22px;padding:20px}.panel-lot{border-top:5px solid var(--primary)}.panel-after{border-top:5px solid #4ECDC4}.back-btn{width:40px;height:40px;border:2px solid var(--border-cute);border-radius:12px;background:#fff;color:var(--text-dark);display:inline-flex;align-items:center;justify-content:center;text-decoration:none}.upload-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.pick{min-height:95px;border:2px dashed var(--border-cute);border-radius:18px;background:#fff;color:var(--text-dark);font:inherit;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;font-weight:800;cursor:pointer;text-align:center}.pick:active{transform:scale(.98)}.pick i{font-size:28px;color:var(--primary-hover)}.browser-camera-pick{display:none}.file-input{display:none}.thumb-section+.thumb-section{margin-top:20px;padding-top:18px;border-top:1px dashed var(--border-cute)}.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}.thumb{position:relative;border:0;background:none;padding:0}.thumb img{width:100%;height:125px;object-fit:cover;border-radius:14px;border:1px solid var(--border-cute);display:block}.thumb span{position:absolute;left:6px;bottom:6px;padding:4px 7px;border-radius:999px;background:rgba(255,255,255,.92);font-size:10px;font-weight:800}.camera-modal{position:fixed;inset:0;z-index:10001;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(20,20,28,.86)}.camera-modal.is-open{display:flex}.camera-dialog{width:min(100%,680px);padding:16px;border-radius:22px;background:#11131a;color:#fff}.camera-video{display:block;width:100%;max-height:68vh;object-fit:contain;border-radius:16px;background:#000}.camera-actions{display:flex;gap:10px;margin-top:14px}.camera-actions button{flex:1}.camera-error{display:none;padding:18px;text-align:center;color:#ffd3d3}@media(hover:hover) and (pointer:fine){.native-camera-pick{display:none}.browser-camera-pick{display:flex}}@media(max-width:800px){.camera-grid{grid-template-columns:1fr}.upload-choice{grid-template-columns:1fr 1fr}}
+    .camera-grid{display:grid;grid-template-columns:minmax(280px,440px) 1fr;gap:18px}.upload-stack{display:grid;gap:18px}.panel{background:#fff;border:1px solid var(--border-cute);border-radius:22px;padding:20px}.panel-lot{border-top:5px solid var(--primary)}.panel-after{border-top:5px solid #4ECDC4}.panel-task-tent{border-top-color:#e5b700;background:#fffdf3}.panel-task-counter{border-top-color:#e66bcf;background:#fff6fd}.panel-task-other{border-top-color:#39a9db;background:#f5fbff}.task-band{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:-20px -20px 16px;padding:11px 16px;border-radius:16px 16px 0 0;font-weight:900}.panel-task-tent .task-band{background:#ffe873;color:#604d00}.panel-task-counter .task-band{background:#f2a4e8;color:#6f1d63}.panel-task-other .task-band{background:#b9e7f8;color:#07546f}.task-band small{font-size:11px;font-weight:800;opacity:.82}.back-btn{width:40px;height:40px;border:2px solid var(--border-cute);border-radius:12px;background:#fff;color:var(--text-dark);display:inline-flex;align-items:center;justify-content:center;text-decoration:none}.upload-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}.pick{min-height:95px;border:2px dashed var(--border-cute);border-radius:18px;background:#fff;color:var(--text-dark);font:inherit;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;font-weight:800;cursor:pointer;text-align:center}.pick:active{transform:scale(.98)}.pick i{font-size:28px;color:var(--primary-hover)}.browser-camera-pick{display:none}.file-input{display:none}.thumb-section+.thumb-section{margin-top:20px;padding-top:18px;border-top:1px dashed var(--border-cute)}.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}.thumb{position:relative;border:0;background:none;padding:0}.thumb img{width:100%;height:125px;object-fit:cover;border-radius:14px;border:1px solid var(--border-cute);display:block}.thumb span{position:absolute;left:6px;bottom:6px;padding:4px 7px;border-radius:999px;background:rgba(255,255,255,.92);font-size:10px;font-weight:800}.camera-modal{position:fixed;inset:0;z-index:10001;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(20,20,28,.86)}.camera-modal.is-open{display:flex}.camera-dialog{width:min(100%,680px);padding:16px;border-radius:22px;background:#11131a;color:#fff}.camera-video{display:block;width:100%;max-height:68vh;object-fit:contain;border-radius:16px;background:#000}.camera-actions{display:flex;gap:10px;margin-top:14px}.camera-actions button{flex:1}.camera-error{display:none;padding:18px;text-align:center;color:#ffd3d3}@media(hover:hover) and (pointer:fine){.native-camera-pick{display:none}.browser-camera-pick{display:flex}}@media(max-width:800px){.camera-grid{grid-template-columns:1fr}.upload-choice{grid-template-columns:1fr 1fr}.task-band{margin:-20px -20px 14px}}
 </style>
 @endsection
 
@@ -59,30 +59,45 @@
                 @php
                     $taskFinished = $task->status === 'completed';
                     $taskSubmitted = $task->status === 'photo_uploaded';
+                    $taskPanelClass = match ($task->task_type) {
+                        \App\Models\DeliveryTask::TYPE_TENT => 'panel-task-tent',
+                        \App\Models\DeliveryTask::TYPE_COUNTER => 'panel-task-counter',
+                        default => 'panel-task-other',
+                    };
+                    $taskTitle = match ($task->task_type) {
+                        \App\Models\DeliveryTask::TYPE_TENT => 'Tent (เต็นท์)',
+                        \App\Models\DeliveryTask::TYPE_COUNTER => 'Counter (เคาน์เตอร์)',
+                        \App\Models\DeliveryTask::TYPE_OTHER => 'Other (อุปกรณ์อื่น)',
+                        default => $task->typeLabel(),
+                    };
                 @endphp
                 @if (!$lotApproved)
-                    <div class="panel panel-after" style="text-align:center;opacity:.72;border-top-color:#bbb;">
+                    <div class="panel panel-after {{ $taskPanelClass }}" style="text-align:center;opacity:.72;">
+                        <div class="task-band"><span>{{ $taskTitle }}</span><small>ขั้นตอนถัดไป</small></div>
                         <i class="fa-solid fa-lock" style="font-size:38px;color:var(--text-muted);"></i>
-                        <h2 style="font-size:18px;margin:10px 0 4px;">รูปงานติดตั้ง ({{ $task->typeLabel() }}) ยังถูกล็อก</h2>
+                        <h2 style="font-size:18px;margin:10px 0 4px;">รูปงานติดตั้งยังถูกล็อก</h2>
                         <p style="margin:0;color:var(--text-muted);font-size:13px;">ต้องให้ Admin อนุมัติรูปเลข LOT ก่อน</p>
                     </div>
                 @elseif ($taskFinished)
-                    <div class="panel panel-after" style="text-align:center;border-top-color:#28a745;">
+                    <div class="panel panel-after {{ $taskPanelClass }}" style="text-align:center;">
+                        <div class="task-band"><span>{{ $taskTitle }}</span><small>อนุมัติแล้ว</small></div>
                         <i class="fa-solid fa-circle-check" style="font-size:38px;color:#28a745;"></i>
-                        <h2 style="font-size:18px;margin:10px 0 4px;">{{ $task->typeLabel() }} เสร็จสมบูรณ์แล้ว</h2>
+                        <h2 style="font-size:18px;margin:10px 0 4px;">งานเสร็จสมบูรณ์แล้ว</h2>
                         <p style="margin:0;color:var(--text-muted);font-size:13px;">Admin อนุมัติงานติดตั้งนี้เรียบร้อยแล้ว</p>
                     </div>
                 @elseif ($taskSubmitted)
-                    <div class="panel panel-after" style="text-align:center;border-top-color:#6f42c1;">
+                    <div class="panel panel-after {{ $taskPanelClass }}" style="text-align:center;">
+                        <div class="task-band"><span>{{ $taskTitle }}</span><small>ส่งแล้ว</small></div>
                         <i class="fa-solid fa-hourglass-half" style="font-size:38px;color:#6f42c1;"></i>
-                        <h2 style="font-size:18px;margin:10px 0 4px;">{{ $task->typeLabel() }} รออนุมัติ</h2>
+                        <h2 style="font-size:18px;margin:10px 0 4px;">รอ Admin อนุมัติ</h2>
                         <p style="margin:0;color:var(--text-muted);font-size:13px;">ส่งงานติดตั้งนี้ให้ Admin ตรวจสอบแล้ว</p>
                     </div>
                 @else
-                    <form class="panel photo-upload-form panel-after" data-camera-key="after_{{ $task->id }}" method="POST" enctype="multipart/form-data" action="{{ route('staff.bookings.photos', [$booking, $task]) }}">
+                    <form class="panel photo-upload-form panel-after {{ $taskPanelClass }}" data-camera-key="after_{{ $task->id }}" method="POST" enctype="multipart/form-data" action="{{ route('staff.bookings.photos', [$booking, $task]) }}">
                         @csrf
                         <input type="hidden" name="photo_type" value="after">
-                        <h2 style="font-size:18px;margin:0">รูปหลังติดตั้ง ({{ $task->typeLabel() }})</h2>
+                        <div class="task-band"><span>{{ $taskTitle }}</span><small>รูปหลังติดตั้ง</small></div>
+                        <h2 style="font-size:18px;margin:0">เพิ่มรูปส่งงาน</h2>
                         <p style="color:var(--text-muted);font-size:13px;margin:5px 0 0">ถ่ายภาพงานที่ติดตั้งเสร็จแล้ว แนบหลายรูปและเพิ่มซ้ำได้</p>
                         <div class="upload-choice">
                             <label class="pick native-camera-pick" data-native-camera-trigger for="camera_after_{{ $task->id }}"><i class="fa-solid fa-camera"></i>ถ่ายรูปด้วยกล้อง</label>

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Booking;
+use App\Models\DeliveryPhoto;
 use App\Models\DeliveryTask;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -133,6 +134,67 @@ class StaffBookingPhotoSubmissionTest extends TestCase
         $publicPage = $this->post(route('public.booking.check.submit'), ['search_query' => 'BKSTAFFPHOTO001']);
         $publicPage->assertOk();
         $paths->each(fn (string $path) => $publicPage->assertSee($path));
+    }
+
+    public function test_camera_and_booking_list_separate_tent_and_counter_photos(): void
+    {
+        $staff = $this->user('staff-split-photo', 'staff');
+        $booking = Booking::create([
+            'booking_code' => 'BKSTAFFPHOTO002',
+            'use_date' => now()->toDateString(),
+            'shop_name' => 'ร้านเต็นท์และเคาน์เตอร์',
+            'customer_phone' => '0899999999',
+            'tent_size' => '2x2',
+            'tent_color' => 'ขาว',
+            'counter_size' => '1 ล็อค 70x75 cm.',
+            'status' => 'confirmed',
+        ]);
+        $tentTask = DeliveryTask::create([
+            'booking_id' => $booking->id,
+            'staff_id' => $staff->id,
+            'task_type' => DeliveryTask::TYPE_TENT,
+            'task_date' => $booking->use_date,
+            'status' => 'waiting',
+        ]);
+        $counterTask = DeliveryTask::create([
+            'booking_id' => $booking->id,
+            'staff_id' => $staff->id,
+            'task_type' => DeliveryTask::TYPE_COUNTER,
+            'task_date' => $booking->use_date,
+            'status' => 'waiting',
+        ]);
+
+        $this->actingAs($staff)->get(route('staff.bookings.camera', $booking))
+            ->assertOk()
+            ->assertSee('Tent (เต็นท์)')
+            ->assertSee('Counter (เคาน์เตอร์)')
+            ->assertSee('ต้องให้ Admin อนุมัติรูปเลข LOT ก่อน');
+
+        DeliveryPhoto::create([
+            'delivery_task_id' => $tentTask->id,
+            'photo_type' => 'lot_number',
+            'image_path' => 'delivery-photos/lot.jpg',
+            'ocr_status' => 'approved',
+            'uploaded_by' => $staff->id,
+        ]);
+        DeliveryPhoto::create([
+            'delivery_task_id' => $tentTask->id,
+            'photo_type' => 'after',
+            'image_path' => 'delivery-photos/tent.jpg',
+            'uploaded_by' => $staff->id,
+        ]);
+        DeliveryPhoto::create([
+            'delivery_task_id' => $counterTask->id,
+            'photo_type' => 'after',
+            'image_path' => 'delivery-photos/counter.jpg',
+            'uploaded_by' => $staff->id,
+        ]);
+
+        $this->actingAs($staff)->get(route('staff.bookings.index', ['date' => $booking->use_date->format('Y-m-d')]))
+            ->assertOk()
+            ->assertSee('data-lightbox-alt="รูปเลข LOT"', false)
+            ->assertSee('data-lightbox-alt="รูปงานเต็นท์"', false)
+            ->assertSee('data-lightbox-alt="รูปงานเคาน์เตอร์"', false);
     }
 
     private function user(string $username, string $role): User

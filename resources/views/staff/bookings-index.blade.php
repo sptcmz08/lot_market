@@ -203,10 +203,28 @@
                     $otherEquipment = $tasks->where('task_type', 'other')->pluck('equipment_note')->filter()->implode(' / ');
                     $tentItems = $booking->tentEquipmentItems();
                     $counterItems = $booking->counterEquipmentItems();
-                    $previewPhotos = $allPhotos
-                        ->whereIn('photo_type', ['lot_number', 'after'])
-                        ->sortByDesc('id')
-                        ->take(4);
+                    $previewPhotos = collect();
+                    $latestLotPhoto = $allPhotos->where('photo_type', 'lot_number')->sortByDesc('id')->first();
+                    if ($latestLotPhoto) {
+                        $previewPhotos->push(['photo' => $latestLotPhoto, 'label' => 'LOT', 'alt' => 'รูปเลข LOT']);
+                    }
+                    foreach ($tasks as $task) {
+                        $latestTaskPhoto = $task->photos->where('photo_type', 'after')->sortByDesc('id')->first();
+                        if (!$latestTaskPhoto) {
+                            continue;
+                        }
+                        $taskPhotoLabel = match ($task->task_type) {
+                            \App\Models\DeliveryTask::TYPE_TENT => 'เต็นท์',
+                            \App\Models\DeliveryTask::TYPE_COUNTER => 'เคาน์เตอร์',
+                            \App\Models\DeliveryTask::TYPE_OTHER => 'อื่น',
+                            default => 'งาน',
+                        };
+                        $previewPhotos->push([
+                            'photo' => $latestTaskPhoto,
+                            'label' => $taskPhotoLabel,
+                            'alt' => 'รูปงาน'.$taskPhotoLabel,
+                        ]);
+                    }
                 @endphp
                 <tr>
                     <td><strong>{{ $booking->use_date->format('d/m/Y') }}</strong></td>
@@ -262,13 +280,14 @@
                         <div style="display:flex; flex-direction:column; gap:5px; align-items: stretch; width: 100%;">
                             @if($previewPhotos->isNotEmpty())
                                 <div class="photo-preview-grid" aria-label="รูปที่แนบแล้ว">
-                                    @foreach($previewPhotos as $photo)
+                                    @foreach($previewPhotos as $preview)
+                                        @php $photo = $preview['photo']; @endphp
                                         <button type="button"
                                                 class="photo-preview image-lightbox-trigger"
                                                 data-lightbox-src="{{ route('media.show', ['path' => $photo->image_path]) }}"
-                                                data-lightbox-alt="{{ $photo->photo_type === 'lot_number' ? 'รูปเลข LOT' : 'รูปงานติดตั้ง' }}">
-                                            <img src="{{ route('media.show', ['path' => $photo->image_path]) }}" alt="รูปที่แนบแล้ว">
-                                            <span>{{ $photo->photo_type === 'lot_number' ? 'LOT' : 'งาน' }}</span>
+                                                data-lightbox-alt="{{ $preview['alt'] }}">
+                                            <img src="{{ route('media.show', ['path' => $photo->image_path]) }}" alt="{{ $preview['alt'] }}">
+                                            <span>{{ $preview['label'] }}</span>
                                         </button>
                                     @endforeach
                                 </div>
