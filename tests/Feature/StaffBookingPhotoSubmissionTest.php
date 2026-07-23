@@ -64,10 +64,15 @@ class StaffBookingPhotoSubmissionTest extends TestCase
         $this->actingAs($staff)->post(route('staff.bookings.photos', $booking), [
             'photo_type' => 'lot_number',
             'camera_photo' => $this->photo('lot.png'),
-        ])->assertRedirect()->assertSessionHas('success');
+        ])->assertRedirect(route('staff.bookings.camera', $booking))->assertSessionHas('success');
 
         $this->assertCount(0, $task->photos()->where('photo_type', 'after')->get());
         $this->assertCount(1, $task->photos()->where('photo_type', 'lot_number')->get());
+        $lotPhotoPath = $task->photos()->where('photo_type', 'lot_number')->value('image_path');
+        $this->actingAs($staff)->get(route('staff.bookings.index', ['date' => $booking->use_date->format('Y-m-d')]))
+            ->assertOk()
+            ->assertSee(route('media.show', ['path' => $lotPhotoPath]), false)
+            ->assertSee('รูปเลข LOT');
 
         $this->actingAs($staff)->post(route('staff.bookings.submit_lot', $booking))
             ->assertRedirect(route('staff.bookings.index'))
@@ -102,7 +107,7 @@ class StaffBookingPhotoSubmissionTest extends TestCase
         $this->actingAs($staff)->post(route('staff.bookings.photos', [$booking, $task]), [
             'photo_type' => 'after',
             'photos' => [$this->photo('one.png'), $this->photo('two.png')],
-        ])->assertRedirect()->assertSessionHas('success');
+        ])->assertRedirect(route('staff.bookings.camera', $booking))->assertSessionHas('success');
         $this->assertCount(2, $task->photos()->where('photo_type', 'after')->get());
 
         $this->actingAs($staff)->post(route('staff.bookings.submit_work', [$booking, $task]))

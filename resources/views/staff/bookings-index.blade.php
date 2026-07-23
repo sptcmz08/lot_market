@@ -21,6 +21,10 @@
     .action-btn.send { border:0;background:linear-gradient(135deg,var(--primary),var(--primary-hover));color:#fff; }
     .action-btn[disabled] { opacity:.55;cursor:not-allowed; }
     .equipment-empty { color:var(--text-muted);font-weight:700; }
+    .photo-preview-grid { display:grid;grid-template-columns:repeat(2,42px);gap:5px;justify-content:center;margin-top:3px; }
+    .photo-preview { position:relative;width:42px;height:42px;border:0;border-radius:8px;overflow:hidden;background:#eef2f7;padding:0;cursor:zoom-in; }
+    .photo-preview img { width:100%;height:100%;object-fit:cover;display:block; }
+    .photo-preview span { position:absolute;right:2px;bottom:2px;padding:1px 3px;border-radius:4px;background:rgba(17,19,26,.78);color:#fff;font-size:7px;font-weight:800; }
     .pagination { margin-top:18px; }
     @media(max-width:900px){
         .page-heading{font-size:18px;margin:3px 0 10px}.summary-card{padding:11px !important;margin-bottom:12px !important;border-radius:14px !important}.summary-header{margin-bottom:9px !important;padding-bottom:7px !important}.summary-header>div{font-size:12px !important}.summary-header strong{font-size:13px !important}.summary-card>div:not(.summary-header){font-size:11px !important;line-height:1.55 !important}.summary-card>div:not(.summary-header)>span:first-child{min-width:78px !important;padding:3px 7px !important;margin-right:7px !important}.status-tabs{gap:5px !important;margin-bottom:12px !important}.status-tab{padding:6px 10px !important;font-size:11px !important}.filter-grid{grid-template-columns:1fr 1fr auto;gap:7px}.filter-card{padding:9px;margin-bottom:12px;border-radius:13px}.filter-card .field:first-child{grid-column:1/-1}.filter-card .field label{font-size:11px;margin-bottom:3px}.filter-card .field input,.filter-card .field select{height:36px;border-width:1px;border-radius:9px;padding:0 8px;font-size:12px}.filter-card .actions{display:flex;gap:5px}.filter-card .action-btn{justify-content:center;min-height:36px;padding:0 9px;border-width:1px;border-radius:9px;font-size:11px}
@@ -199,6 +203,10 @@
                     $otherEquipment = $tasks->where('task_type', 'other')->pluck('equipment_note')->filter()->implode(' / ');
                     $tentItems = $booking->tentEquipmentItems();
                     $counterItems = $booking->counterEquipmentItems();
+                    $previewPhotos = $allPhotos
+                        ->whereIn('photo_type', ['lot_number', 'after'])
+                        ->sortByDesc('id')
+                        ->take(4);
                 @endphp
                 <tr>
                     <td><strong>{{ $booking->use_date->format('d/m/Y') }}</strong></td>
@@ -252,6 +260,19 @@
                     <!-- รูปภาพ (กล้อง) -->
                     <td>
                         <div style="display:flex; flex-direction:column; gap:5px; align-items: stretch; width: 100%;">
+                            @if($previewPhotos->isNotEmpty())
+                                <div class="photo-preview-grid" aria-label="รูปที่แนบแล้ว">
+                                    @foreach($previewPhotos as $photo)
+                                        <button type="button"
+                                                class="photo-preview image-lightbox-trigger"
+                                                data-lightbox-src="{{ route('media.show', ['path' => $photo->image_path]) }}"
+                                                data-lightbox-alt="{{ $photo->photo_type === 'lot_number' ? 'รูปเลข LOT' : 'รูปงานติดตั้ง' }}">
+                                            <img src="{{ route('media.show', ['path' => $photo->image_path]) }}" alt="รูปที่แนบแล้ว">
+                                            <span>{{ $photo->photo_type === 'lot_number' ? 'LOT' : 'งาน' }}</span>
+                                        </button>
+                                    @endforeach
+                                </div>
+                            @endif
                             @if($canUseCamera)
                                 <a class="action-btn" href="{{ route('staff.bookings.camera',$booking) }}" style="padding:4px 8px; min-height:30px; font-size:12px; justify-content:center;"><i class="fa-solid fa-camera"></i> กล้อง</a>
                                 @if(!$lotApproved)
@@ -353,4 +374,5 @@
         </table>
     </div>
     <div class="pagination">{{ $bookings->links() }}</div>
+    @include('components.image-lightbox')
 @endsection

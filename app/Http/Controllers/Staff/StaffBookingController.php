@@ -171,7 +171,9 @@ class StaffBookingController extends Controller
             ]);
         }
 
-        return back()->with('success', 'เพิ่มรูปเรียบร้อยแล้ว '.$files->count().' รูป สามารถเพิ่มรูปต่อหรือกดส่งได้');
+        return redirect()
+            ->route('staff.bookings.camera', $booking)
+            ->with('success', 'แนบรูปเรียบร้อยแล้ว '.$files->count().' รูป สามารถเพิ่มรูปต่อหรือกดส่งได้');
     }
 
     public function submitLot(Booking $booking)
