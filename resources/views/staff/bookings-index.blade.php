@@ -6,7 +6,7 @@
 <style>
     .page-heading { margin: 4px 0 18px; font-size: 24px; }
     .filter-card { background:#fff;border:1px solid var(--border-cute);border-radius:20px;padding:18px;margin-bottom:18px; }
-    .filter-grid { display:grid;grid-template-columns:2fr 1fr auto;gap:12px;align-items:end; }
+    .filter-grid { display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:12px;align-items:end; }
     .field label { display:block;font-size:13px;font-weight:700;margin-bottom:6px; }
     .field input,.field select { width:100%;height:44px;border:2px solid var(--border-cute);border-radius:13px;padding:0 12px;font:inherit;box-sizing:border-box;background:#fff; }
     .table-wrap { overflow:auto;background:#fff;border:1px solid var(--border-cute);border-radius:20px; }
@@ -164,6 +164,15 @@
         <div class="filter-grid">
             <div class="field"><label for="search">ค้นหา</label><input id="search" name="search" value="{{ request('search') }}" placeholder="รหัสจอง, ร้านค้า, เบอร์โทร, เลขล็อต..."></div>
             <div class="field"><label for="date">วันที่ใช้งาน</label><input type="date" id="date" name="date" value="{{ $summaryDate }}"></div>
+            <div class="field">
+                <label for="equipment_type">แยกประเภทงาน</label>
+                <select id="equipment_type" name="equipment_type">
+                    <option value="">รวมทุกประเภท</option>
+                    <option value="tent" @selected(request('equipment_type') === 'tent')>งานเต็นท์</option>
+                    <option value="counter" @selected(request('equipment_type') === 'counter')>งานเคาน์เตอร์</option>
+                    <option value="other" @selected(request('equipment_type') === 'other')>อุปกรณ์อื่น</option>
+                </select>
+            </div>
             <div class="actions"><button class="action-btn send" type="submit"><i class="fa-solid fa-filter"></i> กรอง</button><a class="action-btn" href="{{ route('staff.bookings.index', request()->only('status')) }}">ล้าง</a></div>
         </div>
     </form>

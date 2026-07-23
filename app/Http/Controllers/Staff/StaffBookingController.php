@@ -42,6 +42,11 @@ class StaffBookingController extends Controller
             });
         }
 
+        $equipmentType = $request->string('equipment_type')->toString();
+        if (in_array($equipmentType, [DeliveryTask::TYPE_TENT, DeliveryTask::TYPE_COUNTER, DeliveryTask::TYPE_OTHER], true)) {
+            $query->whereHas('deliveryTasks', fn ($tasks) => $tasks->where('task_type', $equipmentType));
+        }
+
         $query->whereDate('use_date', $summaryDate);
 
         $bookings = $query->orderByDesc('use_date')->orderByDesc('created_at')->paginate(15)->withQueryString();
