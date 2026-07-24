@@ -71,14 +71,7 @@
                         default => $task->typeLabel(),
                     };
                 @endphp
-                @if (!$lotApproved)
-                    <div class="panel panel-after {{ $taskPanelClass }}" style="text-align:center;opacity:.72;">
-                        <div class="task-band"><span>{{ $taskTitle }}</span><small>ขั้นตอนถัดไป</small></div>
-                        <i class="fa-solid fa-lock" style="font-size:38px;color:var(--text-muted);"></i>
-                        <h2 style="font-size:18px;margin:10px 0 4px;">รูปงานติดตั้งยังถูกล็อก</h2>
-                        <p style="margin:0;color:var(--text-muted);font-size:13px;">ต้องให้ Admin อนุมัติรูปเลข LOT ก่อน</p>
-                    </div>
-                @elseif ($taskFinished)
+                @if ($taskFinished)
                     <div class="panel panel-after {{ $taskPanelClass }}" style="text-align:center;">
                         <div class="task-band"><span>{{ $taskTitle }}</span><small>อนุมัติแล้ว</small></div>
                         <i class="fa-solid fa-circle-check" style="font-size:38px;color:#28a745;"></i>

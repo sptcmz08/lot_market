@@ -60,14 +60,14 @@ class StaffBookingPhotoSubmissionTest extends TestCase
         $this->actingAs($staff)->post(route('staff.bookings.photos', [$booking, $task]), [
             'photo_type' => 'after',
             'photos' => [$this->photo('one.png'), $this->photo('two.png')],
-        ])->assertForbidden();
+        ])->assertRedirect(route('staff.bookings.camera', $booking))->assertSessionHas('success');
 
         $this->actingAs($staff)->post(route('staff.bookings.photos', $booking), [
             'photo_type' => 'lot_number',
             'camera_photo' => $this->photo('lot.png'),
         ])->assertRedirect(route('staff.bookings.camera', $booking))->assertSessionHas('success');
 
-        $this->assertCount(0, $task->photos()->where('photo_type', 'after')->get());
+        $this->assertCount(2, $task->photos()->where('photo_type', 'after')->get());
         $this->assertCount(1, $task->photos()->where('photo_type', 'lot_number')->get());
         $lotPhotoPath = $task->photos()->where('photo_type', 'lot_number')->value('image_path');
         $this->actingAs($staff)->get(route('staff.bookings.index', ['date' => $booking->use_date->format('Y-m-d')]))
@@ -102,14 +102,7 @@ class StaffBookingPhotoSubmissionTest extends TestCase
 
         $this->actingAs($staff)->get(route('staff.bookings.camera', $booking))
             ->assertOk()
-            ->assertSee('รูปเลข LOT อนุมัติแล้ว')
-            ->assertSee('รูปผลงานติดตั้ง:');
-
-        $this->actingAs($staff)->post(route('staff.bookings.photos', [$booking, $task]), [
-            'photo_type' => 'after',
-            'photos' => [$this->photo('one.png'), $this->photo('two.png')],
-        ])->assertRedirect(route('staff.bookings.camera', $booking))->assertSessionHas('success');
-        $this->assertCount(2, $task->photos()->where('photo_type', 'after')->get());
+            ->assertSee('รูปเลข LOT อนุมัติแล้ว');
 
         $this->actingAs($staff)->post(route('staff.bookings.submit_work', [$booking, $task]))
             ->assertRedirect(route('staff.bookings.index'))
@@ -168,7 +161,7 @@ class StaffBookingPhotoSubmissionTest extends TestCase
             ->assertOk()
             ->assertSee('Tent (เต็นท์)')
             ->assertSee('Counter (เคาน์เตอร์)')
-            ->assertSee('ต้องให้ Admin อนุมัติรูปเลข LOT ก่อน');
+            ->assertDontSee('ต้องให้ Admin อนุมัติรูปเลข LOT ก่อน');
 
         DeliveryPhoto::create([
             'delivery_task_id' => $tentTask->id,

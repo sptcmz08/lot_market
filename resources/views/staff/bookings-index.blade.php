@@ -303,28 +303,27 @@
                             @endif
                             @if($canUseCamera)
                                 <a class="action-btn" href="{{ route('staff.bookings.camera',$booking) }}" style="padding:4px 8px; min-height:30px; font-size:12px; justify-content:center;"><i class="fa-solid fa-camera"></i> กล้อง</a>
-                                @if(!$lotApproved)
+                                @if(!$lotApproved && !$lotSubmitted)
                                     <form method="POST" action="{{ route('staff.bookings.submit_lot',$booking) }}" style="margin:0; width: 100%;">
                                         @csrf
-                                        <button class="action-btn send" type="submit" @disabled($lotPhotoCount===0 || $lotSubmitted) onclick="return confirm('ยืนยันส่งรูป LOT ให้ Admin ตรวจสอบ?')" style="padding:4px 8px; min-height:30px; font-size:12px; width: 100%; justify-content:center;">
+                                        <button class="action-btn send" type="submit" @disabled($lotPhotoCount===0) onclick="return confirm('ยืนยันส่งรูป LOT ให้ Admin ตรวจสอบ?')" style="padding:4px 8px; min-height:30px; font-size:12px; width: 100%; justify-content:center;">
                                             <i class="fa-solid fa-paper-plane"></i> ส่ง LOT
                                         </button>
                                     </form>
-                                @else
-                                    @foreach($tasks as $task)
-                                        @if($task->status !== 'completed' && $task->status !== 'photo_uploaded')
-                                            @php
-                                                $taskPhotoCount = $task->photos->where('photo_type', 'after')->count();
-                                            @endphp
-                                            <form method="POST" action="{{ route('staff.bookings.submit_work',[$booking, $task]) }}" style="margin:0; width: 100%;">
-                                                @csrf
-                                                <button class="action-btn send" type="submit" @disabled($taskPhotoCount===0) onclick="return confirm('ยืนยันส่งรูปงานติดตั้งสำหรับ {{ $task->typeLabel() }} ให้ Admin ตรวจสอบ?')" style="padding:4px 8px; min-height:30px; font-size:12px; width: 100%; justify-content:center; background: linear-gradient(135deg, #0284c7, #0369a1);">
-                                                    <i class="fa-solid fa-paper-plane"></i> ส่งงาน {{ $task->typeLabel() }}
-                                                </button>
-                                            </form>
-                                        @endif
-                                    @endforeach
                                 @endif
+                                @foreach($tasks as $task)
+                                    @if($task->status !== 'completed' && $task->status !== 'photo_uploaded')
+                                        @php
+                                            $taskPhotoCount = $task->photos->where('photo_type', 'after')->count();
+                                        @endphp
+                                        <form method="POST" action="{{ route('staff.bookings.submit_work',[$booking, $task]) }}" style="margin:0; width: 100%;">
+                                            @csrf
+                                            <button class="action-btn send" type="submit" @disabled($taskPhotoCount===0) onclick="return confirm('ยืนยันส่งรูปงานติดตั้งสำหรับ {{ $task->typeLabel() }} ให้ Admin ตรวจสอบ?')" style="padding:4px 8px; min-height:30px; font-size:12px; width: 100%; justify-content:center; background: linear-gradient(135deg, #0284c7, #0369a1);">
+                                                <i class="fa-solid fa-paper-plane"></i> ส่งงาน {{ $task->typeLabel() }}
+                                            </button>
+                                        </form>
+                                    @endif
+                                @endforeach
                             @else
                                 <button class="action-btn" disabled style="padding:4px 8px; min-height:30px; font-size:12px; justify-content:center;"><i class="fa-solid fa-camera"></i> กล้อง</button>
                             @endif

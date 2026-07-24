@@ -141,11 +141,7 @@ class StaffBookingController extends Controller
         ]);
 
         $lotPhotos = $booking->deliveryTasks->flatMap->photos->where('photo_type', 'lot_number');
-        if ($validated['photo_type'] === 'after') {
-            abort_unless($lotPhotos->contains('ocr_status', 'approved'), 403, 'ต้องรอแอดมินอนุมัติรูป LOT ก่อนแนบรูปงานติดตั้ง');
-        }
         if ($validated['photo_type'] === 'lot_number') {
-            abort_if($lotPhotos->contains('ocr_status', 'submitted'), 403, 'รูป LOT ถูกส่งแล้วและกำลังรอแอดมินอนุมัติ');
             abort_if($lotPhotos->contains('ocr_status', 'approved'), 403, 'รูป LOT ได้รับการอนุมัติแล้ว');
         }
 
@@ -244,11 +240,6 @@ class StaffBookingController extends Controller
     {
         $booking->load('deliveryTasks.photos');
         $this->ensurePhotoAccess($booking);
-
-        $photos = $booking->deliveryTasks->flatMap->photos;
-        if (! $photos->where('photo_type', 'lot_number')->contains('ocr_status', 'approved')) {
-            return back()->with('error', 'ต้องรอแอดมินอนุมัติรูป LOT ก่อนส่งรูปงานติดตั้ง');
-        }
 
         if ($task) {
             abort_unless($task->booking_id === $booking->id, 404);
