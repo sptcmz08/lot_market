@@ -28,8 +28,10 @@
     .pagination { margin-top:18px; }
     @media(max-width:900px){
         .page-heading{font-size:18px;margin:3px 0 10px}.summary-card{padding:11px !important;margin-bottom:12px !important;border-radius:14px !important}.summary-header{margin-bottom:9px !important;padding-bottom:7px !important}.summary-header>div{font-size:12px !important}.summary-header strong{font-size:13px !important}.summary-card>div:not(.summary-header){font-size:11px !important;line-height:1.55 !important}.summary-card>div:not(.summary-header)>span:first-child{min-width:78px !important;padding:3px 7px !important;margin-right:7px !important}.status-tabs{gap:5px !important;margin-bottom:12px !important}.status-tab{padding:6px 10px !important;font-size:11px !important}.filter-grid{grid-template-columns:1fr 1fr auto;gap:7px}.filter-card{padding:9px;margin-bottom:12px;border-radius:13px}.filter-card .field:first-child{grid-column:1/-1}.filter-card .field label{font-size:11px;margin-bottom:3px}.filter-card .field input,.filter-card .field select{height:36px;border-width:1px;border-radius:9px;padding:0 8px;font-size:12px}.filter-card .actions{display:flex;gap:5px}.filter-card .action-btn{justify-content:center;min-height:36px;padding:0 9px;border-width:1px;border-radius:9px;font-size:11px}
-        .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 20px; border: 1px solid var(--border-cute); background: #fff; }
+        .table-wrap { position: relative; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 20px; border: 1px solid var(--border-cute); background: #fff; }
         table{min-width:980px}th,td{padding:8px 6px;font-size:11px}th{font-size:10px}.badge{padding:4px 7px;font-size:10px}.action-btn{min-height:34px;padding:0 8px;font-size:11px;border-radius:9px}
+        .col-action { position: sticky; right: 0; background: #ffffff; z-index: 4; box-shadow: -4px 0 10px rgba(0, 0, 0, 0.08); border-left: 2px solid var(--border-cute) !important; min-width: 125px; }
+        tr:nth-child(even) td.col-action { background: #f8fafc; }
     }
     @media(max-width:480px){
         table{min-width:920px}th,td{padding:7px 5px;font-size:10px}.filter-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.filter-card .actions{grid-column:1/-1}.filter-card .actions>*{flex:1}.summary-header{align-items:flex-start !important}.summary-header>a{font-size:10px !important}
@@ -207,6 +209,12 @@
         </div>
     </form>
 
+    <!-- คำแนะนำการใช้งานตารางบนมือถือ -->
+    <div style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; padding: 8px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+        <span><i class="fa-solid fa-hand-pointer"></i> บนมือถือ: เลื่อนตารางไปทางซ้าย-ขวา เพื่อดูอุปกรณ์เพิ่มเติม (ปุ่มกล้องตรึงไว้ทางขวามือ)</span>
+        <i class="fa-solid fa-arrows-left-right"></i>
+    </div>
+
     <div class="table-wrap">
         <table>
             <thead>
@@ -219,7 +227,7 @@
                     <th>สี</th>
                     <th>เคาน์เตอร์</th>
                     <th>อื่น ๆ</th>
-                    <th>รูปภาพ (กล้อง)</th>
+                    <th class="col-action">รูปภาพ (กล้อง)</th>
                     <th>สถานะรูป</th>
                     <th>แอดมินยืนยัน</th>
                 </tr>
@@ -316,7 +324,7 @@
                     <td>@if($otherEquipment)<div style="font-size:13px;">{{ $otherEquipment }}</div>@else<span class="equipment-empty">-</span>@endif</td>
                     
                     <!-- รูปภาพ (กล้อง) -->
-                    <td>
+                    <td class="col-action">
                         <div style="display:flex; flex-direction:column; gap:5px; align-items: stretch; width: 100%;">
                             @if($previewPhotos->isNotEmpty())
                                 <div class="photo-preview-grid" aria-label="รูปที่แนบแล้ว">
