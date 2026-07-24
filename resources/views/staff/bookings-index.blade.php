@@ -157,40 +157,53 @@
         @endforeach
     </div>
 
-    <!-- Quick Date Shortcuts -->
-    <div style="display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center;">
-        <span style="font-size: 13px; font-weight: 700; color: var(--text-muted);"><i class="fa-solid fa-clock-rotate-left"></i> ทางลัดเลือกวันที่:</span>
-        <a href="{{ route('staff.bookings.index', array_merge(request()->except(['page', 'date']), ['date' => $todayDate])) }}"
-           style="text-decoration: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; background: {{ (!empty($isToday) && empty($isAllDates)) ? '#0874a6' : '#f1f5f9' }}; color: {{ (!empty($isToday) && empty($isAllDates)) ? '#fff' : '#334155' }}; border: 1px solid #cbd5e1;">
-            <i class="fa-solid fa-calendar-day"></i> วันนี้ ({{ \Carbon\Carbon::parse($todayDate)->format('d/m/Y') }})
-        </a>
-        <a href="{{ route('staff.bookings.index', array_merge(request()->except(['page', 'date']), ['date' => \Carbon\Carbon::parse($todayDate)->subDay()->format('Y-m-d')])) }}"
-           style="text-decoration: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; background: {{ (request('date') === \Carbon\Carbon::parse($todayDate)->subDay()->format('Y-m-d')) ? '#0874a6' : '#f1f5f9' }}; color: {{ (request('date') === \Carbon\Carbon::parse($todayDate)->subDay()->format('Y-m-d')) ? '#fff' : '#334155' }}; border: 1px solid #cbd5e1;">
-            <i class="fa-solid fa-calendar-minus"></i> เมื่อวาน ({{ \Carbon\Carbon::parse($todayDate)->subDay()->format('d/m/Y') }})
-        </a>
-        <a href="{{ route('staff.bookings.index', array_merge(request()->except(['page', 'date']), ['date' => 'all', 'status' => 'all'])) }}"
-           style="text-decoration: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; background: {{ !empty($isAllDates) ? '#0284c7' : '#f1f5f9' }}; color: {{ !empty($isAllDates) ? '#fff' : '#334155' }}; border: 1px solid #cbd5e1;">
-            <i class="fa-solid fa-database"></i> ดูย้อนหลังทั้งหมด (ไม่จำกัดวันที่)
-        </a>
-    </div>
-
-    <form class="filter-card" method="GET" action="{{ route('staff.bookings.index') }}">
+    <!-- ตัวกรองค้นหาและเลือกวันที่ใช้งาน (Custom Date Picker Filter) -->
+    <form class="filter-card" method="GET" action="{{ route('staff.bookings.index') }}" id="staffFilterForm">
         @if(request()->filled('status'))
             <input type="hidden" name="status" value="{{ request('status') }}">
         @endif
         <div class="filter-grid">
-            <div class="field"><label for="search">ค้นหา</label><input id="search" name="search" value="{{ request('search') }}" placeholder="รหัสจอง, ร้านค้า, เบอร์โทร, เลขล็อต..."></div>
-            <div class="field"><label for="date">วันที่ใช้งาน</label><input type="date" id="date" name="date" value="{{ !empty($isAllDates) ? '' : $summaryDate }}"></div>
             <div class="field">
-                <label for="equipment_type">แยกประเภทงาน</label>
-                <select id="equipment_type" name="equipment_type">
+                <label for="search"><i class="fa-solid fa-magnifying-glass"></i> ค้นหา</label>
+                <input id="search" name="search" value="{{ request('search') }}" placeholder="รหัสจอง, ร้านค้า, เบอร์โทร, เลขล็อต...">
+            </div>
+
+            <div class="field">
+                <label for="date"><i class="fa-solid fa-calendar-days" style="color: var(--primary);"></i> เลือกวันที่ต้องการดูข้อมูล</label>
+                <input type="date" id="date" name="date" value="{{ !empty($isAllDates) ? '' : $summaryDate }}" onchange="this.form.submit()">
+            </div>
+
+            <div class="field">
+                <label for="equipment_type"><i class="fa-solid fa-boxes-stacked"></i> แยกประเภทงาน</label>
+                <select id="equipment_type" name="equipment_type" onchange="this.form.submit()">
                     <option value="">รวมทุกประเภท</option>
                     <option value="tent" @selected(request('equipment_type') === 'tent')>งานเต็นท์</option>
                     <option value="counter" @selected(request('equipment_type') === 'counter')>งานเคาน์เตอร์</option>
                     <option value="other" @selected(request('equipment_type') === 'other')>อุปกรณ์อื่น</option>
                 </select>
             </div>
-            <div class="actions"><button class="action-btn send" type="submit"><i class="fa-solid fa-filter"></i> กรอง</button><a class="action-btn" href="{{ route('staff.bookings.index', request()->only('status')) }}">ล้าง</a></div>
+
+            <div class="actions">
+                <button class="action-btn send" type="submit"><i class="fa-solid fa-filter"></i> กรอง</button>
+                <a class="action-btn" href="{{ route('staff.bookings.index', request()->only('status')) }}"><i class="fa-solid fa-rotate-left"></i> ล้าง</a>
+            </div>
+        </div>
+
+        <!-- ทางลัดเลือกวันที่ด่วน -->
+        <div style="display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; align-items: center; border-top: 1px dashed var(--border-cute); padding-top: 8px;">
+            <span style="font-size: 12px; font-weight: 700; color: var(--text-muted);"><i class="fa-solid fa-bolt"></i> เลือกด่วน:</span>
+            <a href="{{ route('staff.bookings.index', array_merge(request()->except(['page', 'date']), ['date' => $todayDate])) }}"
+               style="text-decoration: none; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; background: {{ (!empty($isToday) && empty($isAllDates)) ? '#0874a6' : '#f1f5f9' }}; color: {{ (!empty($isToday) && empty($isAllDates)) ? '#fff' : '#334155' }}; border: 1px solid #cbd5e1;">
+                วันนี้ ({{ \Carbon\Carbon::parse($todayDate)->format('d/m/Y') }})
+            </a>
+            <a href="{{ route('staff.bookings.index', array_merge(request()->except(['page', 'date']), ['date' => \Carbon\Carbon::parse($todayDate)->subDay()->format('Y-m-d')])) }}"
+               style="text-decoration: none; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; background: {{ (request('date') === \Carbon\Carbon::parse($todayDate)->subDay()->format('Y-m-d')) ? '#0874a6' : '#f1f5f9' }}; color: {{ (request('date') === \Carbon\Carbon::parse($todayDate)->subDay()->format('Y-m-d')) ? '#fff' : '#334155' }}; border: 1px solid #cbd5e1;">
+                เมื่อวาน ({{ \Carbon\Carbon::parse($todayDate)->subDay()->format('d/m/Y') }})
+            </a>
+            <a href="{{ route('staff.bookings.index', array_merge(request()->except(['page', 'date']), ['date' => 'all', 'status' => 'all'])) }}"
+               style="text-decoration: none; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; background: {{ !empty($isAllDates) ? '#0284c7' : '#f1f5f9' }}; color: {{ !empty($isAllDates) ? '#fff' : '#334155' }}; border: 1px solid #cbd5e1;">
+                ดูย้อนหลังทั้งหมด (ไม่จำกัดวันที่)
+            </a>
         </div>
     </form>
 

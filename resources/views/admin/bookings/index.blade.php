@@ -125,8 +125,8 @@
             </div>
 
             <div class="cute-input-group" style="margin-bottom: 0; flex: 1; min-width: 140px;">
-                <label class="cute-label" for="date">วันที่ใช้งาน</label>
-                <input type="date" id="date" name="date" class="cute-input" value="{{ request('date') }}">
+                <label class="cute-label" for="date">วันที่ใช้งาน (ดูย้อนหลัง)</label>
+                <input type="date" id="date" name="date" class="cute-input" value="{{ request('date') }}" onchange="this.form.submit()">
             </div>
 
             <div style="display: flex; gap: 8px;">
