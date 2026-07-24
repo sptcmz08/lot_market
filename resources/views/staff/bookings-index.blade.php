@@ -234,11 +234,12 @@
                     $photoCount = $lotPhotoCount + $afterPhotoCount;
                     $lotApproved = $allPhotos->where('photo_type', 'lot_number')->contains('ocr_status', 'approved');
                     $lotSubmitted = $allPhotos->where('photo_type', 'lot_number')->contains('ocr_status', 'submitted');
-                    $isSent = $tasks->contains('status', 'photo_uploaded');
+                    $nonCompletedTasks = $tasks->where('status', '!=', 'completed');
+                    $allSent = $nonCompletedTasks->isNotEmpty() && $nonCompletedTasks->every(fn($task) => $task->status === 'photo_uploaded');
                     $isApproved = $tasks->isNotEmpty() && $tasks->every(fn($task) => $task->status === 'completed');
                     $rejectNote = $tasks->pluck('problem_note')->filter()->first();
                     $hasTasks = $tasks->isNotEmpty() || $booking->tent_size || !empty($booking->tent_items) || $booking->counter_size || !empty($booking->counter_items);
-                    $canUseCamera = !$isSent && !$isApproved && $hasTasks && $booking->status !== 'cancelled';
+                    $canUseCamera = !$allSent && !$isApproved && $hasTasks && $booking->status !== 'cancelled';
                     $otherEquipment = $tasks->where('task_type', 'other')->pluck('equipment_note')->filter()->implode(' / ');
                     $tentItems = $booking->tentEquipmentItems();
                     $counterItems = $booking->counterEquipmentItems();
