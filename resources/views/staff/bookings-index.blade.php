@@ -46,9 +46,13 @@
         <div class="summary-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; flex-wrap: wrap; gap: 8px;">
             <div style="font-weight: 800; font-size: 15px; color: #1e293b; display: flex; align-items: center; gap: 8px;">
                 <i class="fa-solid fa-calendar-day" style="color: var(--primary); font-size: 18px;"></i>
-                <span>สรุปจำนวนอุปกรณ์ ประจำวันที่: <strong style="color: #0874a6; font-size: 16px;">{{ \Carbon\Carbon::parse($summaryDate)->format('d/m/Y') }}</strong></span>
-                @if(!empty($isToday))
-                    <span style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; font-size: 12px; padding: 2px 9px; border-radius: 999px; font-weight: 800;">(วันปัจจุบัน)</span>
+                @if(!empty($isAllDates))
+                    <span>สรุปจำนวนอุปกรณ์: <strong style="color: #0874a6; font-size: 16px;">ย้อนหลังทุกวัน (ไม่จำกัดวันที่)</strong></span>
+                @else
+                    <span>สรุปจำนวนอุปกรณ์ ประจำวันที่: <strong style="color: #0874a6; font-size: 16px;">{{ \Carbon\Carbon::parse($summaryDate)->format('d/m/Y') }}</strong></span>
+                    @if(!empty($isToday))
+                        <span style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; font-size: 12px; padding: 2px 9px; border-radius: 999px; font-weight: 800;">(วันปัจจุบัน)</span>
+                    @endif
                 @endif
             </div>
             @if(empty($isToday))
@@ -58,42 +62,38 @@
             @endif
         </div>
 
-        <!-- สรุป เต็นท์ -->
-        <div style="margin-bottom: 12px; font-size:14px; line-height: 1.8;">
-            <span style="background: #ffd966; color: #7f6000; padding: 4px 10px; border-radius: 6px; font-weight: bold; margin-right: 15px; display: inline-block; min-width: 100px; text-align: center;">สรุป เต็นท์ = {{ $tentSummary['total'] }}</span>
-            @php $firstTentSize = true; @endphp
-            @if(!empty($tentSummary['sizes']))
-                @foreach($tentSummary['sizes'] as $size => $data)
-                    @if(!$firstTentSize)
-                        <div style="padding-left: 120px; margin-top: 4px;">
-                    @endif
-                    <strong style="color: #333; font-size: 14px; margin-right: 15px;">{{ $size }} = {{ $data['total'] }}</strong>
-                    @if(!empty($data['colors']))
-                        @foreach($data['colors'] as $color => $qty)
-                            <span style="margin-right: 15px; color: #b4235a; font-weight: bold;">สี{{ $color }} = {{ $qty }}</span>
+        @if($tentSummary['total'] > 0)
+            <div style="font-size: 14px; color: #334155; margin-bottom: 8px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <span style="background: #fef08a; color: #854d0e; font-weight: 800; padding: 4px 10px; border-radius: 6px; border: 1px solid #fde047; font-size: 13px;">สรุป เต็นท์ = {{ $tentSummary['total'] }}</span>
+                @foreach($tentSummary['sizes'] as $size => $info)
+                    <span style="font-weight: 700;">{{ $size }} = {{ $info['total'] }}</span>
+                    @if(!empty($info['colors']))
+                        @foreach($info['colors'] as $color => $count)
+                            <span style="color: #dc2626; font-weight: 700; margin-right: 6px;">สี{{ $color }} = {{ $count }}</span>
                         @endforeach
                     @endif
-                    @if(!$firstTentSize)
-                        </div>
-                    @endif
-                    @php $firstTentSize = false; @endphp
                 @endforeach
-            @else
-                <span style="color: #94a3b8; font-weight: 600;">ไม่มีรายการเต็นท์ในวันที่เลือก</span>
-            @endif
-        </div>
+            </div>
+        @else
+            <div style="font-size: 13px; color: #94a3b8; margin-bottom: 8px;">
+                <span style="background: #f8fafc; color: #64748b; font-weight: 700; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 13px;">สรุปเต็นท์</span>
+                <span style="margin-left: 8px;">ไม่มีรายการเต็นท์ในวันที่เลือก</span>
+            </div>
+        @endif
 
-        <!-- สรุป เคาเตอร์ -->
-        <div style="font-size:14px; line-height: 1.8; border-top: 1px dashed var(--border-cute); padding-top: 10px;">
-            <span style="background: #9bc2e6; color: #1f4e78; padding: 4px 10px; border-radius: 6px; font-weight: bold; margin-right: 15px; display: inline-block; min-width: 100px; text-align: center;">สรุปเคาเตอร์</span>
-            @if(!empty($counterSummary['sizes']))
-                @foreach($counterSummary['sizes'] as $size => $qty)
-                    <span style="margin-right: 25px; font-weight: bold; color: #333;">{{ $size }} = {{ $qty }}</span>
+        @if($counterSummary['total'] > 0)
+            <div style="font-size: 14px; color: #334155; display: flex; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <span style="background: #e0f2fe; color: #075985; font-weight: 800; padding: 4px 10px; border-radius: 6px; border: 1px solid #bae6fd; font-size: 13px;">สรุปเคาน์เตอร์ = {{ $counterSummary['total'] }}</span>
+                @foreach($counterSummary['sizes'] as $size => $count)
+                    <span style="font-weight: 700;">{{ $size }} = {{ $count }}</span>
                 @endforeach
-            @else
-                <span style="color: #94a3b8; font-weight: 600;">ไม่มีรายการเคาน์เตอร์ในวันที่เลือก</span>
-            @endif
-        </div>
+            </div>
+        @else
+            <div style="font-size: 13px; color: #94a3b8;">
+                <span style="background: #f8fafc; color: #64748b; font-weight: 700; padding: 4px 10px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 13px;">สรุปเคาน์เตอร์</span>
+                <span style="margin-left: 8px;">ไม่มีรายการเคาน์เตอร์ในวันที่เลือก</span>
+            </div>
+        @endif
     </div>
 
     <!-- ปุ่มเลือกสถานะ (Status Tabs) -->
@@ -157,13 +157,30 @@
         @endforeach
     </div>
 
+    <!-- Quick Date Shortcuts -->
+    <div style="display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center;">
+        <span style="font-size: 13px; font-weight: 700; color: var(--text-muted);"><i class="fa-solid fa-clock-rotate-left"></i> ทางลัดเลือกวันที่:</span>
+        <a href="{{ route('staff.bookings.index', array_merge(request()->except(['page', 'date']), ['date' => $todayDate])) }}"
+           style="text-decoration: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; background: {{ (!empty($isToday) && empty($isAllDates)) ? '#0874a6' : '#f1f5f9' }}; color: {{ (!empty($isToday) && empty($isAllDates)) ? '#fff' : '#334155' }}; border: 1px solid #cbd5e1;">
+            <i class="fa-solid fa-calendar-day"></i> วันนี้ ({{ \Carbon\Carbon::parse($todayDate)->format('d/m/Y') }})
+        </a>
+        <a href="{{ route('staff.bookings.index', array_merge(request()->except(['page', 'date']), ['date' => \Carbon\Carbon::parse($todayDate)->subDay()->format('Y-m-d')])) }}"
+           style="text-decoration: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; background: {{ (request('date') === \Carbon\Carbon::parse($todayDate)->subDay()->format('Y-m-d')) ? '#0874a6' : '#f1f5f9' }}; color: {{ (request('date') === \Carbon\Carbon::parse($todayDate)->subDay()->format('Y-m-d')) ? '#fff' : '#334155' }}; border: 1px solid #cbd5e1;">
+            <i class="fa-solid fa-calendar-minus"></i> เมื่อวาน ({{ \Carbon\Carbon::parse($todayDate)->subDay()->format('d/m/Y') }})
+        </a>
+        <a href="{{ route('staff.bookings.index', array_merge(request()->except(['page', 'date']), ['date' => 'all', 'status' => 'all'])) }}"
+           style="text-decoration: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; background: {{ !empty($isAllDates) ? '#0284c7' : '#f1f5f9' }}; color: {{ !empty($isAllDates) ? '#fff' : '#334155' }}; border: 1px solid #cbd5e1;">
+            <i class="fa-solid fa-database"></i> ดูย้อนหลังทั้งหมด (ไม่จำกัดวันที่)
+        </a>
+    </div>
+
     <form class="filter-card" method="GET" action="{{ route('staff.bookings.index') }}">
         @if(request()->filled('status'))
             <input type="hidden" name="status" value="{{ request('status') }}">
         @endif
         <div class="filter-grid">
             <div class="field"><label for="search">ค้นหา</label><input id="search" name="search" value="{{ request('search') }}" placeholder="รหัสจอง, ร้านค้า, เบอร์โทร, เลขล็อต..."></div>
-            <div class="field"><label for="date">วันที่ใช้งาน</label><input type="date" id="date" name="date" value="{{ $summaryDate }}"></div>
+            <div class="field"><label for="date">วันที่ใช้งาน</label><input type="date" id="date" name="date" value="{{ !empty($isAllDates) ? '' : $summaryDate }}"></div>
             <div class="field">
                 <label for="equipment_type">แยกประเภทงาน</label>
                 <select id="equipment_type" name="equipment_type">

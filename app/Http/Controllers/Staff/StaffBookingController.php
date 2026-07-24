@@ -21,7 +21,8 @@ class StaffBookingController extends Controller
     public function index(Request $request)
     {
         $todayDate = now('Asia/Bangkok')->format('Y-m-d');
-        $summaryDate = $request->filled('date') ? $request->date : $todayDate;
+        $isAllDates = ($request->query('date') === 'all');
+        $summaryDate = ($request->filled('date') && !$isAllDates) ? $request->date : $todayDate;
         $query = Booking::with(['lots', 'deliveryTasks.photos']);
 
         if ($request->filled('status')) {
@@ -29,7 +30,11 @@ class StaffBookingController extends Controller
                 $query->where('status', $request->status);
             }
         } else {
-            $query->where('status', '!=', 'completed');
+            // Default filter for current day without explicit status: show pending work (exclude completed)
+            // If staff selects a specific date or 'all', do not exclude completed so historical data is displayed
+            if (!$request->filled('date')) {
+                $query->where('status', '!=', 'completed');
+            }
         }
 
         if ($request->filled('search')) {
@@ -47,7 +52,9 @@ class StaffBookingController extends Controller
             $query->whereHas('deliveryTasks', fn ($tasks) => $tasks->where('task_type', $equipmentType));
         }
 
-        $query->whereDate('use_date', $summaryDate);
+        if (!$isAllDates) {
+            $query->whereDate('use_date', $summaryDate);
+        }
 
         $bookings = $query->orderByDesc('use_date')->orderByDesc('created_at')->paginate(15)->withQueryString();
 
@@ -58,16 +65,20 @@ class StaffBookingController extends Controller
             }
         }
 
+        $isToday = ($summaryDate === $todayDate && !$isAllDates);
+
         // Calculate summary statistics specifically for the summary date (excluding cancelled bookings)
-        $summaryBookings = Booking::whereDate('use_date', $summaryDate)
-            ->where('status', '!=', 'cancelled')
-            ->get();
-        
+        $activeBookingsQuery = Booking::where('status', '!=', 'cancelled');
+        if (!$isAllDates) {
+            $activeBookingsQuery->whereDate('use_date', $summaryDate);
+        }
+        $summaryBookings = $activeBookingsQuery->get();
+
         $tentSummary = [
             'total' => 0,
             'sizes' => []
         ];
-        
+
         $counterSummary = [
             'total' => 0,
             'sizes' => []
@@ -100,20 +111,26 @@ class StaffBookingController extends Controller
             $counterItems = $b->counterEquipmentItems() ?: [];
             foreach ($counterItems as $item) {
                 $qty = (int)($item['quantity'] ?? 0);
-                $rawSize = $item['size'] ?? '';
-                $size = preg_match('/^\d+\s*ล็อค/u', $rawSize, $matches) ? $matches[0] : $rawSize;
+                $size = $item['size'] ?? '';
+                $displaySize = preg_match('/^\d+\s*ล็อค/u', $size, $matches) ? $matches[0] : $size;
                 
                 $counterSummary['total'] += $qty;
-                if (!isset($counterSummary['sizes'][$size])) {
-                    $counterSummary['sizes'][$size] = 0;
+                if (!isset($counterSummary['sizes'][$displaySize])) {
+                    $counterSummary['sizes'][$displaySize] = 0;
                 }
-                $counterSummary['sizes'][$size] += $qty;
+                $counterSummary['sizes'][$displaySize] += $qty;
             }
         }
 
-        $isToday = ($summaryDate === $todayDate);
-
-        return view('staff.bookings-index', compact('bookings', 'tentSummary', 'counterSummary', 'summaryDate', 'isToday'));
+        return view('staff.bookings-index', compact(
+            'bookings',
+            'tentSummary',
+            'counterSummary',
+            'summaryDate',
+            'todayDate',
+            'isToday',
+            'isAllDates'
+        ));
     }
 
     public function camera(Booking $booking)

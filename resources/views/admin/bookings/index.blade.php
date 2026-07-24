@@ -73,6 +73,26 @@
     </div>
 
     <div class="cute-card">
+        @php
+            $todayStr = \Carbon\Carbon::now('Asia/Bangkok')->format('Y-m-d');
+            $yesterdayStr = \Carbon\Carbon::now('Asia/Bangkok')->subDay()->format('Y-m-d');
+        @endphp
+        <div style="display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center;">
+            <span style="font-size: 13px; font-weight: 700; color: var(--text-muted);"><i class="fa-solid fa-clock-rotate-left"></i> ทางลัดเลือกวันที่:</span>
+            <a href="{{ route('admin.bookings.index', array_merge(request()->except('page'), ['date' => $todayStr])) }}"
+               class="btn-secondary" style="padding: 6px 12px; font-size: 12px; text-decoration: none; {{ request('date') === $todayStr ? 'background: var(--primary); color: #fff; border-color: var(--primary);' : '' }}">
+                <i class="fa-solid fa-calendar-day"></i> วันนี้ ({{ \Carbon\Carbon::parse($todayStr)->format('d/m/Y') }})
+            </a>
+            <a href="{{ route('admin.bookings.index', array_merge(request()->except('page'), ['date' => $yesterdayStr])) }}"
+               class="btn-secondary" style="padding: 6px 12px; font-size: 12px; text-decoration: none; {{ request('date') === $yesterdayStr ? 'background: var(--primary); color: #fff; border-color: var(--primary);' : '' }}">
+                <i class="fa-solid fa-calendar-minus"></i> เมื่อวาน ({{ \Carbon\Carbon::parse($yesterdayStr)->format('d/m/Y') }})
+            </a>
+            <a href="{{ route('admin.bookings.index', request()->except(['page', 'date'])) }}"
+               class="btn-secondary" style="padding: 6px 12px; font-size: 12px; text-decoration: none; {{ empty(request('date')) ? 'background: #0284c7; color: #fff; border-color: #0284c7;' : '' }}">
+                <i class="fa-solid fa-database"></i> ดูย้อนหลังทั้งหมด (ไม่จำกัดวันที่)
+            </a>
+        </div>
+
         <!-- Filter Form -->
         <form action="{{ route('admin.bookings.index') }}" method="GET" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
             <div class="cute-input-group" style="margin-bottom: 0; flex: 2; min-width: 200px;">
