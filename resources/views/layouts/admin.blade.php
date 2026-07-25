@@ -235,7 +235,8 @@
             background-color: var(--bg-card);
             border-radius: 20px;
             border: 1px solid var(--border-cute);
-            overflow: hidden;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
             box-shadow: 0 8px 25px rgba(47, 47, 55, 0.03);
             margin-bottom: 20px;
         }
@@ -409,6 +410,14 @@
                 padding: 8px 14px;
                 font-size: 13px;
                 border-radius: 12px;
+            }
+            .cute-table th, .cute-table td {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+            .cute-table-container {
+                border-radius: 14px;
+                margin-bottom: 15px;
             }
             .form-grid {
                 grid-template-columns: 1fr;

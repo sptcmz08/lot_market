@@ -41,9 +41,24 @@
         min-width: 145px;
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 767px) {
         .payment-summary-grid {
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 8px;
+        }
+        .payment-summary-item {
+            padding: 10px 12px;
+        }
+        .payment-summary-item strong {
+            font-size: 18px;
+        }
+        .filter-action-btns {
+            width: 100%;
+        }
+        .filter-action-btns > * {
+            flex: 1;
+            text-align: center;
+            justify-content: center;
         }
     }
 </style>
@@ -129,7 +144,7 @@
                 <input type="date" id="date" name="date" class="cute-input" value="{{ request('date') }}" onchange="this.form.submit()">
             </div>
 
-            <div style="display: flex; gap: 8px;">
+            <div class="filter-action-btns" style="display: flex; gap: 8px;">
                 <button type="submit" class="btn-primary" style="padding: 10px 18px;">
                     <i class="fa-solid fa-filter"></i> กรองข้อมูล
                 </button>
