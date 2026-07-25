@@ -377,13 +377,56 @@
                 margin-left: 0;
             }
             .top-navbar {
-                padding: 15px 20px;
+                padding: 10px 14px;
+                gap: 8px;
+            }
+            .page-title {
+                font-size: 15px;
+                font-weight: 700;
+                line-height: 1.2;
+            }
+            .user-info {
+                gap: 6px;
+                flex-shrink: 0;
+            }
+            .user-badge {
+                font-size: 11px;
+                padding: 4px 8px;
+            }
+            .logout-btn {
+                font-size: 12px;
+                padding: 4px 8px;
             }
             .content-body {
-                padding: 20px 15px;
+                padding: 12px 10px;
+            }
+            .cute-card {
+                padding: 14px 12px;
+                border-radius: 16px;
+                margin-bottom: 15px;
+            }
+            .btn-primary, .btn-secondary {
+                padding: 8px 14px;
+                font-size: 13px;
+                border-radius: 12px;
             }
             .form-grid {
                 grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .page-title {
+                font-size: 14px;
+            }
+            .top-navbar {
+                padding: 8px 10px;
+            }
+            .logout-text {
+                display: none;
+            }
+            .content-body {
+                padding: 10px 6px;
             }
         }
     </style>
@@ -449,7 +492,7 @@
                 <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
                     @csrf
                     <button type="submit" class="logout-btn">
-                        <i class="fa-solid fa-right-from-bracket"></i> ออกจากระบบ
+                        <i class="fa-solid fa-right-from-bracket"></i> <span class="logout-text">ออกจากระบบ</span>
                     </button>
                 </form>
             </div>

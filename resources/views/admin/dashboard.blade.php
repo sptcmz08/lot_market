@@ -15,22 +15,38 @@
     @media (max-width: 991px) {
         .stats-grid {
             grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
         }
     }
     
     @media (max-width: 575px) {
         .stats-grid {
             grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .stat-card {
+            padding: 10px 12px;
+            border-radius: 12px;
+            min-height: 64px;
+        }
+        .stat-value {
+            font-size: 22px;
+            margin: 4px 0 0 0;
+        }
+        .stat-label {
+            font-size: 11px;
+            gap: 4px;
         }
     }
 
     .stat-card {
         border-radius: 20px;
-        padding: 20px;
+        padding: 16px 18px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        min-height: 100px;
+        min-height: 80px;
         color: white;
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
         border: 1px solid rgba(255,255,255,0.2);
@@ -43,14 +59,14 @@
     .stat-card-orange { background: linear-gradient(135deg, #FF9F1C, #F38500); }
 
     .stat-value {
-        font-size: 36px;
+        font-size: 30px;
         font-weight: 800;
         line-height: 1;
-        margin: 10px 0 0 0;
+        margin: 8px 0 0 0;
     }
 
     .stat-label {
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 700;
         display: flex;
         align-items: center;
@@ -75,7 +91,7 @@
 
     .daily-summary-item {
         min-width: 0;
-        padding: 16px;
+        padding: 14px;
         border: 1px solid var(--border-cute);
         border-left: 4px solid var(--primary);
         border-radius: 12px;
@@ -97,7 +113,7 @@
         display: block;
         margin-top: 5px;
         color: var(--text-dark);
-        font-size: 25px;
+        font-size: 22px;
         font-weight: 900;
     }
 
@@ -196,6 +212,15 @@
     @media (max-width: 767px) {
         .daily-summary-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .daily-summary-item {
+            padding: 10px 10px;
+        }
+
+        .daily-summary-value {
+            font-size: 17px;
         }
 
         .daily-toolbar form,

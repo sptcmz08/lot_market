@@ -10,6 +10,41 @@
             grid-template-columns: 1fr !important;
         }
     }
+
+    @media (max-width: 767px) {
+        .show-action-bar {
+            flex-direction: column;
+            align-items: stretch !important;
+            gap: 8px !important;
+        }
+        .show-action-buttons {
+            width: 100%;
+            flex-direction: column;
+        }
+        .show-action-buttons form,
+        .show-action-buttons a,
+        .show-action-buttons button,
+        .show-action-buttons label {
+            width: 100%;
+            justify-content: center;
+            box-sizing: border-box;
+        }
+        .reject-form-group {
+            width: 100%;
+            flex-direction: column;
+            align-items: stretch !important;
+        }
+        .reject-form-group input {
+            width: 100% !important;
+        }
+        .step-review-box {
+            padding: 12px !important;
+            border-radius: 12px !important;
+        }
+        .step-review-header {
+            font-size: 13.5px !important;
+        }
+    }
 </style>
 @endsection
 
@@ -22,11 +57,11 @@
     @endif
 
     <!-- Action buttons row -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+    <div class="show-action-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
         <a href="{{ route('admin.bookings.index') }}" class="btn-secondary">
             <i class="fa-solid fa-arrow-left"></i> กลับไปรายการจอง
         </a>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <div class="show-action-buttons" style="display: flex; gap: 8px; flex-wrap: wrap;">
             @if (!$booking->collect_front_store)
                 <form action="{{ route('admin.bookings.payment_slip', $booking) }}" method="POST" enctype="multipart/form-data" style="margin:0;">
                     @csrf
@@ -276,9 +311,9 @@
 
                 <div style="margin-top:20px;padding-top:18px;border-top:2px dashed var(--border-cute);">
                     <!-- Step 1: Lot Review -->
-                    <div style="padding:16px;border:2px solid var(--border-cute);border-radius:16px;margin-bottom:14px;">
+                    <div class="step-review-box" style="padding:16px;border:2px solid var(--border-cute);border-radius:16px;margin-bottom:14px;">
                         <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
-                            <strong><i class="fa-solid fa-barcode"></i> ขั้นที่ 1: ตรวจและอนุมัติรูป LOT</strong>
+                            <strong class="step-review-header"><i class="fa-solid fa-barcode"></i> ขั้นที่ 1: ตรวจและอนุมัติรูป LOT</strong>
                             @if ($isLotReviewPending)
                                 <span class="status-badge status-pending_admin">รอตรวจสอบ</span>
                             @elseif ($isLotApproved)
@@ -297,9 +332,9 @@
                                     <i class="fa-solid fa-circle-check"></i> อนุมัติรูป LOT
                                 </button>
                             </form>
-                            <form method="POST" action="{{ route('admin.bookings.lot_review.reject', $booking) }}" style="margin:0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                            <form method="POST" action="{{ route('admin.bookings.lot_review.reject', $booking) }}" class="reject-form-group" style="margin:0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                                 @csrf
-                                <input class="cute-input" name="reason" required maxlength="250" placeholder="เหตุผลที่ตีกลับรูป LOT" style="width:280px;">
+                                <input class="cute-input" name="reason" required maxlength="250" placeholder="เหตุผลที่ตีกลับรูป LOT" style="width:240px;max-width:100%;">
                                 <button class="btn-secondary" type="submit" style="border-color:#fca5a5;color:#b42318;" onclick="return confirm('ตีกลับรูป LOT ให้สตาฟส่งใหม่?')">
                                     <i class="fa-solid fa-rotate-left"></i> ตีกลับ
                                 </button>
@@ -321,9 +356,9 @@
                             $taskFinished = $task->status === 'completed';
                             $taskRejection = $task->problem_note && str_starts_with((string)$task->problem_note, 'ตีกลับรูปงานโดยแอดมิน: ') ? $task->problem_note : null;
                         @endphp
-                        <div style="padding:16px;border:2px solid var(--border-cute);border-radius:16px;margin-bottom:14px;">
+                        <div class="step-review-box" style="padding:16px;border:2px solid var(--border-cute);border-radius:16px;margin-bottom:14px;">
                             <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
-                                <strong><i class="fa-solid fa-screwdriver-wrench"></i> ขั้นที่ 2: ตรวจและอนุมัติรูปงาน: {{ $task->typeLabel() }}</strong>
+                                <strong class="step-review-header"><i class="fa-solid fa-screwdriver-wrench"></i> ขั้นที่ 2: ตรวจและอนุมัติรูปงาน: {{ $task->typeLabel() }}</strong>
                                 @if (!$isLotApproved)
                                     <span class="status-badge status-pending">ล็อกอยู่</span>
                                 @elseif ($taskFinished)
@@ -346,9 +381,9 @@
                                             <i class="fa-solid fa-circle-check"></i> อนุมัติรูปงาน{{ $task->typeLabel() }}
                                         </button>
                                     </form>
-                                    <form method="POST" action="{{ route('admin.tasks.work_review.reject', $task) }}" style="margin:0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                                    <form method="POST" action="{{ route('admin.tasks.work_review.reject', $task) }}" class="reject-form-group" style="margin:0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                                         @csrf
-                                        <input class="cute-input" name="reason" required maxlength="250" placeholder="เหตุผลที่ตีกลับรูปงาน{{ $task->typeLabel() }}" style="width:280px;">
+                                        <input class="cute-input" name="reason" required maxlength="250" placeholder="เหตุผลที่ตีกลับรูปงาน{{ $task->typeLabel() }}" style="width:240px;max-width:100%;">
                                         <button class="btn-secondary" type="submit" style="border-color:#fca5a5;color:#b42318;" onclick="return confirm('ตีกลับรูปงาน{{ $task->typeLabel() }} ให้สตาฟส่งใหม่?')">
                                             <i class="fa-solid fa-rotate-left"></i> ตีกลับ
                                         </button>
