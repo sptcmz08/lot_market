@@ -41,6 +41,7 @@ class StaffBookingPhotoSubmissionTest extends TestCase
             ->assertSee('ร้านทดสอบส่งรูป')
             ->assertSee('aria-label="เปิดกล้องและแนบรูป"', false)
             ->assertSee('class="icon-action', false)
+            ->assertSee('data-ui-version="staff-photo-actions-v2"', false)
             ->assertDontSee('ส่ง LOT')
             ->assertDontSee(route('staff.bookings.submit_lot', $booking), false)
             ->assertDontSee(route('admin.bookings.destroy', $booking), false);

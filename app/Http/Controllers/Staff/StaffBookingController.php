@@ -122,7 +122,7 @@ class StaffBookingController extends Controller
             }
         }
 
-        return view('staff.bookings-index', compact(
+        return view('staff.bookings-index-v2', compact(
             'bookings',
             'tentSummary',
             'counterSummary',

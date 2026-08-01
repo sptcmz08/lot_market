@@ -25,7 +25,7 @@
     .photo-preview { position:relative;width:42px;height:42px;border:0;border-radius:8px;overflow:hidden;background:#eef2f7;padding:0;cursor:zoom-in; }
     .photo-preview img { width:100%;height:100%;object-fit:cover;display:block; }
     .photo-preview span { position:absolute;right:2px;bottom:2px;padding:1px 3px;border-radius:4px;background:rgba(17,19,26,.78);color:#fff;font-size:7px;font-weight:800; }
-    .photo-action-row { display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;min-width:120px; }
+    .photo-action-row { display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:nowrap;min-width:120px; }
     .photo-action-row form { margin:0;display:flex; }
     .icon-action { width:34px;height:34px;min-width:34px;padding:0;border:1px solid var(--border-cute);border-radius:9px;background:#fff;color:var(--text-dark);display:inline-flex;align-items:center;justify-content:center;text-decoration:none;cursor:pointer;font-size:14px;position:relative; }
     .icon-action:hover { border-color:var(--primary);color:var(--primary-hover); }
@@ -46,7 +46,7 @@
 @endsection
 
 @section('content')
-    <h1 class="page-heading">รายการจองทั้งหมด</h1>
+    <h1 class="page-heading" data-ui-version="staff-photo-actions-v2">รายการจองทั้งหมด</h1>
 
     <!-- แผงสรุปจำนวนอุปกรณ์ (รูปแบบ Excel) -->
     <div class="summary-card" style="background:#fff; border:1px solid var(--border-cute); border-radius:20px; padding:18px; margin-bottom:20px; font-family: inherit; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
