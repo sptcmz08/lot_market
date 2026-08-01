@@ -25,12 +25,18 @@
     .photo-preview { position:relative;width:42px;height:42px;border:0;border-radius:8px;overflow:hidden;background:#eef2f7;padding:0;cursor:zoom-in; }
     .photo-preview img { width:100%;height:100%;object-fit:cover;display:block; }
     .photo-preview span { position:absolute;right:2px;bottom:2px;padding:1px 3px;border-radius:4px;background:rgba(17,19,26,.78);color:#fff;font-size:7px;font-weight:800; }
+    .photo-action-row { display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;min-width:120px; }
+    .photo-action-row form { margin:0;display:flex; }
+    .icon-action { width:34px;height:34px;min-width:34px;padding:0;border:1px solid var(--border-cute);border-radius:9px;background:#fff;color:var(--text-dark);display:inline-flex;align-items:center;justify-content:center;text-decoration:none;cursor:pointer;font-size:14px;position:relative; }
+    .icon-action:hover { border-color:var(--primary);color:var(--primary-hover); }
+    .icon-action.send-work { border:0;background:#48a8cf;color:#fff; }
+    .icon-action[disabled] { opacity:.35;cursor:not-allowed; }
     .pagination { margin-top:18px; }
     @media(max-width:900px){
         .page-heading{font-size:18px;margin:3px 0 10px}.summary-card{padding:11px !important;margin-bottom:12px !important;border-radius:14px !important}.summary-header{margin-bottom:9px !important;padding-bottom:7px !important}.summary-header>div{font-size:12px !important}.summary-header strong{font-size:13px !important}.summary-card>div:not(.summary-header){font-size:11px !important;line-height:1.55 !important}.summary-card>div:not(.summary-header)>span:first-child{min-width:78px !important;padding:3px 7px !important;margin-right:7px !important}.status-tabs{gap:5px !important;margin-bottom:12px !important}.status-tab{padding:6px 10px !important;font-size:11px !important}.filter-grid{grid-template-columns:1fr 1fr auto;gap:7px}.filter-card{padding:9px;margin-bottom:12px;border-radius:13px}.filter-card .field:first-child{grid-column:1/-1}.filter-card .field label{font-size:11px;margin-bottom:3px}.filter-card .field input,.filter-card .field select{height:36px;border-width:1px;border-radius:9px;padding:0 8px;font-size:12px}.filter-card .actions{display:flex;gap:5px}.filter-card .action-btn{justify-content:center;min-height:36px;padding:0 9px;border-width:1px;border-radius:9px;font-size:11px}
         .table-wrap { position: relative; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 20px; border: 1px solid var(--border-cute); background: #fff; }
         table{min-width:980px}th,td{padding:8px 6px;font-size:11px}th{font-size:10px}.badge{padding:4px 7px;font-size:10px}.action-btn{min-height:34px;padding:0 8px;font-size:11px;border-radius:9px}
-        .col-action { position: sticky; right: 0; background: #ffffff; z-index: 4; box-shadow: -4px 0 10px rgba(0, 0, 0, 0.08); border-left: 2px solid var(--border-cute) !important; min-width: 125px; }
+        .col-action { position: sticky; right: 0; background: #ffffff; z-index: 4; box-shadow: -4px 0 10px rgba(0, 0, 0, 0.08); border-left: 2px solid var(--border-cute) !important; min-width: 145px; }
         tr:nth-child(even) td.col-action { background: #f8fafc; }
     }
     @media(max-width:480px){
@@ -325,46 +331,32 @@
                     
                     <!-- รูปภาพ (กล้อง) -->
                     <td class="col-action">
-                        <div style="display:flex; flex-direction:column; gap:5px; align-items: stretch; width: 100%;">
+                        <div class="photo-action-row">
                             @if($previewPhotos->isNotEmpty())
-                                <div class="photo-preview-grid" aria-label="รูปที่แนบแล้ว">
-                                    @foreach($previewPhotos as $preview)
-                                        @php $photo = $preview['photo']; @endphp
-                                        <button type="button"
-                                                class="photo-preview image-lightbox-trigger"
-                                                data-lightbox-src="{{ route('media.show', ['path' => $photo->image_path]) }}"
-                                                data-lightbox-alt="{{ $preview['alt'] }}">
-                                            <img src="{{ route('media.show', ['path' => $photo->image_path]) }}" alt="{{ $preview['alt'] }}">
-                                            <span>{{ $preview['label'] }}</span>
-                                        </button>
-                                    @endforeach
-                                </div>
+                                @foreach($previewPhotos as $preview)
+                                    @php $photo = $preview['photo']; @endphp
+                                    <button type="button" class="photo-preview image-lightbox-trigger" data-lightbox-src="{{ route('media.show', ['path' => $photo->image_path]) }}" data-lightbox-alt="{{ $preview['alt'] }}" title="{{ $preview['alt'] }}" aria-label="{{ $preview['alt'] }}">
+                                        <img src="{{ route('media.show', ['path' => $photo->image_path]) }}" alt="{{ $preview['alt'] }}"><span>{{ $preview['label'] }}</span>
+                                    </button>
+                                @endforeach
                             @endif
                             @if($canUseCamera)
-                                <a class="action-btn" href="{{ route('staff.bookings.camera',$booking) }}" style="padding:4px 8px; min-height:30px; font-size:12px; justify-content:center;"><i class="fa-solid fa-camera"></i> กล้อง</a>
-                                @if(!$lotApproved && !$lotSubmitted)
-                                    <form method="POST" action="{{ route('staff.bookings.submit_lot',$booking) }}" style="margin:0; width: 100%;">
-                                        @csrf
-                                        <button class="action-btn send" type="submit" @disabled($lotPhotoCount===0) onclick="return confirm('ยืนยันส่งรูป LOT ให้ Admin ตรวจสอบ?')" style="padding:4px 8px; min-height:30px; font-size:12px; width: 100%; justify-content:center;">
-                                            <i class="fa-solid fa-paper-plane"></i> ส่ง LOT
-                                        </button>
-                                    </form>
-                                @endif
+                                <a class="icon-action" href="{{ route('staff.bookings.camera',$booking) }}" title="เปิดกล้องและแนบรูป" aria-label="เปิดกล้องและแนบรูป"><i class="fa-solid fa-camera"></i></a>
                                 @foreach($tasks as $task)
                                     @if($task->status !== 'completed' && $task->status !== 'photo_uploaded')
                                         @php
                                             $taskPhotoCount = $task->photos->where('photo_type', 'after')->count();
                                         @endphp
-                                        <form method="POST" action="{{ route('staff.bookings.submit_work',[$booking, $task]) }}" style="margin:0; width: 100%;">
+                                        <form method="POST" action="{{ route('staff.bookings.submit_work',[$booking, $task]) }}">
                                             @csrf
-                                            <button class="action-btn send" type="submit" @disabled($taskPhotoCount===0) onclick="return confirm('ยืนยันส่งรูปงานติดตั้งสำหรับ {{ $task->typeLabel() }} ให้ Admin ตรวจสอบ?')" style="padding:4px 8px; min-height:30px; font-size:12px; width: 100%; justify-content:center; background: linear-gradient(135deg, #0284c7, #0369a1);">
-                                                <i class="fa-solid fa-paper-plane"></i> ส่งงาน {{ $task->typeLabel() }}
+                                            <button class="icon-action send-work" type="submit" @disabled($taskPhotoCount===0 || !$lotApproved) onclick="return confirm('ยืนยันส่งรูปงานติดตั้งสำหรับ {{ $task->typeLabel() }} ให้ Admin ตรวจสอบ?')" title="ส่งรูป{{ $task->typeLabel() }}" aria-label="ส่งรูป{{ $task->typeLabel() }}">
+                                                @if($task->task_type === \App\Models\DeliveryTask::TYPE_TENT)<i class="fa-solid fa-campground"></i>@elseif($task->task_type === \App\Models\DeliveryTask::TYPE_COUNTER)<i class="fa-solid fa-table-cells-large"></i>@else<i class="fa-solid fa-paper-plane"></i>@endif
                                             </button>
                                         </form>
                                     @endif
                                 @endforeach
                             @else
-                                <button class="action-btn" disabled style="padding:4px 8px; min-height:30px; font-size:12px; justify-content:center;"><i class="fa-solid fa-camera"></i> กล้อง</button>
+                                <button class="icon-action" disabled title="ไม่สามารถเพิ่มรูปได้" aria-label="ไม่สามารถเพิ่มรูปได้"><i class="fa-solid fa-camera"></i></button>
                             @endif
                         </div>
                     </td>

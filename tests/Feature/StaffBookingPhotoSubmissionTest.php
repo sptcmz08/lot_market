@@ -39,8 +39,10 @@ class StaffBookingPhotoSubmissionTest extends TestCase
         $this->actingAs($staff)->get(route('staff.bookings.index', ['date' => $booking->use_date->format('Y-m-d')]))
             ->assertOk()
             ->assertSee('ร้านทดสอบส่งรูป')
-            ->assertSee('กล้อง')
-            ->assertSee('ส่ง')
+            ->assertSee('aria-label="เปิดกล้องและแนบรูป"', false)
+            ->assertSee('class="icon-action', false)
+            ->assertDontSee('ส่ง LOT')
+            ->assertDontSee(route('staff.bookings.submit_lot', $booking), false)
             ->assertDontSee(route('admin.bookings.destroy', $booking), false);
 
         $this->actingAs($staff)->get(route('staff.bookings.camera', $booking))
