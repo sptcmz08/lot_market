@@ -25,7 +25,7 @@ class PublicBookingController extends Controller
 
     public function create(Request $request)
     {
-        $date = $request->query('date', now()->addDay()->format('Y-m-d'));
+        $date = $request->query('date', now()->toDateString());
         $selectedCodes = array_filter(explode(',', $request->query('lots', '')));
         
         $lots = collect();

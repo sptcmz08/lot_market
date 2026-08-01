@@ -157,15 +157,57 @@
         display: grid;
         grid-template-columns: 32px 1fr 24px 1fr 32px 1fr 40px 24px;
         align-items: center;
-        gap: 2px;
-        background: #ffffff;
+        gap: 3px;
+        background: #f4f8ed;
         border: 1px solid #365507;
         border-radius: 4px;
         padding: 2px;
     }
 
     .equip-item-row.counter-row {
-        grid-template-columns: 32px 1fr 70px 1fr 40px 24px;
+        grid-template-columns: 32px 1fr 42px 52px 40px 24px;
+    }
+
+    .equip-item-row > .paper-label {
+        min-height: 24px;
+        border: 1px solid #8bab68 !important;
+        border-radius: 3px;
+        padding: 0 3px;
+    }
+
+    .equip-item-row > .paper-label:nth-of-type(1) {
+        background: #fff1b8 !important;
+    }
+
+    .equip-item-row > .paper-label:nth-of-type(2) {
+        background: #dceeff !important;
+    }
+
+    .equip-item-row > .paper-label:nth-of-type(3),
+    .equip-item-row.counter-row > .paper-label:nth-of-type(2) {
+        background: #ffe2c2 !important;
+    }
+
+    .equip-item-row .p-input,
+    .equip-item-row .p-select {
+        height: 26px;
+        border: 1px solid #9db384;
+        border-radius: 3px;
+        padding: 0 5px;
+    }
+
+    .equip-item-row .tent-size,
+    .equip-item-row .counter-size {
+        background: #fffaf0;
+    }
+
+    .equip-item-row .tent-color {
+        background: #f1f8ff;
+    }
+
+    .equip-item-row .tent-qty,
+    .equip-item-row .counter-qty {
+        background: #fff5ea;
     }
 
     .btn-add-inline {

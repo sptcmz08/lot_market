@@ -17,6 +17,7 @@ class PublicBookingPaymentMethodTest extends TestCase
     {
         $this->get(route('public.booking.create'))
             ->assertOk()
+            ->assertSee('value="'.now()->toDateString().'"', false)
             ->assertSee('name="tent_items[0][quantity]"', false)
             ->assertSee('name="counter_items[0][quantity]"', false)
             ->assertSee('เพิ่มเต็นท์ต่างขนาดหรือสี')
