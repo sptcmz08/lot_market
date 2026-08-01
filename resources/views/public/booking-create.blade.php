@@ -155,9 +155,9 @@
 
     .equip-item-row {
         display: grid;
-        grid-template-columns: 32px 1fr 24px 1fr 32px 1fr 40px 24px;
+        grid-template-columns: minmax(126px, 1.25fr) minmax(104px, 1fr) minmax(78px, .7fr) 40px 24px;
         align-items: center;
-        gap: 3px;
+        gap: 4px;
         background: #f4f8ed;
         border: 1px solid #365507;
         border-radius: 4px;
@@ -165,49 +165,59 @@
     }
 
     .equip-item-row.counter-row {
-        grid-template-columns: 32px 1fr 42px 52px 40px 24px;
+        grid-template-columns: minmax(210px, 1fr) minmax(78px, .7fr) 40px 24px;
     }
 
-    .equip-item-row > .paper-label {
-        min-height: 24px;
-        border: 1px solid #8bab68 !important;
-        border-radius: 3px;
-        padding: 0 3px;
+    .equip-field {
+        min-width: 0;
+        height: 30px;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: stretch;
+        border: 2px solid;
+        border-radius: 5px;
+        overflow: hidden;
     }
 
-    .equip-item-row > .paper-label:nth-of-type(1) {
-        background: #fff1b8 !important;
-    }
-
-    .equip-item-row > .paper-label:nth-of-type(2) {
-        background: #dceeff !important;
-    }
-
-    .equip-item-row > .paper-label:nth-of-type(3),
-    .equip-item-row.counter-row > .paper-label:nth-of-type(2) {
-        background: #ffe2c2 !important;
-    }
-
-    .equip-item-row .p-input,
-    .equip-item-row .p-select {
-        height: 26px;
-        border: 1px solid #9db384;
-        border-radius: 3px;
+    .equip-field > .paper-label {
+        min-height: 100%;
         padding: 0 5px;
+        border: 0 !important;
+        background: transparent !important;
+        font-size: 11px;
+        font-weight: 900;
+        white-space: nowrap;
     }
 
-    .equip-item-row .tent-size,
-    .equip-item-row .counter-size {
-        background: #fffaf0;
+    .equip-field-size {
+        color: #5b4200;
+        background: #ffec92;
+        border-color: #bd8b00;
     }
 
-    .equip-item-row .tent-color {
-        background: #f1f8ff;
+    .equip-field-color {
+        color: #074d70;
+        background: #cceaff;
+        border-color: #3d91c2;
     }
 
-    .equip-item-row .tent-qty,
-    .equip-item-row .counter-qty {
-        background: #fff5ea;
+    .equip-field-quantity {
+        color: #6b3000;
+        background: #ffd6ad;
+        border-color: #d77828;
+    }
+
+    .equip-field .p-input,
+    .equip-field .p-select {
+        min-width: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        border-left: 1px solid currentColor;
+        border-radius: 0;
+        background: rgba(255, 255, 255, .82);
+        color: #111;
+        padding: 0 4px;
     }
 
     .btn-add-inline {
@@ -414,6 +424,7 @@
                 <div class="equipment-list" id="tent-item-list">
                     @foreach($tentItemRows as $index => $item)
                         <div class="equip-item-row">
+                            <div class="equip-field equip-field-size">
                             <span class="paper-label" style="border:none;background:transparent;">ขนาด</span>
                             <select name="tent_items[{{ $index }}][size]" class="p-select tent-size">
                                 <option value="">เลือกขนาด</option>
@@ -421,7 +432,9 @@
                                     <option value="{{ $size }}" @selected(($item['size'] ?? '') === $size)>{{ $size }}</option>
                                 @endforeach
                             </select>
+                            </div>
 
+                            <div class="equip-field equip-field-color">
                             <span class="paper-label" style="border:none;background:transparent;">สี</span>
                             <select name="tent_items[{{ $index }}][color]" class="p-select tent-color">
                                 <option value="">เลือกสี</option>
@@ -429,9 +442,12 @@
                                     <option value="{{ $color }}" @selected(($item['color'] ?? '') === $color)>{{ $color }}</option>
                                 @endforeach
                             </select>
+                            </div>
 
+                            <div class="equip-field equip-field-quantity">
                             <span class="paper-label" style="border:none;background:transparent;">จำนวน</span>
                             <input type="number" name="tent_items[{{ $index }}][quantity]" class="p-input tent-qty" value="{{ $item['quantity'] ?? 1 }}" min="1" max="99" style="text-align:center;">
+                            </div>
 
                             <button type="button" class="btn-add-inline" id="add-tent-item" title="เพิ่มเต็นท์ต่างขนาดหรือสี" aria-label="เพิ่มเต็นท์ต่างขนาดหรือสี">+เพิ่ม</button>
                             <button type="button" class="btn-remove-inline remove-equip-btn" style="{{ count($tentItemRows) > 1 ? '' : 'opacity:0.3;' }}">&times;</button>
@@ -448,6 +464,7 @@
                 <div class="equipment-list" id="counter-item-list">
                     @foreach($counterItemRows as $index => $item)
                         <div class="equip-item-row counter-row">
+                            <div class="equip-field equip-field-size">
                             <span class="paper-label" style="border:none;background:transparent;">ขนาด</span>
                             <select name="counter_items[{{ $index }}][size]" class="p-select counter-size">
                                 <option value="">เลือกขนาดเคาน์เตอร์</option>
@@ -455,9 +472,12 @@
                                     <option value="{{ $size }}" @selected(($item['size'] ?? '') === $size)>{{ $size }}</option>
                                 @endforeach
                             </select>
+                            </div>
 
+                            <div class="equip-field equip-field-quantity">
                             <span class="paper-label" style="border:none;background:transparent;">จำนวน</span>
                             <input type="number" name="counter_items[{{ $index }}][quantity]" class="p-input counter-qty" value="{{ $item['quantity'] ?? 1 }}" min="1" max="99" style="text-align:center;">
+                            </div>
 
                             <button type="button" class="btn-add-inline" id="add-counter-item" title="เพิ่มเคาน์เตอร์ต่างขนาด" aria-label="เพิ่มเคาน์เตอร์ต่างขนาด">+เพิ่ม</button>
                             <button type="button" class="btn-remove-inline remove-equip-btn" style="{{ count($counterItemRows) > 1 ? '' : 'opacity:0.3;' }}">&times;</button>
@@ -538,6 +558,7 @@
             <!-- Templates for Dynamic Rows -->
             <template id="tent-item-template">
                 <div class="equip-item-row">
+                    <div class="equip-field equip-field-size">
                     <span class="paper-label" style="border:none;background:transparent;">ขนาด</span>
                     <select name="__SIZE__" class="p-select tent-size">
                         <option value="">เลือกขนาด</option>
@@ -545,6 +566,8 @@
                             <option value="{{ $size }}">{{ $size }}</option>
                         @endforeach
                     </select>
+                    </div>
+                    <div class="equip-field equip-field-color">
                     <span class="paper-label" style="border:none;background:transparent;">สี</span>
                     <select name="__COLOR__" class="p-select tent-color">
                         <option value="">เลือกสี</option>
@@ -552,8 +575,11 @@
                             <option value="{{ $color }}">{{ $color }}</option>
                         @endforeach
                     </select>
+                    </div>
+                    <div class="equip-field equip-field-quantity">
                     <span class="paper-label" style="border:none;background:transparent;">จำนวน</span>
                     <input type="number" name="__QUANTITY__" class="p-input tent-qty" value="1" min="1" max="99" style="text-align:center;">
+                    </div>
                     <button type="button" class="btn-add-inline add-tent-trigger">+เพิ่ม</button>
                     <button type="button" class="btn-remove-inline remove-equip-btn">&times;</button>
                 </div>
@@ -561,6 +587,7 @@
 
             <template id="counter-item-template">
                 <div class="equip-item-row counter-row">
+                    <div class="equip-field equip-field-size">
                     <span class="paper-label" style="border:none;background:transparent;">ขนาด</span>
                     <select name="__SIZE__" class="p-select counter-size">
                         <option value="">เลือกขนาดเคาน์เตอร์</option>
@@ -568,8 +595,11 @@
                             <option value="{{ $size }}">{{ $size }}</option>
                         @endforeach
                     </select>
+                    </div>
+                    <div class="equip-field equip-field-quantity">
                     <span class="paper-label" style="border:none;background:transparent;">จำนวน</span>
                     <input type="number" name="__QUANTITY__" class="p-input counter-qty" value="1" min="1" max="99" style="text-align:center;">
+                    </div>
                     <button type="button" class="btn-add-inline add-counter-trigger">+เพิ่ม</button>
                     <button type="button" class="btn-remove-inline remove-equip-btn">&times;</button>
                 </div>

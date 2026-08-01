@@ -20,6 +20,9 @@ class PublicBookingPaymentMethodTest extends TestCase
             ->assertSee('value="'.now()->toDateString().'"', false)
             ->assertSee('name="tent_items[0][quantity]"', false)
             ->assertSee('name="counter_items[0][quantity]"', false)
+            ->assertSee('class="equip-field equip-field-size"', false)
+            ->assertSee('class="equip-field equip-field-color"', false)
+            ->assertSee('class="equip-field equip-field-quantity"', false)
             ->assertSee('เพิ่มเต็นท์ต่างขนาดหรือสี')
             ->assertSee('data-equipment-row', false);
     }
