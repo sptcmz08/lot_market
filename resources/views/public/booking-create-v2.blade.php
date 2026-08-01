@@ -215,9 +215,21 @@
         border: 0;
         border-left: 1px solid currentColor;
         border-radius: 0;
-        background: rgba(255, 255, 255, .82);
+        background: rgba(255, 255, 255, .4);
         color: #111;
         padding: 0 4px;
+    }
+
+    .equip-field-size .p-select {
+        background: #fff7cf;
+    }
+
+    .equip-field-color .p-select {
+        background: #e7f6ff;
+    }
+
+    .equip-field-quantity .p-input {
+        background: #fff0df;
     }
 
     .btn-add-inline {
@@ -362,7 +374,7 @@
 @endsection
 
 @section('content')
-<div class="paper-container">
+<div class="paper-container" data-ui-version="equipment-fields-v2">
     <!-- Header Title -->
     <h1 class="paper-title">จองเต็นท์/จองเคาน์เตอร์</h1>
 

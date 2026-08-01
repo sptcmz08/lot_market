@@ -23,6 +23,7 @@ class PublicBookingPaymentMethodTest extends TestCase
             ->assertSee('class="equip-field equip-field-size"', false)
             ->assertSee('class="equip-field equip-field-color"', false)
             ->assertSee('class="equip-field equip-field-quantity"', false)
+            ->assertSee('data-ui-version="equipment-fields-v2"', false)
             ->assertSee('เพิ่มเต็นท์ต่างขนาดหรือสี')
             ->assertSee('data-equipment-row', false);
     }

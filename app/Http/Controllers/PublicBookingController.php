@@ -74,7 +74,7 @@ class PublicBookingController extends Controller
             ->values()
             ->all();
 
-        return view('public.booking-create', compact(
+        return view('public.booking-create-v2', compact(
             'date',
             'lots',
             'selectedCodes',
