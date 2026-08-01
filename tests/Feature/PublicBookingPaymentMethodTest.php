@@ -97,6 +97,34 @@ class PublicBookingPaymentMethodTest extends TestCase
         );
     }
 
+    public function test_multiple_lot_mode_ignores_hidden_single_lot_fields(): void
+    {
+        foreach (range(23, 26) as $number) {
+            Lot::updateOrCreate(
+                ['lot_code' => 'GO'.$number],
+                ['display_name' => 'GO'.$number, 'is_active' => true]
+            );
+        }
+
+        $response = $this->post(route('public.booking.store'), $this->bookingData([
+            'payment_method' => 'front_store',
+            'lot_mode' => 'multiple',
+            'lot_number_from' => 'ค่าจากช่องที่ซ่อนอยู่',
+            'lot_number_to' => 'invalid',
+            'lot_groups' => [[
+                'prefix' => 'GO',
+                'from' => 23,
+                'to' => 26,
+            ]],
+        ]));
+
+        $response->assertRedirect(route('public.booking.check'));
+        $this->assertSame(
+            ['GO23', 'GO24', 'GO25', 'GO26'],
+            Booking::firstOrFail()->lots()->orderBy('lot_code')->pluck('lot_code')->all()
+        );
+    }
+
     private function bookingData(array $overrides = []): array
     {
         return array_merge([

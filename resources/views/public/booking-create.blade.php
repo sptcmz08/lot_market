@@ -414,7 +414,7 @@
                                 @endforeach
                             </select>
 
-                            <span class="paper-label" style="border:none;background:transparent;">เลขเคาน์เตอร์</span>
+                            <span class="paper-label" style="border:none;background:transparent;">จำนวน</span>
                             <input type="number" name="counter_items[{{ $index }}][quantity]" class="p-input counter-qty" value="{{ $item['quantity'] ?? 1 }}" min="1" max="99" style="text-align:center;">
 
                             <button type="button" class="btn-add-inline" id="add-counter-item" title="เพิ่มเคาน์เตอร์ต่างขนาด" aria-label="เพิ่มเคาน์เตอร์ต่างขนาด">+เพิ่ม</button>
@@ -526,7 +526,7 @@
                             <option value="{{ $size }}">{{ $size }}</option>
                         @endforeach
                     </select>
-                    <span class="paper-label" style="border:none;background:transparent;">เลขเคาน์เตอร์</span>
+                    <span class="paper-label" style="border:none;background:transparent;">จำนวน</span>
                     <input type="number" name="__QUANTITY__" class="p-input counter-qty" value="1" min="1" max="99" style="text-align:center;">
                     <button type="button" class="btn-add-inline add-counter-trigger">+เพิ่ม</button>
                     <button type="button" class="btn-remove-inline remove-equip-btn">&times;</button>
@@ -700,6 +700,8 @@
             singleSection.style.display = mode === 'single' ? '' : 'none';
             multipleSection.style.display = mode === 'multiple' ? '' : 'none';
             singleRequiredFields.forEach(f => f.required = (mode === 'single'));
+            singleSection.querySelectorAll('input, select').forEach(field => field.disabled = mode !== 'single');
+            multipleSection.querySelectorAll('input, select').forEach(field => field.disabled = mode !== 'multiple');
             if (mode === 'single') {
                 modeSingle.checked = true;
             } else {
