@@ -49,11 +49,6 @@
                 </div>
 
                 <div class="cute-input-group">
-                    <label class="cute-label" for="email">อีเมล (ถ้ามี)</label>
-                    <input type="email" id="email" name="email" class="cute-input" value="{{ old('email') }}" placeholder="ตัวอย่าง: staff@example.com">
-                </div>
-
-                <div class="cute-input-group">
                     <label class="cute-label" for="phone">เบอร์โทรศัพท์ (ถ้ามี)</label>
                     <input type="text" id="phone" name="phone" class="cute-input" value="{{ old('phone') }}" placeholder="ตัวอย่าง: 0899999999">
                 </div>
@@ -85,7 +80,7 @@
                 </div>
             </div>
 
-            <div style="display: flex; gap: 12px; margin-top: 30px;">
+            <div class="admin-form-actions">
                 <a href="{{ route('admin.users.index') }}" class="btn-secondary" style="flex: 1;">
                     ย้อนกลับ
                 </a>

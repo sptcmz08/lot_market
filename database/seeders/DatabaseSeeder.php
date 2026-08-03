@@ -20,10 +20,9 @@ class DatabaseSeeder extends Seeder
     {
         // 1. Seed Users
         User::updateOrCreate(
-            ['email' => 'admin@example.com'],
+            ['username' => 'admin'],
             [
                 'name' => 'แอดมินใจดี',
-                'username' => 'admin',
                 'phone' => '0888888888',
                 'password' => bcrypt('password'),
                 'role' => 'admin',
@@ -32,10 +31,9 @@ class DatabaseSeeder extends Seeder
         );
 
         User::updateOrCreate(
-            ['email' => 'staff@example.com'],
+            ['username' => 'staff'],
             [
                 'name' => 'พนักงานส่งเต็นท์ A',
-                'username' => 'staff',
                 'phone' => '0999999999',
                 'password' => bcrypt('password'),
                 'role' => 'staff',
@@ -44,10 +42,9 @@ class DatabaseSeeder extends Seeder
         );
 
         User::updateOrCreate(
-            ['email' => 'staff2@example.com'],
+            ['username' => 'staff2'],
             [
                 'name' => 'พนักงานส่งเต็นท์ B',
-                'username' => 'staff2',
                 'phone' => '0777777777',
                 'password' => bcrypt('password'),
                 'role' => 'staff',

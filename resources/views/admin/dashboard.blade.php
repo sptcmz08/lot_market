@@ -228,6 +228,10 @@
         .daily-toolbar .btn-primary {
             width: 100%;
         }
+        .daily-toolbar > div:last-child { width: 100%; }
+        .daily-toolbar > div:last-child > a { flex: 1 1 0; justify-content: center; }
+        .daily-toolbar > div:last-child > form { width: 100%; display: grid !important; grid-template-columns: 1fr auto; }
+        .daily-toolbar > div:last-child > form .cute-input-group { min-width: 0; }
     }
 </style>
 @endsection

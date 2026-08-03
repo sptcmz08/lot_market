@@ -41,6 +41,28 @@
         min-width: 145px;
     }
 
+    .booking-task-status-list {
+        display: grid;
+        gap: 7px;
+        min-width: 190px;
+    }
+
+    .booking-task-status {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        min-height: 32px;
+        padding: 4px 0;
+        border-bottom: 1px dashed var(--border-cute);
+    }
+
+    .booking-task-status:last-child { border-bottom: 0; }
+    .booking-task-status strong { font-size: 12px; white-space: nowrap; }
+    .booking-task-status .status-badge { padding: 4px 8px; font-size: 11px; white-space: nowrap; }
+    .booking-action-list { min-width: 170px; }
+    .booking-action-list > * { flex: 1 1 150px; }
+
     @media (max-width: 767px) {
         .payment-summary-grid {
             grid-template-columns: repeat(1, 1fr);
@@ -60,6 +82,7 @@
             text-align: center;
             justify-content: center;
         }
+        .booking-task-status-list { min-width: 180px; }
     }
 </style>
 @endsection
@@ -109,7 +132,7 @@
         </div>
 
         <!-- Filter Form -->
-        <form action="{{ route('admin.bookings.index') }}" method="GET" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
+        <form action="{{ route('admin.bookings.index') }}" method="GET" class="admin-filter-form" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
             <div class="cute-input-group" style="margin-bottom: 0; flex: 2; min-width: 200px;">
                 <label class="cute-label" for="search">ค้นหา</label>
                 <input type="text" id="search" name="search" class="cute-input" value="{{ request('search') }}" placeholder="ค้นหารหัสจอง, ร้านค้า, เบอร์โทร, เลขล็อต...">
@@ -164,6 +187,7 @@
                     <th>ชื่อร้านค้า / เบอร์โทร</th>
                     <th>ล็อตแผงที่จอง</th>
                     <th>รายการอุปกรณ์</th>
+                    <th>สถานะงานอุปกรณ์</th>
                     <th>การชำระเงิน</th>
                     <th>สถานะ</th>
                     <th>จัดการ</th>
@@ -181,6 +205,11 @@
                         $hasDraftPhotos = !$isPhotoReviewPending
                             && $booking->status !== 'completed'
                             && $taskPhotos->where('photo_type', 'after')->isNotEmpty();
+                        $tasksByType = $booking->deliveryTasks->keyBy('task_type');
+                        $equipmentRows = [
+                            ['type' => 'tent', 'label' => 'เต็นท์', 'enabled' => $booking->tentEquipmentItems() !== []],
+                            ['type' => 'counter', 'label' => 'เคาน์เตอร์', 'enabled' => $booking->counterEquipmentItems() !== []],
+                        ];
                     @endphp
                     <tr>
                         <td>
@@ -198,6 +227,36 @@
                         </td>
                         <td>
                             <div>{{ $booking->equipmentSummary() }}</div>
+                        </td>
+                        <td>
+                            <div class="booking-task-status-list">
+                                @foreach ($equipmentRows as $equipment)
+                                    @if ($equipment['enabled'])
+                                        @php
+                                            $task = $tasksByType->get($equipment['type']);
+                                            $taskStatusClass = match ($task?->status) {
+                                                'completed' => 'status-completed',
+                                                'photo_uploaded' => 'status-pending_admin',
+                                                'started' => 'status-installing',
+                                                'problem' => 'status-problem',
+                                                default => 'status-confirmed',
+                                            };
+                                            $taskStatusLabel = match ($task?->status) {
+                                                'completed' => 'เสร็จแล้ว',
+                                                'photo_uploaded' => 'ส่งรูป/รอตรวจ',
+                                                'started' => 'กำลังทำงาน',
+                                                'problem' => 'มีปัญหา',
+                                                'waiting' => 'รอเริ่มงาน',
+                                                default => 'รอสร้างงาน',
+                                            };
+                                        @endphp
+                                        <div class="booking-task-status">
+                                            <strong>{{ $equipment['label'] }}</strong>
+                                            <span class="status-badge {{ $taskStatusClass }}">{{ $taskStatusLabel }}</span>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            </div>
                         </td>
                         <td class="payment-method-detail">
                             @if ($booking->collect_front_store)
@@ -243,7 +302,7 @@
                             @endif
                         </td>
                         <td>
-                            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                            <div class="admin-action-list booking-action-list">
                                 <a href="{{ route('admin.bookings.show', $booking) }}{{ $isPhotoReviewPending ? '#installation-review' : '' }}" class="{{ $isPhotoReviewPending ? 'btn-primary' : 'btn-secondary' }}" style="padding: 6px 12px; font-size: 13px; border-radius: 10px;" title="{{ $isPhotoReviewPending ? 'เปิดตรวจและอนุมัติรูป' : 'เปิดดูรายละเอียด' }}">
                                     <i class="fa-solid {{ $isPhotoReviewPending ? 'fa-camera-retro' : 'fa-eye' }}"></i> {{ $isWorkReviewPending ? 'ตรวจรูปงาน' : 'ดูรายละเอียด' }}
                                 </a>
@@ -275,7 +334,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                        <td colspan="9" style="text-align: center; padding: 40px; color: var(--text-muted);">
                             <i class="fa-solid fa-box-open" style="font-size: 40px; margin-bottom: 10px; display: block; color: var(--border-cute);"></i>
                             ไม่พบข้อมูลการจองในระบบ
                         </td>

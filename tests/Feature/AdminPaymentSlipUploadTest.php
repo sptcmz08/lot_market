@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Booking;
+use App\Models\DeliveryTask;
 use App\Models\StatusLog;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -170,6 +171,48 @@ class AdminPaymentSlipUploadTest extends TestCase
             ->assertOk()
             ->assertSee('BKPAYMENTSLIP')
             ->assertDontSee('BKPAYMENTFRONT');
+    }
+
+    public function test_booking_list_and_detail_show_separate_equipment_statuses_and_payment_state(): void
+    {
+        $admin = $this->createUser('admin', 'admin-equipment-status-test');
+        $booking = Booking::create([
+            'booking_code' => 'BKEQUIPMENTSTATUS001',
+            'use_date' => now()->addDay()->toDateString(),
+            'shop_name' => 'ร้านดูสถานะแยกอุปกรณ์',
+            'customer_phone' => '0866666666',
+            'tent_size' => '2x2',
+            'tent_color' => 'ขาว',
+            'counter_size' => '1 ล็อค 70x75 cm. มีหลังคา',
+            'payment_slip_path' => 'payment-slips/status.jpg',
+            'status' => 'confirmed',
+        ]);
+        DeliveryTask::create([
+            'booking_id' => $booking->id,
+            'task_type' => DeliveryTask::TYPE_TENT,
+            'task_date' => $booking->use_date,
+            'status' => 'waiting',
+        ]);
+        DeliveryTask::create([
+            'booking_id' => $booking->id,
+            'task_type' => DeliveryTask::TYPE_COUNTER,
+            'task_date' => $booking->use_date,
+            'status' => 'completed',
+        ]);
+
+        $this->actingAs($admin)->get(route('admin.bookings.index'))
+            ->assertOk()
+            ->assertSee('สถานะงานอุปกรณ์')
+            ->assertSee('รอเริ่มงาน')
+            ->assertSee('เสร็จแล้ว');
+
+        $this->actingAs($admin)->get(route('admin.bookings.show', $booking))
+            ->assertOk()
+            ->assertSee('สถานะการชำระเงิน')
+            ->assertSee('ชำระเงินแล้ว')
+            ->assertSee('สถานะงานอุปกรณ์')
+            ->assertSee('รอเริ่มงาน')
+            ->assertSee('เสร็จแล้ว');
     }
 
     private function createUser(string $role, string $username): User

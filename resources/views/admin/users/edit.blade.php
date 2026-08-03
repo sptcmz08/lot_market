@@ -50,11 +50,6 @@
                 </div>
 
                 <div class="cute-input-group">
-                    <label class="cute-label" for="email">อีเมล</label>
-                    <input type="email" id="email" name="email" class="cute-input" value="{{ old('email', $user->email) }}">
-                </div>
-
-                <div class="cute-input-group">
                     <label class="cute-label" for="phone">เบอร์โทรศัพท์</label>
                     <input type="text" id="phone" name="phone" class="cute-input" value="{{ old('phone', $user->phone) }}">
                 </div>
@@ -92,7 +87,7 @@
                 @endif
             </div>
 
-            <div style="display: flex; gap: 12px; margin-top: 30px;">
+            <div class="admin-form-actions">
                 <a href="{{ route('admin.users.index') }}" class="btn-secondary" style="flex: 1;">
                     ย้อนกลับ
                 </a>

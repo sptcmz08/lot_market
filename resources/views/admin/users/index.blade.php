@@ -4,7 +4,7 @@
 @section('page_title', 'พนักงานและเจ้าหน้าที่ระบบ')
 
 @section('content')
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div class="admin-page-toolbar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap:12px; flex-wrap:wrap;">
         <h3 style="margin:0; font-weight:700; color: var(--text-dark);">รายชื่อผู้ใช้ระบบทั้งหมด</h3>
         <a href="{{ route('admin.users.create') }}" class="btn-primary">
             <i class="fa-solid fa-user-plus"></i> เพิ่มพนักงานใหม่
@@ -18,7 +18,6 @@
                 <tr>
                     <th>ชื่อพนักงาน</th>
                     <th>Username</th>
-                    <th>อีเมล</th>
                     <th>เบอร์โทรศัพท์</th>
                     <th>ตำแหน่ง / บทบาท</th>
                     <th>สถานะบัญชี</th>
@@ -33,7 +32,6 @@
                             <strong style="font-size: 15px; color: var(--text-dark);">{{ $user->name }}</strong>
                         </td>
                         <td><strong style="color: var(--primary-hover);">{{ $user->username ?: '-' }}</strong></td>
-                        <td>{{ $user->email ?: '-' }}</td>
                         <td>{{ $user->phone ?: '-' }}</td>
                         <td>
                             @if ($user->role === 'admin')
@@ -63,7 +61,7 @@
                         </td>
                         <td>{{ $user->created_at->format('d/m/Y') }}</td>
                         <td>
-                            <div style="display: flex; gap: 5px;">
+                            <div class="admin-action-list">
                                 <a href="{{ route('admin.users.edit', $user) }}" class="btn-secondary" style="padding: 6px 12px; font-size: 13px; border-radius: 10px;" title="แก้ไขผู้ใช้">
                                     <i class="fa-solid fa-user-pen"></i> แก้ไข
                                 </a>
@@ -81,7 +79,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                        <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">
                             <i class="fa-solid fa-users-slash" style="font-size: 40px; margin-bottom: 10px; display: block; color: var(--border-cute);"></i>
                             ไม่มีประวัติข้อมูลผู้ใช้ระบบ
                         </td>

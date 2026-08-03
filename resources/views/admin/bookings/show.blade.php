@@ -44,7 +44,27 @@
         .step-review-header {
             font-size: 13.5px !important;
         }
+        .booking-summary-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 12px !important;
+        }
+        .booking-status-grid {
+            grid-template-columns: 1fr !important;
+        }
     }
+
+    @media (max-width: 480px) {
+        .booking-summary-grid { grid-template-columns: 1fr !important; }
+    }
+
+    .booking-status-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 18px 0 4px; }
+    .booking-status-panel { border: 1px solid var(--border-cute); border-radius: 14px; padding: 13px; background: var(--bg-page); min-width: 0; }
+    .booking-status-panel h4 { margin: 0 0 9px; font-size: 14px; }
+    .booking-status-panel p { margin: 4px 0 0; color: var(--text-muted); font-size: 12px; line-height: 1.5; }
+    .booking-equipment-status { display: grid; gap: 7px; }
+    .booking-equipment-status-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 30px; }
+    .booking-equipment-status-row strong { font-size: 13px; }
+    .booking-equipment-status-row .status-badge { padding: 4px 8px; font-size: 11px; white-space: nowrap; }
 </style>
 @endsection
 
@@ -112,7 +132,7 @@
                     <i class="fa-solid fa-circle-info"></i> ข้อมูลคำสั่งจองอุปกรณ์
                 </h3>
 
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px 30px; margin-bottom: 20px;">
+                <div class="booking-summary-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px 30px; margin-bottom: 20px;">
                     <div>
                         <span style="font-size: 13px; color: var(--text-muted); display: block;">รหัสอ้างอิงการจอง:</span>
                         <strong style="font-size: 18px; color: var(--primary-hover);">{{ $booking->booking_code }}</strong>
@@ -167,6 +187,64 @@
                                 <small style="display:block;margin-top:4px;color:#856404;font-weight:700;">ยังไม่ได้บันทึกเก็บเงินหน้าร้าน</small>
                             @endif
                         @endif
+                    </div>
+                </div>
+
+                @php
+                    $tasksByType = $booking->deliveryTasks->keyBy('task_type');
+                    $equipmentRows = [
+                        ['type' => 'tent', 'label' => 'เต็นท์', 'enabled' => $booking->tentEquipmentItems() !== []],
+                        ['type' => 'counter', 'label' => 'เคาน์เตอร์', 'enabled' => $booking->counterEquipmentItems() !== []],
+                    ];
+                    $paymentIsPaid = $booking->collect_front_store ? (bool) $booking->front_store_collected_at : (bool) $booking->payment_slip_path;
+                @endphp
+                <div class="booking-status-grid">
+                    <div class="booking-status-panel">
+                        <h4><i class="fa-solid fa-wallet"></i> สถานะการชำระเงิน</h4>
+                        <span class="status-badge {{ $paymentIsPaid ? 'status-completed' : 'status-problem' }}">
+                            <i class="fa-solid {{ $paymentIsPaid ? 'fa-circle-check' : 'fa-clock' }}"></i>
+                            {{ $paymentIsPaid ? 'ชำระเงินแล้ว' : 'ยังไม่ชำระเงิน' }}
+                        </span>
+                        <p>
+                            @if ($booking->collect_front_store)
+                                เก็บเงินหน้าร้าน{{ $booking->front_store_collected_at ? 'แล้ว' : ' (รอเก็บ)' }}
+                            @elseif ($booking->payment_slip_path)
+                                แนบสลิปแล้ว
+                            @else
+                                รอแนบสลิป
+                            @endif
+                        </p>
+                    </div>
+                    <div class="booking-status-panel">
+                        <h4><i class="fa-solid fa-list-check"></i> สถานะงานอุปกรณ์</h4>
+                        <div class="booking-equipment-status">
+                            @foreach ($equipmentRows as $equipment)
+                                @if ($equipment['enabled'])
+                                    @php
+                                        $task = $tasksByType->get($equipment['type']);
+                                        $taskStatusClass = match ($task?->status) {
+                                            'completed' => 'status-completed',
+                                            'photo_uploaded' => 'status-pending_admin',
+                                            'started' => 'status-installing',
+                                            'problem' => 'status-problem',
+                                            default => 'status-confirmed',
+                                        };
+                                        $taskStatusLabel = match ($task?->status) {
+                                            'completed' => 'เสร็จแล้ว',
+                                            'photo_uploaded' => 'ส่งรูป/รอตรวจ',
+                                            'started' => 'กำลังทำงาน',
+                                            'problem' => 'มีปัญหา',
+                                            'waiting' => 'รอเริ่มงาน',
+                                            default => 'รอสร้างงาน',
+                                        };
+                                    @endphp
+                                    <div class="booking-equipment-status-row">
+                                        <strong>{{ $equipment['label'] }}</strong>
+                                        <span class="status-badge {{ $taskStatusClass }}">{{ $taskStatusLabel }}</span>
+                                    </div>
+                                @endif
+                            @endforeach
+                        </div>
                     </div>
                 </div>
 

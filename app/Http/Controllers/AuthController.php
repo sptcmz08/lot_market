@@ -25,27 +25,14 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        $login = $credentials['login'];
-        $loginField = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
-        
         $attempt = [
-            $loginField => $login,
+            'username' => $credentials['login'],
             'password' => $credentials['password'],
             'is_active' => true,
         ];
 
         if (Auth::attempt($attempt, $request->boolean('remember'))) {
             return $this->redirectAfterLogin($request);
-        }
-
-        foreach (['phone', 'name'] as $fallbackField) {
-            if (Auth::attempt([
-                $fallbackField => $login,
-                'password' => $credentials['password'],
-                'is_active' => true,
-            ], $request->boolean('remember'))) {
-                return $this->redirectAfterLogin($request);
-            }
         }
 
         return back()->withErrors([
