@@ -146,7 +146,7 @@
     .equip-box {
         border: 2px solid #365507;
         border-radius: 6px;
-        background: #8ec63f;
+        background: #ffffff;
         padding: 3px;
         display: flex;
         flex-direction: column;
@@ -158,7 +158,7 @@
         grid-template-columns: minmax(126px, 1.25fr) minmax(104px, 1fr) minmax(78px, .7fr) 40px 24px;
         align-items: center;
         gap: 4px;
-        background: #f4f8ed;
+        background: #ffffff;
         border: 1px solid #365507;
         border-radius: 4px;
         padding: 2px;
@@ -177,6 +177,7 @@
         border: 2px solid;
         border-radius: 5px;
         overflow: hidden;
+        background: #ffffff;
     }
 
     .equip-field > .paper-label {
@@ -195,16 +196,28 @@
         border-color: #bd8b00;
     }
 
+    .equip-field-size > .paper-label {
+        background: #ffec92 !important;
+    }
+
     .equip-field-color {
         color: #074d70;
         background: #cceaff;
         border-color: #3d91c2;
     }
 
+    .equip-field-color > .paper-label {
+        background: #cceaff !important;
+    }
+
     .equip-field-quantity {
         color: #6b3000;
         background: #ffd6ad;
         border-color: #d77828;
+    }
+
+    .equip-field-quantity > .paper-label {
+        background: #ffd6ad !important;
     }
 
     .equip-field .p-input,
@@ -215,21 +228,21 @@
         border: 0;
         border-left: 1px solid currentColor;
         border-radius: 0;
-        background: rgba(255, 255, 255, .4);
+        background: #ffffff;
         color: #111;
         padding: 0 4px;
     }
 
     .equip-field-size .p-select {
-        background: #fff7cf;
+        background: #ffffff;
     }
 
     .equip-field-color .p-select {
-        background: #e7f6ff;
+        background: #ffffff;
     }
 
     .equip-field-quantity .p-input {
-        background: #fff0df;
+        background: #ffffff;
     }
 
     .btn-add-inline {
