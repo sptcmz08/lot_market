@@ -29,6 +29,20 @@
     .photo-open-action { min-height:36px;padding:0 10px;border:1px solid var(--border-cute);border-radius:10px;background:#fff;color:var(--text-dark);display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;cursor:pointer;font-size:12px;font-weight:800;white-space:nowrap; }
     .photo-open-action:hover { border-color:var(--primary);color:var(--primary-hover); }
     .pagination { margin-top:18px; }
+    .work-sheet-card { background:#fff;border:1px solid var(--border-cute);border-radius:20px;margin-bottom:18px;overflow:hidden; }
+    .work-sheet-heading { display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border-cute);background:#fff9fb; }
+    .work-sheet-heading strong { font-size:16px;color:#1e293b; }
+    .work-sheet-scroll { overflow-x:auto;-webkit-overflow-scrolling:touch; }
+    .work-sheet-table { min-width:840px;width:100%;border-collapse:collapse; }
+    .work-sheet-table th,.work-sheet-table td { padding:11px 12px;border-bottom:1px solid #dbe2ea;text-align:left;white-space:nowrap;font-size:13px; }
+    .work-sheet-table th { background:#dbeafe;color:#173b6b;font-size:12px;font-weight:900; }
+    .work-sheet-table tr:nth-child(even) td { background:#fcfdff; }
+    .work-sheet-table td:first-child { font-weight:800; }
+    .work-sheet-table .work-shop { font-weight:800;min-width:150px; }
+    .work-sheet-table .work-color { color:#b42318;font-weight:900; }
+    .work-sheet-table .work-number { color:#dc2626;font-weight:900; }
+    .work-sheet-table .work-lots { color:var(--primary-hover);font-weight:900; }
+    .work-sheet-empty { padding:25px;text-align:center;color:var(--text-muted);font-weight:700; }
     @media(max-width:900px){
         .page-heading{font-size:18px;margin:3px 0 10px}.summary-card{padding:11px !important;margin-bottom:12px !important;border-radius:14px !important}.summary-header{margin-bottom:9px !important;padding-bottom:7px !important}.summary-header>div{font-size:12px !important}.summary-header strong{font-size:13px !important}.summary-card>div:not(.summary-header){font-size:11px !important;line-height:1.55 !important}.summary-card>div:not(.summary-header)>span:first-child{min-width:78px !important;padding:3px 7px !important;margin-right:7px !important}.status-tabs{gap:5px !important;margin-bottom:12px !important}.status-tab{padding:6px 10px !important;font-size:11px !important}.filter-grid{grid-template-columns:1fr 1fr auto;gap:7px}.filter-card{padding:9px;margin-bottom:12px;border-radius:13px}.filter-card .field:first-child{grid-column:1/-1}.filter-card .field label{font-size:11px;margin-bottom:3px}.filter-card .field input,.filter-card .field select{height:36px;border-width:1px;border-radius:9px;padding:0 8px;font-size:12px}.filter-card .actions{display:flex;gap:5px}.filter-card .action-btn{justify-content:center;min-height:36px;padding:0 9px;border-width:1px;border-radius:9px;font-size:11px}
         .table-wrap { position: relative; overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -36,6 +50,9 @@
         th.col-action { position: sticky; right: 0; background: #fff9fb; z-index: 5; }
         td.col-action { position: sticky; right: 0; background: #ffffff; z-index: 4; box-shadow: -4px 0 10px rgba(0, 0, 0, 0.08); border-left: 2px solid var(--border-cute) !important; min-width: 145px; }
         tr:nth-child(even) td.col-action { background: #f8fafc; }
+        .work-sheet-heading { padding:11px 12px;align-items:flex-start;flex-direction:column;gap:4px; }
+        .work-sheet-heading strong { font-size:13px; }.work-sheet-heading span { font-size:11px;color:var(--text-muted); }
+        .work-sheet-table { min-width:760px; }.work-sheet-table th,.work-sheet-table td { padding:8px 7px;font-size:11px; }
     }
     @media(max-width:480px){
         table{min-width:920px}th,td{padding:7px 5px;font-size:10px}.filter-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.filter-card .actions{grid-column:1/-1}.filter-card .actions>*{flex:1}.summary-header{align-items:flex-start !important}.summary-header>a{font-size:10px !important}
@@ -219,6 +236,55 @@
         <i class="fa-solid fa-arrows-left-right"></i>
     </div>
 
+    <!-- ใบงานภาพรวมประจำวัน รูปแบบเดียวกับใบงาน Excel -->
+    @php
+        $workSheetScope = $equipmentType
+            ? 'เฉพาะ'.(match ($equipmentType) {
+                'tent' => 'งานเต็นท์',
+                'counter' => 'งานเคาน์เตอร์',
+                default => 'อุปกรณ์อื่น',
+            })
+            : 'รวมทุกประเภทงาน';
+    @endphp
+    <section class="work-sheet-card" aria-labelledby="work-sheet-title">
+        <div class="work-sheet-heading">
+            <strong id="work-sheet-title"><i class="fa-solid fa-clipboard-list" style="color:var(--primary);"></i> ใบงานภาพรวมประจำวัน</strong>
+            <span>{{ !empty($isAllDates) ? 'ย้อนหลังทุกวัน' : 'ประจำวันที่ '.\Carbon\Carbon::parse($summaryDate)->format('d/m/Y') }} · {{ $workSheetScope }}</span>
+        </div>
+        <div class="work-sheet-scroll">
+            <table class="work-sheet-table">
+                <thead>
+                    <tr>
+                        <th>วันที่</th>
+                        <th>ชื่อร้าน</th>
+                        <th>สี / No.</th>
+                        <th>อุปกรณ์</th>
+                        <th>โซน</th>
+                        <th>เลขล็อค</th>
+                        <th>ลำดับ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($workRows as $row)
+                        <tr>
+                            <td>{{ $row['date']?->format('d/m/Y') }}</td>
+                            <td class="work-shop">{{ $row['shop'] }}</td>
+                            <td class="{{ $row['is_number'] ? 'work-number' : 'work-color' }}">
+                                {{ $row['is_number'] ? 'No.'.($row['color_or_number'] ?: '-') : ($row['color_or_number'] ?: '-') }}
+                            </td>
+                            <td>{{ $row['equipment'] }}</td>
+                            <td>{{ $row['zone'] }}</td>
+                            <td class="work-lots">{{ $row['lots'] }}</td>
+                            <td>{{ $row['sequence'] }}</td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="7" class="work-sheet-empty">ไม่พบงานในวันที่เลือก</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </section>
+
     <div class="table-wrap">
         <table>
             <thead>
@@ -305,7 +371,7 @@
                                 @php
                                     $displaySize = preg_match('/^\d+\s*ล็อค/u', $item['size'], $matches) ? $matches[0] : $item['size'];
                                 @endphp
-                                <div style="font-size:13px; font-weight: bold;">{{ $displaySize }} <span style="color:#0874a6; font-size:12px;">x{{ $item['quantity'] }}</span></div>
+                                <div style="font-size:13px; font-weight: bold;">{{ $displaySize }} <span style="color:#dc2626; font-size:12px;">No.{{ $item['number'] ?? '-' }}</span></div>
                             @endforeach
                         @else
                             <span class="equipment-empty">-</span>

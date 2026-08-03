@@ -495,7 +495,7 @@
 
             <!-- Row 4B: Counter Items Section -->
             @php
-                $counterItemRows = old('counter_items', [['size' => '', 'quantity' => 1]]);
+                $counterItemRows = old('counter_items', [['size' => '', 'number' => '', 'quantity' => 1]]);
             @endphp
             <div class="equip-box" id="box_counter" data-equipment-row style="{{ old('wants_counter') ? '' : 'display:none;' }}">
                 <div class="equipment-list" id="counter-item-list">
@@ -513,7 +513,8 @@
 
                             <div class="equip-field equip-field-quantity">
                             <span class="paper-label" style="border:none;background:transparent;">No.</span>
-                            <input type="number" name="counter_items[{{ $index }}][quantity]" class="p-input counter-qty" value="{{ $item['quantity'] ?? 1 }}" min="1" max="99" style="text-align:center;">
+                            <input type="text" name="counter_items[{{ $index }}][number]" class="p-input counter-number" value="{{ $item['number'] ?? '' }}" maxlength="50" placeholder="เช่น CCC1" style="text-align:center;">
+                            <input type="hidden" name="counter_items[{{ $index }}][quantity]" value="1">
                             </div>
 
                             <button type="button" class="btn-add-inline" id="add-counter-item" title="เพิ่มเคาน์เตอร์ต่างขนาด" aria-label="เพิ่มเคาน์เตอร์ต่างขนาด">+เพิ่ม</button>
@@ -632,7 +633,8 @@
                     </div>
                     <div class="equip-field equip-field-quantity">
                     <span class="paper-label" style="border:none;background:transparent;">No.</span>
-                    <input type="number" name="__QUANTITY__" class="p-input counter-qty" value="1" min="1" max="99" style="text-align:center;">
+                    <input type="text" name="__NUMBER__" class="p-input counter-number" value="" maxlength="50" placeholder="เช่น CCC1" style="text-align:center;">
+                    <input type="hidden" name="__QUANTITY__" value="1">
                     </div>
                     <button type="button" class="btn-add-inline add-counter-trigger">+เพิ่ม</button>
                     <button type="button" class="btn-remove-inline remove-equip-btn">&times;</button>
@@ -771,6 +773,7 @@
             const index = Date.now().toString();
             const html = counterItemTemplate.innerHTML
                 .replace('__SIZE__', `counter_items[${index}][size]`)
+                .replace('__NUMBER__', `counter_items[${index}][number]`)
                 .replace('__QUANTITY__', `counter_items[${index}][quantity]`);
             const div = document.createElement('div');
             div.innerHTML = html;

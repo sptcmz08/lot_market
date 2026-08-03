@@ -96,6 +96,40 @@ class StaffBookingCurrentDateTest extends TestCase
             ->assertSee('<option value="counter" selected>งานเคาน์เตอร์</option>', false);
     }
 
+    public function test_staff_work_sheet_shows_counter_number(): void
+    {
+        Carbon::setTestNow(Carbon::create(2026, 7, 22, 12, 0, 0, 'Asia/Bangkok'));
+        $staff = $this->staff('counter-number-staff');
+        $booking = Booking::create([
+            'booking_code' => 'BKCOUNTERNUM001',
+            'use_date' => '2026-07-22',
+            'shop_name' => 'ร้านเคาน์เตอร์ตัวอย่าง',
+            'customer_phone' => '0823456789',
+            'counter_size' => '3 ล็อค 180x75 cm.',
+            'counter_items' => [[
+                'size' => '3 ล็อค 180x75 cm.',
+                'number' => 'CCC1',
+                'quantity' => 1,
+            ]],
+            'status' => 'confirmed',
+        ]);
+        DeliveryTask::create([
+            'booking_id' => $booking->id,
+            'task_type' => DeliveryTask::TYPE_COUNTER,
+            'task_date' => '2026-07-22',
+            'status' => 'waiting',
+        ]);
+
+        $this->actingAs($staff)
+            ->get(route('staff.bookings.index', ['equipment_type' => 'counter']))
+            ->assertOk()
+            ->assertSee('ใบงานภาพรวมประจำวัน')
+            ->assertSee('สี / No.')
+            ->assertSee('No.CCC1')
+            ->assertSee('เคาน์เตอร์ 3 ล็อค')
+            ->assertSee('ร้านเคาน์เตอร์ตัวอย่าง');
+    }
+
     private function booking(string $code, string $useDate, string $shopName): Booking
     {
         return Booking::create([

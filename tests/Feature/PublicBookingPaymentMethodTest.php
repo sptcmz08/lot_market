@@ -20,6 +20,7 @@ class PublicBookingPaymentMethodTest extends TestCase
             ->assertSee('value="'.now()->toDateString().'"', false)
             ->assertSee('name="tent_items[0][quantity]"', false)
             ->assertSee('name="counter_items[0][quantity]"', false)
+            ->assertSee('name="counter_items[0][number]"', false)
             ->assertSee('class="equip-field equip-field-size"', false)
             ->assertSee('class="equip-field equip-field-color"', false)
             ->assertSee('class="equip-field equip-field-quantity"', false)
@@ -57,7 +58,7 @@ class PublicBookingPaymentMethodTest extends TestCase
         $response = $this->post(route('public.booking.store'), $this->bookingData([
             'payment_method' => 'front_store',
             'wants_counter' => 1,
-            'counter_items' => [['size' => '2 ล็อค 140x75 cm.', 'quantity' => 4]],
+            'counter_items' => [['size' => '2 ล็อค 140x75 cm.', 'number' => 'CCC4', 'quantity' => 4]],
         ]));
 
         $response->assertRedirect(route('public.booking.check'));
@@ -66,6 +67,7 @@ class PublicBookingPaymentMethodTest extends TestCase
         $this->assertTrue($booking->collect_front_store);
         $this->assertNull($booking->payment_slip_path);
         $this->assertSame(4, $booking->counter_quantity);
+        $this->assertSame('CCC4', $booking->counterEquipmentItems()[0]['number']);
         $this->assertStringContainsString('จำนวน 4 ชุด', $booking->equipmentSummary());
     }
 

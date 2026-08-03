@@ -23,7 +23,7 @@ class StaffBookingController extends Controller
         $todayDate = now('Asia/Bangkok')->format('Y-m-d');
         $isAllDates = ($request->query('date') === 'all');
         $summaryDate = ($request->filled('date') && !$isAllDates) ? $request->date : $todayDate;
-        $query = Booking::with(['lots', 'deliveryTasks.photos']);
+        $query = Booking::with(['lots.zone', 'deliveryTasks.photos']);
 
         if ($request->filled('status')) {
             if ($request->status !== 'all') {
@@ -61,7 +61,7 @@ class StaffBookingController extends Controller
         foreach ($bookings as $booking) {
             if ($booking->deliveryTasks->isEmpty() && $booking->status !== 'cancelled') {
                 $booking->ensureEquipmentTasks();
-                $booking->load('deliveryTasks.photos');
+                $booking->load(['lots.zone', 'deliveryTasks.photos']);
             }
         }
 
@@ -122,6 +122,71 @@ class StaffBookingController extends Controller
             }
         }
 
+        // Build a compact, daily work-sheet view for staff. It is intentionally
+        // separate from the photo/action table so the operational overview stays
+        // readable while the existing delivery workflow remains unchanged.
+        $workRows = collect();
+        foreach ($bookings as $booking) {
+            $tasks = $booking->deliveryTasks;
+            $lotCodes = $booking->lots->pluck('lot_code')->filter()->implode(', ') ?: '-';
+            $zoneCodes = $booking->lots->map(fn ($lot) => $lot->zone?->code)->filter()->unique()->implode(', ') ?: '-';
+            $types = $equipmentType ? [$equipmentType] : [
+                DeliveryTask::TYPE_TENT,
+                DeliveryTask::TYPE_COUNTER,
+                DeliveryTask::TYPE_OTHER,
+            ];
+
+            foreach ($types as $type) {
+                if ($type === DeliveryTask::TYPE_TENT) {
+                    $items = $booking->tentEquipmentItems();
+                    foreach ($items as $item) {
+                        $workRows->push([
+                            'date' => $booking->use_date,
+                            'shop' => $booking->shop_name,
+                            'color_or_number' => $item['color'] ?? '-',
+                            'is_number' => false,
+                            'equipment' => 'เต็นท์ '.($item['size'] ?? '-').' x'.($item['quantity'] ?? 1),
+                            'zone' => $zoneCodes,
+                            'lots' => $lotCodes,
+                            'sequence' => $workRows->count() + 1,
+                        ]);
+                    }
+                    continue;
+                }
+
+                if ($type === DeliveryTask::TYPE_COUNTER) {
+                    $items = $booking->counterEquipmentItems();
+                    foreach ($items as $item) {
+                        $displaySize = preg_match('/^\d+\s*ล็อค/u', $item['size'] ?? '', $matches) ? $matches[0] : ($item['size'] ?? '-');
+                        $workRows->push([
+                            'date' => $booking->use_date,
+                            'shop' => $booking->shop_name,
+                            'color_or_number' => $item['number'] ?? '-',
+                            'is_number' => true,
+                            'equipment' => 'เคาน์เตอร์ '.$displaySize,
+                            'zone' => $zoneCodes,
+                            'lots' => $lotCodes,
+                            'sequence' => $workRows->count() + 1,
+                        ]);
+                    }
+                    continue;
+                }
+
+                foreach ($tasks->where('task_type', DeliveryTask::TYPE_OTHER) as $task) {
+                    $workRows->push([
+                        'date' => $booking->use_date,
+                        'shop' => $booking->shop_name,
+                        'color_or_number' => '-',
+                        'is_number' => false,
+                        'equipment' => $task->equipment_note ?: 'อุปกรณ์อื่น',
+                        'zone' => $zoneCodes,
+                        'lots' => $lotCodes,
+                        'sequence' => $workRows->count() + 1,
+                    ]);
+                }
+            }
+        }
+
         return view('staff.bookings-index-v2', compact(
             'bookings',
             'tentSummary',
@@ -130,7 +195,8 @@ class StaffBookingController extends Controller
             'todayDate',
             'isToday',
             'isAllDates',
-            'equipmentType'
+            'equipmentType',
+            'workRows'
         ));
     }
 

@@ -154,8 +154,8 @@ class Booking extends Model
         return collect($items)->filter(fn ($item) => !empty($item['size']))->map(fn ($item) => [
             'size' => (string) $item['size'],
             'color' => $item['color'] ?? null,
+            'number' => isset($item['number']) && $item['number'] !== '' ? (string) $item['number'] : null,
             'quantity' => max(1, (int) ($item['quantity'] ?? 1)),
         ])->values()->all();
     }
 }
-

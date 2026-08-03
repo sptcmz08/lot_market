@@ -85,10 +85,11 @@
                             <span>จองเคาน์เตอร์</span>
                         </label>
                         <div style="display:grid;gap:10px;" id="admin-counter-items">
-                            @foreach(old('counter_items', $booking->counterEquipmentItems() ?: [['size'=>'','quantity'=>1]]) as $index => $item)
-                                <div class="admin-equipment-item" style="display:grid;grid-template-columns:1fr 90px 42px;gap:8px;">
+                            @foreach(old('counter_items', $booking->counterEquipmentItems() ?: [['size'=>'','number'=>'','quantity'=>1]]) as $index => $item)
+                                <div class="admin-equipment-item" style="display:grid;grid-template-columns:1fr 1fr 42px;gap:8px;">
                                     <select name="counter_items[{{ $index }}][size]" class="cute-select"><option value="">ขนาดเคาน์เตอร์</option>@foreach ($counterSizes as $size)<option value="{{ $size }}" @selected(($item['size'] ?? '') === $size)>{{ $size }}</option>@endforeach</select>
-                                    <input type="number" name="counter_items[{{ $index }}][quantity]" class="cute-input" value="{{ $item['quantity'] ?? 1 }}" min="1" max="99" title="จำนวนชุด">
+                                    <input type="text" name="counter_items[{{ $index }}][number]" class="cute-input" value="{{ $item['number'] ?? '' }}" maxlength="50" placeholder="No. เช่น CCC1">
+                                    <input type="hidden" name="counter_items[{{ $index }}][quantity]" value="1">
                                     <button type="button" class="admin-equipment-remove btn-secondary" style="padding:8px;"><i class="fa-solid fa-xmark"></i></button>
                                 </div>
                             @endforeach
@@ -128,7 +129,7 @@
     </div>
 
     <template id="admin-tent-template"><div class="admin-equipment-item" style="display:grid;grid-template-columns:1fr 1fr 90px 42px;gap:8px;"><select name="__SIZE__" class="cute-select"><option value="">ขนาดเต็นท์</option>@foreach($tentSizes as $size)<option value="{{ $size }}">{{ $size }}</option>@endforeach</select><select name="__COLOR__" class="cute-select"><option value="">สีเต็นท์</option>@foreach($equipmentColors as $color)<option value="{{ $color }}">{{ $color }}</option>@endforeach</select><input type="number" name="__QUANTITY__" class="cute-input" value="1" min="1" max="99"><button type="button" class="admin-equipment-remove btn-secondary" style="padding:8px;"><i class="fa-solid fa-xmark"></i></button></div></template>
-    <template id="admin-counter-template"><div class="admin-equipment-item" style="display:grid;grid-template-columns:1fr 90px 42px;gap:8px;"><select name="__SIZE__" class="cute-select"><option value="">ขนาดเคาน์เตอร์</option>@foreach($counterSizes as $size)<option value="{{ $size }}">{{ $size }}</option>@endforeach</select><input type="number" name="__QUANTITY__" class="cute-input" value="1" min="1" max="99"><button type="button" class="admin-equipment-remove btn-secondary" style="padding:8px;"><i class="fa-solid fa-xmark"></i></button></div></template>
+    <template id="admin-counter-template"><div class="admin-equipment-item" style="display:grid;grid-template-columns:1fr 1fr 42px;gap:8px;"><select name="__SIZE__" class="cute-select"><option value="">ขนาดเคาน์เตอร์</option>@foreach($counterSizes as $size)<option value="{{ $size }}">{{ $size }}</option>@endforeach</select><input type="text" name="__NUMBER__" class="cute-input" maxlength="50" placeholder="No. เช่น CCC1"><input type="hidden" name="__QUANTITY__" value="1"><button type="button" class="admin-equipment-remove btn-secondary" style="padding:8px;"><i class="fa-solid fa-xmark"></i></button></div></template>
 @endsection
 
 @section('scripts')
@@ -145,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const index = Date.now().toString();
             const template = document.getElementById(`admin-${type}-template`);
             const wrapper = document.createElement('div');
-            wrapper.innerHTML = template.innerHTML.replace('__SIZE__', `${type}_items[${index}][size]`).replace('__QUANTITY__', `${type}_items[${index}][quantity]`).replace('__COLOR__', `${type}_items[${index}][color]`);
+            wrapper.innerHTML = template.innerHTML.replace('__SIZE__', `${type}_items[${index}][size]`).replace('__NUMBER__', `${type}_items[${index}][number]`).replace('__QUANTITY__', `${type}_items[${index}][quantity]`).replace('__COLOR__', `${type}_items[${index}][color]`);
             list.querySelector('[data-add-admin-equipment]').before(wrapper.firstElementChild);
             refresh(list);
         });

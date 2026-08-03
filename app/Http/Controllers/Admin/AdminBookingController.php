@@ -119,6 +119,7 @@ class AdminBookingController extends Controller
             'wants_counter' => 'nullable|boolean',
             'counter_items' => 'nullable|required_if:wants_counter,1|array|min:1|max:10',
             'counter_items.*.size' => 'required|in:1 ล็อค 70x75 cm. มีหลังคา,2 ล็อค 140x75 cm.,3 ล็อค 180x75 cm.',
+            'counter_items.*.number' => 'nullable|string|max:50',
             'counter_items.*.quantity' => 'required|integer|min:1|max:99',
             'lots' => 'required|array|min:1',
             'lots.*' => 'required|integer|exists:lots,id',
