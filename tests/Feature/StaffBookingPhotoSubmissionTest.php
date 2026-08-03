@@ -36,6 +36,7 @@ class StaffBookingPhotoSubmissionTest extends TestCase
 
         $this->actingAs($staff)->get(route('staff.bookings.camera', $booking))
             ->assertOk()->assertSee('data-gallery-trigger', false)->assertSee('data-camera-trigger', false)
+            ->assertSee('name="submit_after_upload"', false)->assertSee('ส่งงานให้ Admin ทันที')
             ->assertSee('accept="image/*" capture="environment"', false)->assertSee('data-draft-key="'.$booking->id.'_'.$task->id.'"', false)
             ->assertSee('IndexedDB', false)->assertSee('เปิดสิทธิ์กล้องของเว็บไซต์ก่อน', false)->assertSee('iPhone/iPad', false)->assertDontSee('camera_lot_number');
 
@@ -86,6 +87,36 @@ class StaffBookingPhotoSubmissionTest extends TestCase
             ->assertSee('data-lightbox-alt="รูปงานเคาน์เตอร์"', false)->assertDontSee('รูปเลข LOT');
         $this->actingAs($staff)->get(route('staff.bookings.index', ['date' => $booking->use_date->format('Y-m-d'), 'equipment_type' => 'counter']))
             ->assertOk()->assertSee('เคาน์เตอร์')->assertDontSee('เต็นท์ (ขนาด)')->assertDontSee('<th>สี</th>', false);
+    }
+
+    public function test_staff_can_upload_and_send_in_one_step_from_the_camera_card(): void
+    {
+        Storage::fake('public');
+        $staff = $this->user('staff-one-step-photo', 'staff');
+        $booking = Booking::create([
+            'booking_code' => 'BKSTAFFPHOTO004', 'use_date' => now()->toDateString(),
+            'shop_name' => 'ร้านส่งงานทันที', 'customer_phone' => '0811111111',
+            'counter_size' => '2 ล็อค 140x75 cm.', 'status' => 'confirmed',
+        ]);
+        $task = DeliveryTask::create([
+            'booking_id' => $booking->id, 'task_type' => DeliveryTask::TYPE_COUNTER,
+            'task_date' => $booking->use_date, 'status' => 'waiting',
+        ]);
+
+        $this->actingAs($staff)
+            ->post(route('staff.bookings.photos', [$booking, $task]), [
+                'photo_type' => 'after',
+                'camera_photo' => $this->photo('counter-work.jpg'),
+                'submit_after_upload' => 1,
+            ])
+            ->assertRedirect(route('staff.bookings.index'))
+            ->assertSessionHas('success');
+
+        $this->assertSame('photo_uploaded', $task->fresh()->status);
+        $this->assertDatabaseHas('delivery_photos', [
+            'delivery_task_id' => $task->id,
+            'photo_type' => 'after',
+        ]);
     }
 
     public function test_staff_can_delete_draft_after_photos_but_not_photos_already_sent_for_review(): void

@@ -219,6 +219,7 @@ class StaffBookingController extends Controller
             'photos' => 'nullable|required_without:camera_photo|array|min:1',
             'photos.*' => 'required|image',
             'note' => 'nullable|string|max:250',
+            'submit_after_upload' => 'nullable|boolean',
         ], [
             'camera_photo.required_without' => 'กรุณาถ่ายรูปหรือเลือกรูปอย่างน้อย 1 รูป',
             'photos.required_without' => 'กรุณาถ่ายรูปหรือเลือกรูปอย่างน้อย 1 รูป',
@@ -250,6 +251,24 @@ class StaffBookingController extends Controller
                 'note' => $validated['note'] ?? null,
                 'ocr_status' => null,
             ]);
+        }
+
+        if ($request->boolean('submit_after_upload')) {
+            $oldStatus = $task->status;
+            $task->update([
+                'status' => 'photo_uploaded',
+                'started_at' => $task->started_at ?: now(),
+                'problem_note' => null,
+            ]);
+            StatusLogService::log(DeliveryTask::class, $task->id, $oldStatus, 'photo_uploaded', auth()->id(), 'Staff ส่งรูปงานติดตั้งให้แอดมินตรวจสอบ');
+
+            $oldBookingStatus = $booking->status;
+            $newBookingStatus = $booking->refresh()->refreshDeliveryStatus();
+            StatusLogService::log(Booking::class, $booking->id, $oldBookingStatus, $newBookingStatus, auth()->id(), 'ส่งรูปงานแล้ว รอแอดมินอนุมัติ');
+
+            return redirect()
+                ->route('staff.bookings.index')
+                ->with('success', 'อัปโหลดและส่งรูปงานให้ Admin ตรวจสอบเรียบร้อยแล้ว');
         }
 
         return redirect()

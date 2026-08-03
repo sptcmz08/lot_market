@@ -71,6 +71,7 @@
                         <div class="selection" style="font-size:13px;color:var(--text-muted);margin-bottom:4px">ยังไม่ได้เลือกรูป</div>
                         <div class="selection-preview" aria-live="polite"></div>
                         <button class="btn-large btn-large-success" type="submit"><i class="fa-solid fa-plus"></i> เพิ่มรูปงาน{{ $task->typeLabel() }}</button>
+                        <button class="btn-large btn-large-primary submit-after-upload" type="submit" name="submit_after_upload" value="1" disabled style="margin-top:10px"><i class="fa-solid fa-paper-plane"></i> ส่งงานให้ Admin ทันที</button>
                     </form>
                     @if($taskAfterPhotos->isNotEmpty())
                         <form method="POST" action="{{ route('staff.bookings.submit_work', [$booking, $task]) }}" style="margin-top:10px" onsubmit="return confirm('ยืนยันส่งรูปงาน{{ $task->typeLabel() }} ให้ Admin ตรวจสอบ?')">
@@ -140,6 +141,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const update=form=>{
         const files=[...(form.querySelector('.camera-input').files||[]),...(form.querySelector('.gallery-input').files||[])];
         form.querySelector('.selection').textContent=files.length?`เลือกแล้ว ${files.length} รูป`:'ยังไม่ได้เลือกรูป';
+        const submitButton=form.querySelector('.submit-after-upload');
+        if(submitButton)submitButton.disabled=files.length===0;
         const preview=form.querySelector('.selection-preview');
         (form._previewUrls||[]).forEach(url=>URL.revokeObjectURL(url));
         form._previewUrls=[];
