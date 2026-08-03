@@ -146,7 +146,7 @@
     .equip-box {
         border: 2px solid #365507;
         border-radius: 6px;
-        background: #ffffff;
+        background: #8ec63f;
         padding: 3px;
         display: flex;
         flex-direction: column;
@@ -158,7 +158,7 @@
         grid-template-columns: minmax(126px, 1.25fr) minmax(104px, 1fr) minmax(78px, .7fr) 40px 24px;
         align-items: center;
         gap: 4px;
-        background: #ffffff;
+        background: #8ec63f;
         border: 1px solid #365507;
         border-radius: 4px;
         padding: 2px;
@@ -177,7 +177,7 @@
         border: 2px solid;
         border-radius: 5px;
         overflow: hidden;
-        background: #ffffff;
+        background: #8ec63f;
     }
 
     .equip-field > .paper-label {
@@ -191,33 +191,36 @@
     }
 
     .equip-field-size {
-        color: #5b4200;
-        background: #ffec92;
-        border-color: #bd8b00;
+        color: #000000;
+        background: #8ec63f;
+        border-color: #365507;
     }
 
     .equip-field-size > .paper-label {
-        background: #ffec92 !important;
+        background: #8ec63f !important;
+        color: #000000;
     }
 
     .equip-field-color {
-        color: #074d70;
-        background: #cceaff;
-        border-color: #3d91c2;
+        color: #000000;
+        background: #8ec63f;
+        border-color: #365507;
     }
 
     .equip-field-color > .paper-label {
-        background: #cceaff !important;
+        background: #8ec63f !important;
+        color: #000000;
     }
 
     .equip-field-quantity {
-        color: #6b3000;
-        background: #ffd6ad;
-        border-color: #d77828;
+        color: #000000;
+        background: #8ec63f;
+        border-color: #365507;
     }
 
     .equip-field-quantity > .paper-label {
-        background: #ffd6ad !important;
+        background: #8ec63f !important;
+        color: #000000;
     }
 
     .equip-field .p-input,
