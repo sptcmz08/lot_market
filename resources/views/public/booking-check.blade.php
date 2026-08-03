@@ -142,12 +142,6 @@
             @foreach ($bookings as $booking)
                 @php
                     $taskPhotos = $booking->deliveryTasks->flatMap->photos;
-                    $approvedLotPhotos = $taskPhotos
-                        ->where('photo_type', 'lot_number')
-                        ->where('ocr_status', 'approved');
-                    $pendingLotPhotos = $taskPhotos
-                        ->where('photo_type', 'lot_number')
-                        ->where('ocr_status', 'pending_review');
                     $afterPhotos = $booking->status === 'completed'
                         ? $taskPhotos->where('photo_type', 'after')
                         : collect();
@@ -225,31 +219,6 @@
                     @if ($booking->deliveryTasks->isNotEmpty())
                         <div class="customer-evidence">
                             <div class="customer-evidence-grid">
-                                <section class="customer-evidence-group">
-                                    <div class="customer-evidence-title">
-                                        <i class="fa-solid fa-location-dot"></i>
-                                        <span>รูปยืนยันเลข LOT ({{ $approvedLotPhotos->count() }} รูป)</span>
-                                    </div>
-                                    @if ($approvedLotPhotos->isNotEmpty())
-                                        <div class="customer-evidence-photos">
-                                            @foreach ($approvedLotPhotos as $photo)
-                                                <div class="customer-evidence-photo">
-                                                    <button type="button" class="image-lightbox-trigger" data-lightbox-src="{{ route('media.show', ['path' => $photo->image_path]) }}" data-lightbox-alt="รูปยืนยันเลข LOT">
-                                                        <img src="{{ route('media.show', ['path' => $photo->image_path]) }}" alt="รูปยืนยันเลข LOT">
-                                                        <span><i class="fa-solid fa-circle-check"></i> แอดมินยืนยันแล้ว</span>
-                                                    </button>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    @elseif ($pendingLotPhotos->isNotEmpty())
-                                        <div class="customer-evidence-empty">
-                                            พนักงานส่งรูปเลข LOT แล้ว กำลังรอแอดมินตรวจสอบ
-                                        </div>
-                                    @else
-                                        <div class="customer-evidence-empty">ยังไม่มีรูปยืนยันเลข LOT</div>
-                                    @endif
-                                </section>
-
                                 <section class="customer-evidence-group">
                                     <div class="customer-evidence-title">
                                         <i class="fa-solid fa-images"></i>

@@ -65,7 +65,7 @@ class StaffTaskController extends Controller
         }
 
         $validated = $request->validate([
-            'photo_type' => 'required|in:lot_number,before,after,problem',
+            'photo_type' => 'required|in:after',
             'photo' => 'nullable|required_without:photos|image',
             'photos' => 'nullable|required_without:photo|array|min:1',
             'photos.*' => 'required|image',
@@ -78,15 +78,6 @@ class StaffTaskController extends Controller
         ]);
 
         $task->load('booking.deliveryTasks.photos');
-        $lotPhotos = $task->booking->deliveryTasks->flatMap->photos->where('photo_type', 'lot_number');
-        if ($validated['photo_type'] === 'after') {
-            abort_unless($lotPhotos->contains('ocr_status', 'approved'), 403, 'ต้องรอแอดมินอนุมัติรูป LOT ก่อนแนบรูปงานติดตั้ง');
-        }
-        if ($validated['photo_type'] === 'lot_number') {
-            abort_if($lotPhotos->contains('ocr_status', 'submitted'), 403, 'รูป LOT ถูกส่งแล้วและกำลังรอแอดมินอนุมัติ');
-            abort_if($lotPhotos->contains('ocr_status', 'approved'), 403, 'รูป LOT ได้รับการอนุมัติแล้ว');
-        }
-
         $files = $request->hasFile('photos')
             ? $request->file('photos')
             : [$request->file('photo')];
@@ -103,87 +94,11 @@ class StaffTaskController extends Controller
                 'taken_at' => now(),
                 'uploaded_by' => auth()->id(),
                 'note' => $validated['note'] ?? null,
-                'ocr_status' => $validated['photo_type'] === 'lot_number' ? 'draft' : null,
+                'ocr_status' => null,
             ]);
-        }
-
-        if ($validated['photo_type'] === 'lot_number') {
-            return back()->with('success', 'เพิ่มรูปเลข LOT แล้ว กรุณากดส่งรูป LOT ให้แอดมินตรวจสอบ');
         }
 
         return back()->with('success', 'อัปโหลดรูปหลังติดตั้งสำเร็จ ' . count($files) . ' รูป สามารถเพิ่มรูปหรือกดส่งงานได้');
-    }
-
-    public function complete(DeliveryTask $task)
-    {
-        if ($task->staff_id !== auth()->id() && auth()->user()->role !== 'admin') {
-            abort(403, 'Unauthorized.');
-        }
-
-        $photos = $task->photos;
-        
-        $hasLotNumber = $photos->contains('photo_type', 'lot_number');
-        $hasAfter = $photos->contains('photo_type', 'after');
-
-        if (!$hasLotNumber || !$hasAfter) {
-            return back()->with('error', 'ไม่สามารถส่งงานได้: ต้องถ่ายรูปเลขล็อตอย่างน้อย 1 รูป และรูปหลังติดตั้งอย่างน้อย 1 รูป');
-        }
-
-        $hasApprovedLotNumber = $photos->contains(fn ($photo) => $photo->photo_type === 'lot_number' && $photo->ocr_status === 'approved');
-
-        if (!$hasApprovedLotNumber) {
-            return back()->with('error', 'ไม่สามารถส่งงานได้: รูปป้ายเลขล็อตยังไม่ได้รับการยืนยันจากแอดมิน หรือถูกตีกลับ กรุณารอแอดมินตรวจสอบ');
-        }
-
-        DB::transaction(function () use ($task) {
-            $oldTaskStatus = $task->status;
-            $task->update([
-                'status' => 'completed',
-                'completed_at' => now(),
-            ]);
-
-            $booking = $task->booking;
-            $oldBookingStatus = $booking->status;
-            $newBookingStatus = $booking->refreshDeliveryStatus();
-
-            StatusLogService::log(DeliveryTask::class, $task->id, $oldTaskStatus, 'completed', auth()->id(), 'ส่งงานติดตั้งเสร็จสิ้น');
-            StatusLogService::log(Booking::class, $booking->id, $oldBookingStatus, $newBookingStatus, auth()->id(), $task->typeLabel().'เสร็จเรียบร้อยแล้ว');
-        });
-
-        return redirect()->route('staff.tasks.index')->with('success', 'ส่ง'.$task->typeLabel().'เสร็จเรียบร้อยแล้ว');
-    }
-
-    public function reviewStatus(DeliveryTask $task)
-    {
-        if ($task->staff_id !== auth()->id() && auth()->user()->role !== 'admin') {
-            abort(403, 'Unauthorized.');
-        }
-
-        $task->load('photos');
-        $lotPhotos = $task->photos->where('photo_type', 'lot_number');
-        $hasAfterPhoto = $task->photos->contains('photo_type', 'after');
-
-        $status = 'none';
-        $message = 'ยังไม่ได้อัปโหลดรูปเลขล็อต';
-
-        if ($lotPhotos->contains(fn ($photo) => $photo->ocr_status === 'approved')) {
-            $status = 'approved';
-            $message = $hasAfterPhoto
-                ? 'พร้อมส่งงานแล้ว'
-                : 'แอดมินยืนยันรูปเลขล็อตแล้ว กรุณาถ่ายรูปหลังติดตั้งเสร็จ';
-        } elseif ($lotPhotos->contains(fn ($photo) => $photo->ocr_status === 'pending_review')) {
-            $status = 'pending_review';
-            $message = 'อัปโหลดรูปเลขล็อตแล้ว กำลังรอแอดมินตรวจสอบ';
-        } elseif ($lotPhotos->contains(fn ($photo) => $photo->ocr_status === 'rejected')) {
-            $status = 'rejected';
-            $message = 'รูปเลขล็อตถูกตีกลับ กรุณาถ่ายและอัปโหลดใหม่';
-        }
-
-        return response()->json([
-            'status' => $status,
-            'message' => $message,
-            'can_complete' => $status === 'approved' && $hasAfterPhoto,
-        ]);
     }
 
     public function reportProblem(Request $request, DeliveryTask $task)

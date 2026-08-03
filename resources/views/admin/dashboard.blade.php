@@ -435,9 +435,7 @@
                         @foreach ($todayBookings as $booking)
                             @php
                                 $tasksByType = $booking->deliveryTasks->keyBy('task_type');
-                                $allPhotos = $booking->deliveryTasks->flatMap->photos->whereIn('photo_type', ['lot_number', 'after']);
-                                $isLotSubmitted = $allPhotos->where('photo_type', 'lot_number')->contains('ocr_status', 'submitted');
-                                $isLotApproved = $allPhotos->where('photo_type', 'lot_number')->contains('ocr_status', 'approved');
+                                $allPhotos = $booking->deliveryTasks->flatMap->photos->where('photo_type', 'after');
                                 $isWorkSubmitted = $booking->deliveryTasks->contains('status', 'photo_uploaded');
                                 $isCompleted = $booking->deliveryTasks->isNotEmpty() && $booking->deliveryTasks->every(fn ($task) => $task->status === 'completed');
                                 $isRejected = $booking->deliveryTasks->pluck('problem_note')->filter(fn ($note) => str_starts_with((string) $note, 'ตีกลับรูป'))->isNotEmpty();
@@ -478,8 +476,8 @@
                                 <td>
                                     <div class="workflow-photo-list">
                                         @forelse ($allPhotos as $photo)
-                                            <button type="button" class="image-lightbox-trigger workflow-photo-button" data-lightbox-src="{{ route('media.show', ['path' => $photo->image_path]) }}" data-lightbox-alt="{{ $photo->photo_type === 'lot_number' ? 'รูปเลข LOT' : 'รูปหลังติดตั้ง' }}">
-                                                <i class="fa-solid fa-image"></i> {{ $photo->photo_type === 'lot_number' ? 'LOT' : 'หลังติดตั้ง' }}
+                                            <button type="button" class="image-lightbox-trigger workflow-photo-button" data-lightbox-src="{{ route('media.show', ['path' => $photo->image_path]) }}" data-lightbox-alt="รูปหลังติดตั้ง">
+                                                <i class="fa-solid fa-image"></i> หลังติดตั้ง
                                             </button>
                                         @empty
                                             <span style="color:var(--text-muted);">ยังไม่มีรูป</span>
@@ -490,24 +488,20 @@
                                     <div class="workflow-status-stack">
                                         @if ($isWorkSubmitted)
                                             <span class="status-badge status-pending_admin">รูปงานรอตรวจ {{ $allPhotos->where('photo_type', 'after')->count() }} รูป</span>
-                                        @elseif ($isLotSubmitted)
-                                            <span class="status-badge status-pending_admin">รูป LOT รอตรวจ {{ $allPhotos->where('photo_type', 'lot_number')->count() }} รูป</span>
                                         @elseif ($isCompleted)
                                             <span class="status-badge status-completed">อนุมัติแล้ว</span>
                                         @elseif ($isRejected)
                                             <span class="status-badge status-problem">ไม่ผ่าน / รอส่งใหม่</span>
-                                        @elseif ($isLotApproved)
-                                            <span class="status-badge status-confirmed">LOT ผ่าน / รอรูปงาน</span>
                                         @else
-                                            <span class="status-badge status-confirmed">รอรูป LOT</span>
+                                            <span class="status-badge status-confirmed">รอรูปงานติดตั้ง</span>
                                         @endif
                                     </div>
                                 </td>
                                 <td>
                                     <div class="workflow-approve-list">
-                                        @if ($isWorkSubmitted || $isLotSubmitted)
+                                        @if ($isWorkSubmitted)
                                             <a href="{{ route('admin.bookings.show', $booking) }}#installation-review" class="workflow-approve-button" style="text-decoration:none;text-align:center;">
-                                                <i class="fa-solid fa-images"></i> {{ $isWorkSubmitted ? 'ตรวจรูปงาน' : 'ตรวจรูป LOT' }}
+                                                <i class="fa-solid fa-images"></i> ตรวจรูปงาน
                                             </a>
                                         @elseif ($isCompleted)
                                             <span style="color:#15803d;font-weight:800;"><i class="fa-solid fa-check"></i> อนุมัติแล้ว</span>

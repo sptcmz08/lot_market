@@ -47,8 +47,6 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('/lots', AdminLotController::class)->except(['show']);
     Route::get('/map', [AdminMapController::class, 'index'])->name('map.index');
 
-    Route::post('/bookings/{booking}/lot-review/approve', [AdminInstallationReviewController::class, 'approveLot'])->name('bookings.lot_review.approve');
-    Route::post('/bookings/{booking}/lot-review/reject', [AdminInstallationReviewController::class, 'rejectLot'])->name('bookings.lot_review.reject');
     Route::post('/bookings/{booking}/work-review/approve', [AdminInstallationReviewController::class, 'approveWork'])->name('bookings.work_review.approve');
     Route::post('/bookings/{booking}/work-review/reject', [AdminInstallationReviewController::class, 'rejectWork'])->name('bookings.work_review.reject');
     Route::post('/tasks/{task}/work-review/approve', [AdminInstallationReviewController::class, 'approveWorkTask'])->name('tasks.work_review.approve');
@@ -64,14 +62,11 @@ Route::middleware(['auth', 'role:staff,admin'])->prefix('staff')->name('staff.')
     Route::get('/bookings/{booking}/camera', [StaffBookingController::class, 'camera'])->name('bookings.camera');
     Route::post('/bookings/{booking}/photos/{task?}', [StaffBookingController::class, 'uploadPhotos'])->name('bookings.photos');
     Route::delete('/bookings/{booking}/photos/{photo}', [StaffBookingController::class, 'destroyPhoto'])->name('bookings.photos.destroy');
-    Route::post('/bookings/{booking}/submit-lot', [StaffBookingController::class, 'submitLot'])->name('bookings.submit_lot');
     Route::post('/bookings/{booking}/submit-work/{task?}', [StaffBookingController::class, 'submitWork'])->name('bookings.submit_work');
     Route::get('/tasks', [StaffTaskController::class, 'index'])->name('tasks.index');
     Route::get('/tasks/{task}', [StaffTaskController::class, 'show'])->name('tasks.show');
     Route::post('/tasks/{task}/start', [StaffTaskController::class, 'start'])->name('tasks.start');
     Route::post('/tasks/{task}/upload-photo', [StaffTaskController::class, 'uploadPhoto'])->name('tasks.upload_photo');
-    Route::get('/tasks/{task}/review-status', [StaffTaskController::class, 'reviewStatus'])->name('tasks.review_status');
-    Route::post('/tasks/{task}/complete', [StaffTaskController::class, 'complete'])->name('tasks.complete');
     Route::post('/tasks/{task}/problem', [StaffTaskController::class, 'reportProblem'])->name('tasks.problem');
 });
 

@@ -197,16 +197,10 @@
             <!-- Installation Photos and review actions -->
             @php
                 $allTaskPhotos = $booking->deliveryTasks->flatMap->photos;
-                $lotPhotos = $allTaskPhotos->where('photo_type', 'lot_number');
                 $workPhotos = $allTaskPhotos->where('photo_type', 'after');
-                $isLotReviewPending = $lotPhotos->contains('ocr_status', 'submitted');
-                $isLotApproved = $lotPhotos->contains('ocr_status', 'approved');
                 $isWorkReviewPending = $booking->deliveryTasks->contains('status', 'photo_uploaded');
                 $isWorkApproved = $booking->deliveryTasks->isNotEmpty()
                     && $booking->deliveryTasks->every(fn ($task) => $task->status === 'completed');
-                $lotRejection = $booking->deliveryTasks->pluck('problem_note')
-                    ->filter(fn ($note) => str_starts_with((string) $note, 'ตีกลับรูป LOT โดยแอดมิน:'))
-                    ->first();
                 $workRejection = $booking->deliveryTasks->pluck('problem_note')
                     ->filter(fn ($note) => str_starts_with((string) $note, 'ตีกลับรูปงานโดยแอดมิน:'))
                     ->first();
@@ -216,51 +210,9 @@
                     <h3 class="cute-card-title" style="margin:0;">
                         <i class="fa-solid fa-camera-retro"></i> ภาพถ่ายและอนุมัติงานติดตั้ง
                     </h3>
-                    <span style="color:var(--text-muted);font-size:13px;">อนุมัติรูป LOT ก่อน จึงจะเปิดให้สตาฟแนบรูปงานติดตั้ง</span>
+                    <span style="color:var(--text-muted);font-size:13px;">ตรวจสอบรูปงานที่พนักงานส่ง แล้วอนุมัติหรือส่งกลับแก้ไขได้</span>
                 </div>
                 
-                <!-- Lot Photos Section -->
-                <div style="margin-bottom: 24px;">
-                    <h4 style="font-size: 15px; margin: 0 0 10px; color: var(--text-dark); display: flex; align-items: center; gap: 8px;">
-                        <span>📋 รูปเลข LOT (ป้ายเลขแผง)</span>
-                        <span style="font-size: 12px; font-weight: normal; color: var(--text-muted);">({{ $lotPhotos->count() }} รูป)</span>
-                    </h4>
-                    @if ($lotPhotos->isNotEmpty())
-                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px;">
-                            @foreach ($lotPhotos as $photo)
-                                <div style="border: 2px solid var(--border-cute); border-radius: 18px; overflow: hidden; background-color: var(--bg-page); text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
-                                    <button type="button" class="image-lightbox-trigger" data-lightbox-src="{{ route('media.show', ['path' => $photo->image_path]) }}" data-lightbox-alt="ภาพถ่ายยืนยันเลข LOT" style="display:block;width:100%;">
-                                        <img src="{{ route('media.show', ['path' => $photo->image_path]) }}" style="width: 100%; height: 140px; object-fit: cover; display: block;" alt="ภาพถ่ายยืนยันเลข LOT">
-                                    </button>
-                                    <div style="padding: 10px; font-size: 13px;">
-                                        <small style="display:block;font-weight:800;color:@if($photo->ocr_status === 'approved') #1E7E34 @elseif(in_array($photo->ocr_status, ['pending_review', 'submitted'], true)) #856404 @else #D35400 @endif;">
-                                            ตรวจเลขล็อต:
-                                            @if($photo->ocr_status === 'approved') ผ่าน
-                                            @elseif(in_array($photo->ocr_status, ['pending_review', 'submitted'], true)) รออนุมัติ
-                                            @elseif($photo->ocr_status === 'rejected') ไม่ผ่าน
-                                            @else ยังไม่ตรวจ
-                                            @endif
-                                        </small>
-                                        @if($photo->ocr_text)
-                                            <small style="display:block;color:var(--text-muted);word-break:break-word;">{{ $photo->ocr_text }}</small>
-                                        @endif
-                                        @if($photo->taken_at)
-                                            <small style="color: var(--text-muted); font-size: 11px;">เวลา: {{ $photo->taken_at->format('H:i น.') }}</small>
-                                        @endif
-                                        @if($photo->uploadedBy)
-                                            <small style="display:block;color:var(--text-muted);font-size:11px;">ส่งโดย: {{ $photo->uploadedBy->name }}</small>
-                                        @endif
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @else
-                        <div style="text-align: center; padding: 20px; color: var(--text-muted); background: var(--bg-page); border-radius: 14px; font-size: 13px;">
-                            ยังไม่มีรูปเลข LOT
-                        </div>
-                    @endif
-                </div>
-
                 <!-- Installation Photos Grouped by Task Section -->
                 @foreach ($booking->deliveryTasks as $task)
                     @php
@@ -310,46 +262,7 @@
                 @endforeach
 
                 <div style="margin-top:20px;padding-top:18px;border-top:2px dashed var(--border-cute);">
-                    <!-- Step 1: Lot Review -->
-                    <div class="step-review-box" style="padding:16px;border:2px solid var(--border-cute);border-radius:16px;margin-bottom:14px;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
-                            <strong class="step-review-header"><i class="fa-solid fa-barcode"></i> ขั้นที่ 1: ตรวจและอนุมัติรูป LOT</strong>
-                            @if ($isLotReviewPending)
-                                <span class="status-badge status-pending_admin">รอตรวจสอบ</span>
-                            @elseif ($isLotApproved)
-                                <span class="status-badge status-completed">อนุมัติแล้ว</span>
-                            @elseif ($lotRejection)
-                                <span class="status-badge status-problem">ตีกลับแล้ว</span>
-                            @else
-                                <span class="status-badge status-pending">รอสตาฟส่งรูป</span>
-                            @endif
-                        </div>
-                        @if ($isLotReviewPending)
-                        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-                            <form method="POST" action="{{ route('admin.bookings.lot_review.approve', $booking) }}" style="margin:0;">
-                                @csrf
-                                <button class="btn-primary" type="submit" onclick="return confirm('อนุมัติรูป LOT และเปิดให้สตาฟแนบรูปงานติดตั้ง?')">
-                                    <i class="fa-solid fa-circle-check"></i> อนุมัติรูป LOT
-                                </button>
-                            </form>
-                            <form method="POST" action="{{ route('admin.bookings.lot_review.reject', $booking) }}" class="reject-form-group" style="margin:0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                                @csrf
-                                <input class="cute-input" name="reason" required maxlength="250" placeholder="เหตุผลที่ตีกลับรูป LOT" style="width:240px;max-width:100%;">
-                                <button class="btn-secondary" type="submit" style="border-color:#fca5a5;color:#b42318;" onclick="return confirm('ตีกลับรูป LOT ให้สตาฟส่งใหม่?')">
-                                    <i class="fa-solid fa-rotate-left"></i> ตีกลับ
-                                </button>
-                            </form>
-                        </div>
-                        @elseif ($lotRejection)
-                            <div style="padding:12px 14px;border-radius:14px;background:#fff1f1;color:#b42318;font-weight:700;">
-                                เหตุผลที่ตีกลับ: {{ str($lotRejection)->after('ตีกลับรูป LOT โดยแอดมิน:')->trim() }}
-                            </div>
-                        @elseif ($isLotApproved)
-                            <div style="color:#1E7E34;font-weight:700;">รูป LOT ผ่านแล้ว สตาฟสามารถแนบรูปงานติดตั้งได้</div>
-                        @endif
-                    </div>
-
-                    <!-- Step 2: Task-level Work Review -->
+                    <!-- Task-level Work Review -->
                     @foreach($booking->deliveryTasks as $task)
                         @php
                             $taskSubmitted = $task->status === 'photo_uploaded';
@@ -358,10 +271,8 @@
                         @endphp
                         <div class="step-review-box" style="padding:16px;border:2px solid var(--border-cute);border-radius:16px;margin-bottom:14px;">
                             <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
-                                <strong class="step-review-header"><i class="fa-solid fa-screwdriver-wrench"></i> ขั้นที่ 2: ตรวจและอนุมัติรูปงาน: {{ $task->typeLabel() }}</strong>
-                                @if (!$isLotApproved)
-                                    <span class="status-badge status-pending">ล็อกอยู่</span>
-                                @elseif ($taskFinished)
+                                <strong class="step-review-header"><i class="fa-solid fa-screwdriver-wrench"></i> ตรวจและอนุมัติรูปงาน: {{ $task->typeLabel() }}</strong>
+                                @if ($taskFinished)
                                     <span class="status-badge status-completed">อนุมัติแล้ว</span>
                                 @elseif ($taskSubmitted)
                                     <span class="status-badge status-pending_admin">รอตรวจสอบ</span>
@@ -371,9 +282,7 @@
                                     <span class="status-badge status-pending">รอสตาฟส่งรูป</span>
                                 @endif
                             </div>
-                            @if (!$isLotApproved)
-                                <div style="color:var(--text-muted);font-weight:700;"><i class="fa-solid fa-lock"></i> ต้องอนุมัติรูป LOT ก่อนจึงจะตรวจสอบงานติดตั้งได้</div>
-                            @elseif ($taskSubmitted)
+                            @if ($taskSubmitted)
                                 <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
                                     <form method="POST" action="{{ route('admin.tasks.work_review.approve', $task) }}" style="margin:0;">
                                         @csrf

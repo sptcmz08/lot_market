@@ -12,7 +12,7 @@ class PublicBookingPhotoEvidenceTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_customer_sees_approved_lot_photos_and_all_completion_photos(): void
+    public function test_customer_sees_all_completion_photos_without_lot_review_evidence(): void
     {
         $booking = $this->createBooking('completed');
         $task = $this->createTask($booking, 'completed');
@@ -27,9 +27,9 @@ class PublicBookingPhotoEvidenceTest extends TestCase
         ]);
 
         $response->assertOk()
-            ->assertSee('รูปยืนยันเลข LOT (1 รูป)')
             ->assertSee('รูปส่งงานหลังติดตั้งทั้งหมด (2 รูป)')
-            ->assertSee('approved-lot.jpg')
+            ->assertDontSee('รูปยืนยันเลข LOT')
+            ->assertDontSee('approved-lot.jpg')
             ->assertDontSee('pending-lot.jpg')
             ->assertSee('after-one.jpg')
             ->assertSee('after-two.jpg');
