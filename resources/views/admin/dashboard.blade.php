@@ -209,6 +209,85 @@
         min-width: 125px;
     }
 
+    /* Keep the dashboard compact on phones after the base card styles load. */
+    @media (max-width: 575px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 7px;
+            margin-bottom: 14px;
+        }
+
+        .stat-card {
+            min-height: 64px !important;
+            padding: 10px 11px !important;
+            border-radius: 13px !important;
+        }
+
+        .stat-label {
+            font-size: 11px !important;
+            gap: 4px;
+            line-height: 1.25;
+        }
+
+        .stat-value {
+            font-size: 23px !important;
+            margin-top: 4px !important;
+        }
+
+        .cute-card {
+            padding: 13px 10px !important;
+            border-radius: 16px !important;
+            margin-bottom: 14px !important;
+        }
+
+        .cute-card-title {
+            font-size: 18px !important;
+            margin-top: 0;
+        }
+
+        .daily-toolbar {
+            gap: 9px;
+            margin-bottom: 12px;
+        }
+
+        .daily-toolbar > div:first-child > span {
+            font-size: 11px !important;
+        }
+
+        .daily-toolbar > div:last-child > a,
+        .daily-toolbar > div:last-child > form button,
+        .daily-toolbar > div:last-child > a.btn-secondary {
+            min-height: 40px !important;
+            padding: 8px 10px !important;
+            font-size: 12px !important;
+            border-radius: 11px !important;
+        }
+
+        .daily-toolbar > div:last-child > form {
+            gap: 6px !important;
+        }
+
+        .daily-summary-grid {
+            gap: 7px;
+            margin-bottom: 8px;
+        }
+
+        .daily-summary-item {
+            padding: 8px !important;
+            border-radius: 10px;
+        }
+
+        .daily-summary-label {
+            font-size: 10px;
+            line-height: 1.25;
+        }
+
+        .daily-summary-value {
+            font-size: 15px !important;
+            margin-top: 3px;
+        }
+    }
+
     @media (max-width: 767px) {
         .daily-summary-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
