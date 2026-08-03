@@ -295,10 +295,22 @@
         grid-template-columns: 52px 1fr 52px 1fr 52px 1fr 24px;
         gap: 2px;
         align-items: center;
-        background: #ffffff;
+        background: #8ec63f;
         border: 1px solid #365507;
         border-radius: 4px;
         padding: 2px;
+    }
+
+    .lot-group-item > .paper-label {
+        background: #8ec63f !important;
+        color: #000000;
+        font-weight: 700;
+    }
+
+    .lot-group-item > .p-input,
+    .lot-group-item > .p-select {
+        background: #ffffff;
+        color: #000000;
     }
 
     /* Action Buttons */
@@ -472,10 +484,7 @@
                             </select>
                             </div>
 
-                            <div class="equip-field equip-field-quantity">
-                            <span class="paper-label" style="border:none;background:transparent;">จำนวน</span>
-                            <input type="number" name="tent_items[{{ $index }}][quantity]" class="p-input tent-qty" value="{{ $item['quantity'] ?? 1 }}" min="1" max="99" style="text-align:center;">
-                            </div>
+                            <input type="hidden" name="tent_items[{{ $index }}][quantity]" value="1">
 
                             <button type="button" class="btn-add-inline" id="add-tent-item" title="เพิ่มเต็นท์ต่างขนาดหรือสี" aria-label="เพิ่มเต็นท์ต่างขนาดหรือสี">+เพิ่ม</button>
                             <button type="button" class="btn-remove-inline remove-equip-btn" style="{{ count($tentItemRows) > 1 ? '' : 'opacity:0.3;' }}">&times;</button>
@@ -503,7 +512,7 @@
                             </div>
 
                             <div class="equip-field equip-field-quantity">
-                            <span class="paper-label" style="border:none;background:transparent;">จำนวน</span>
+                            <span class="paper-label" style="border:none;background:transparent;">No.</span>
                             <input type="number" name="counter_items[{{ $index }}][quantity]" class="p-input counter-qty" value="{{ $item['quantity'] ?? 1 }}" min="1" max="99" style="text-align:center;">
                             </div>
 
@@ -604,10 +613,7 @@
                         @endforeach
                     </select>
                     </div>
-                    <div class="equip-field equip-field-quantity">
-                    <span class="paper-label" style="border:none;background:transparent;">จำนวน</span>
-                    <input type="number" name="__QUANTITY__" class="p-input tent-qty" value="1" min="1" max="99" style="text-align:center;">
-                    </div>
+                    <input type="hidden" name="__QUANTITY__" value="1">
                     <button type="button" class="btn-add-inline add-tent-trigger">+เพิ่ม</button>
                     <button type="button" class="btn-remove-inline remove-equip-btn">&times;</button>
                 </div>
@@ -625,7 +631,7 @@
                     </select>
                     </div>
                     <div class="equip-field equip-field-quantity">
-                    <span class="paper-label" style="border:none;background:transparent;">จำนวน</span>
+                    <span class="paper-label" style="border:none;background:transparent;">No.</span>
                     <input type="number" name="__QUANTITY__" class="p-input counter-qty" value="1" min="1" max="99" style="text-align:center;">
                     </div>
                     <button type="button" class="btn-add-inline add-counter-trigger">+เพิ่ม</button>
