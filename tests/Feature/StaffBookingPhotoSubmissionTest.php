@@ -36,11 +36,14 @@ class StaffBookingPhotoSubmissionTest extends TestCase
 
         $this->actingAs($staff)->get(route('staff.bookings.camera', $booking))
             ->assertOk()->assertSee('data-gallery-trigger', false)->assertSee('data-camera-trigger', false)
-            ->assertSee('accept="image/*" capture="environment"', false)->assertDontSee('camera_lot_number');
+            ->assertSee('accept="image/*" capture="environment"', false)->assertSee('data-draft-key="'.$booking->id.'_'.$task->id.'"', false)
+            ->assertSee('IndexedDB', false)->assertSee('เปิดสิทธิ์กล้องของเว็บไซต์ก่อน', false)->assertSee('iPhone/iPad', false)->assertDontSee('camera_lot_number');
 
         $this->actingAs($staff)->post(route('staff.bookings.photos', [$booking, $task]), [
             'photo_type' => 'after', 'photos' => [$this->photo('one.png'), $this->photo('two.png')],
-        ])->assertRedirect(route('staff.bookings.camera', $booking))->assertSessionHas('success');
+        ])->assertRedirect(route('staff.bookings.camera', $booking))
+            ->assertSessionHas('success')
+            ->assertSessionHas('clear_photo_draft_keys', [$booking->id.'_'.$task->id]);
         $this->assertCount(2, $task->photos()->where('photo_type', 'after')->get());
 
         $this->actingAs($staff)->post(route('staff.bookings.submit_work', [$booking, $task]))

@@ -188,6 +188,7 @@ class StaffBookingController extends Controller
 
         return redirect()
             ->route('staff.bookings.camera', $booking)
+            ->with('clear_photo_draft_keys', [$booking->id.'_'.$task->id])
             ->with('success', 'แนบรูปเรียบร้อยแล้ว '.$files->count().' รูป สามารถเพิ่มรูปต่อหรือกดส่งได้');
     }
 
