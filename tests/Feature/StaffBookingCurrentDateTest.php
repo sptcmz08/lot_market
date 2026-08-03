@@ -130,6 +130,29 @@ class StaffBookingCurrentDateTest extends TestCase
             ->assertSee('ร้านเคาน์เตอร์ตัวอย่าง');
     }
 
+    public function test_staff_status_filter_buttons_submit_the_selected_status(): void
+    {
+        Carbon::setTestNow(Carbon::create(2026, 7, 22, 12, 0, 0, 'Asia/Bangkok'));
+        $staff = $this->staff('status-filter-staff');
+        $installing = $this->booking('BKINSTALL001', '2026-07-22', 'ร้านกำลังติดตั้ง');
+        $this->booking('BKCONFIRM001', '2026-07-22', 'ร้านยืนยันแล้ว');
+        DeliveryTask::create([
+            'booking_id' => $installing->id,
+            'task_type' => DeliveryTask::TYPE_TENT,
+            'task_date' => '2026-07-22',
+            'status' => 'started',
+        ]);
+        $installing->update(['status' => 'installing']);
+
+        $this->actingAs($staff)
+            ->get(route('staff.bookings.index', ['status' => 'installing']))
+            ->assertOk()
+            ->assertSee('ร้านกำลังติดตั้ง')
+            ->assertDontSee('ร้านยืนยันแล้ว')
+            ->assertSee('name="status"', false)
+            ->assertSee('value="installing"', false);
+    }
+
     private function booking(string $code, string $useDate, string $shopName): Booking
     {
         return Booking::create([

@@ -29,6 +29,8 @@
     .photo-open-action { min-height:36px;padding:0 10px;border:1px solid var(--border-cute);border-radius:10px;background:#fff;color:var(--text-dark);display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;cursor:pointer;font-size:12px;font-weight:800;white-space:nowrap; }
     .photo-open-action:hover { border-color:var(--primary);color:var(--primary-hover); }
     .pagination { margin-top:18px; }
+    .status-filter-form { margin:0;flex:0 0 auto; }
+    .status-tab { cursor:pointer;touch-action:manipulation; }
     .work-sheet-card { background:#fff;border:1px solid var(--border-cute);border-radius:20px;margin-bottom:18px;overflow:hidden; }
     .work-sheet-heading { display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border-cute);background:#fff9fb; }
     .work-sheet-heading strong { font-size:16px;color:#1e293b; }
@@ -44,7 +46,7 @@
     .work-sheet-table .work-lots { color:var(--primary-hover);font-weight:900; }
     .work-sheet-empty { padding:25px;text-align:center;color:var(--text-muted);font-weight:700; }
     @media(max-width:900px){
-        .page-heading{font-size:18px;margin:3px 0 10px}.summary-card{padding:11px !important;margin-bottom:12px !important;border-radius:14px !important}.summary-header{margin-bottom:9px !important;padding-bottom:7px !important}.summary-header>div{font-size:12px !important}.summary-header strong{font-size:13px !important}.summary-card>div:not(.summary-header){font-size:11px !important;line-height:1.55 !important}.summary-card>div:not(.summary-header)>span:first-child{min-width:78px !important;padding:3px 7px !important;margin-right:7px !important}.status-tabs{gap:5px !important;margin-bottom:12px !important}.status-tab{padding:6px 10px !important;font-size:11px !important}.filter-grid{grid-template-columns:1fr 1fr auto;gap:7px}.filter-card{padding:9px;margin-bottom:12px;border-radius:13px}.filter-card .field:first-child{grid-column:1/-1}.filter-card .field label{font-size:11px;margin-bottom:3px}.filter-card .field input,.filter-card .field select{height:36px;border-width:1px;border-radius:9px;padding:0 8px;font-size:12px}.filter-card .actions{display:flex;gap:5px}.filter-card .action-btn{justify-content:center;min-height:36px;padding:0 9px;border-width:1px;border-radius:9px;font-size:11px}
+        .page-heading{font-size:18px;margin:3px 0 10px}.summary-card{padding:11px !important;margin-bottom:12px !important;border-radius:14px !important}.summary-header{margin-bottom:9px !important;padding-bottom:7px !important}.summary-header>div{font-size:12px !important}.summary-header strong{font-size:13px !important}.summary-card>div:not(.summary-header){font-size:11px !important;line-height:1.55 !important}.summary-card>div:not(.summary-header)>span:first-child{min-width:78px !important;padding:3px 7px !important;margin-right:7px !important}.status-tabs{gap:5px !important;margin-bottom:12px !important;flex-wrap:nowrap !important;overflow-x:auto;padding:3px 2px 8px;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}.status-tab{padding:9px 12px !important;min-height:40px;font-size:11px !important;white-space:nowrap}.filter-grid{grid-template-columns:1fr 1fr auto;gap:7px}.filter-card{padding:9px;margin-bottom:12px;border-radius:13px}.filter-card .field:first-child{grid-column:1/-1}.filter-card .field label{font-size:11px;margin-bottom:3px}.filter-card .field input,.filter-card .field select{height:36px;border-width:1px;border-radius:9px;padding:0 8px;font-size:12px}.filter-card .actions{display:flex;gap:5px}.filter-card .action-btn{justify-content:center;min-height:36px;padding:0 9px;border-width:1px;border-radius:9px;font-size:11px}
         .table-wrap { position: relative; overflow-x: auto; -webkit-overflow-scrolling: touch; }
         table{min-width:980px}th,td{padding:8px 6px;font-size:11px}th{font-size:10px}.badge{padding:4px 7px;font-size:10px}.action-btn{min-height:34px;padding:0 8px;font-size:11px;border-radius:9px}
         th.col-action { position: sticky; right: 0; background: #fff9fb; z-index: 5; }
@@ -156,8 +158,12 @@
                     }
                 }
             @endphp
-            <a class="status-tab" href="{{ route('staff.bookings.index', array_merge(request()->except(['page', 'status']), $val !== '' ? ['status' => $val] : [])) }}"
-               style="text-decoration: none; padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: bold; background: {{ $bg }}; color: {{ $color }}; border: {{ $border }}; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+            <form class="status-filter-form" method="GET" action="{{ route('staff.bookings.index') }}">
+                @foreach(request()->except(['page', 'status']) as $key => $value)
+                    @if(is_scalar($value))<input type="hidden" name="{{ $key }}" value="{{ $value }}">@endif
+                @endforeach
+                <button class="status-tab" type="submit" name="status" value="{{ $val }}" aria-current="{{ $isActive ? 'page' : 'false' }}"
+                        style="padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: bold; background: {{ $bg }}; color: {{ $color }}; border: {{ $border }}; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); font-family:inherit;">
                 @if($val === '')
                     <i class="fa-solid fa-clock-rotate-left"></i>
                 @elseif($val === 'all')
@@ -176,7 +182,8 @@
                     <i class="fa-solid fa-circle-xmark"></i>
                 @endif
                 {{ $lbl }}
-            </a>
+                </button>
+            </form>
         @endforeach
     </div>
 
