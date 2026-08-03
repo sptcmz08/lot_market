@@ -35,7 +35,7 @@ class StaffBookingPhotoSubmissionTest extends TestCase
             ->assertDontSee('ส่ง LOT')->assertDontSee('icon-action', false);
 
         $this->actingAs($staff)->get(route('staff.bookings.camera', $booking))
-            ->assertOk()->assertSee('data-gallery-trigger', false)->assertSee('for="camera_after_'.$task->id.'"', false)
+            ->assertOk()->assertSee('data-gallery-trigger', false)->assertSee('data-camera-trigger', false)
             ->assertSee('accept="image/*" capture="environment"', false)->assertDontSee('camera_lot_number');
 
         $this->actingAs($staff)->post(route('staff.bookings.photos', [$booking, $task]), [
