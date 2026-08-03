@@ -116,13 +116,29 @@
 
         <form action="{{ route('public.booking.check.submit') }}" method="POST">
             @csrf
-            <div class="booking-search-form" style="display: flex; gap: 10px; align-items: flex-start;">
-                <div class="cute-input-group" style="margin-bottom: 0; flex: 1;">
+            <div class="booking-search-form" style="display: flex; gap: 10px; align-items: flex-start; flex-wrap: wrap;">
+                <div class="cute-input-group" style="margin-bottom: 0; flex: 2; min-width: 220px;">
+                    <label style="display: block; font-size: 12px; font-weight: 700; color: var(--text-dark); margin-bottom: 4px;">
+                        <i class="fa-solid fa-magnifying-glass"></i> เบอร์โทร หรือ รหัสการจอง:
+                    </label>
                     <input type="text" name="search_query" class="cute-input" value="{{ $query ?? old('search_query') }}" placeholder="กรอกเบอร์โทร 10 หลัก หรือ รหัสการจอง..." required>
                 </div>
-                <button type="submit" class="btn-primary" style="padding: 12px 25px;">
-                    <i class="fa-solid fa-magnifying-glass"></i> ค้นหา
-                </button>
+                <div class="cute-input-group" style="margin-bottom: 0; flex: 1; min-width: 170px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <label style="font-size: 12px; font-weight: 700; color: var(--text-dark);">
+                            <i class="fa-solid fa-calendar-day"></i> วันที่ใช้งาน:
+                        </label>
+                        <button type="button" onclick="document.getElementById('use_date_input').value='{{ date('Y-m-d') }}'" style="background:none; border:none; color:var(--primary); font-size:11px; font-weight:700; cursor:pointer; padding:0;">
+                            [วันนี้]
+                        </button>
+                    </div>
+                    <input type="date" id="use_date_input" name="use_date" class="cute-input" value="{{ $useDate ?? old('use_date') }}">
+                </div>
+                <div style="display: flex; align-items: flex-end; align-self: flex-end;">
+                    <button type="submit" class="btn-primary" style="padding: 12px 25px; height: 44px; white-space: nowrap;">
+                        <i class="fa-solid fa-magnifying-glass"></i> ค้นหา
+                    </button>
+                </div>
             </div>
         </form>
     </div>
@@ -132,7 +148,7 @@
             <div class="cute-card" style="text-align: center; padding: 40px 20px;">
                 <i class="fa-solid fa-folder-open" style="font-size: 50px; color: var(--border-cute); margin-bottom: 15px; display: block;"></i>
                 <h3 style="margin: 0; color: var(--text-dark);">ไม่พบข้อมูลการจอง</h3>
-                <p style="color: var(--text-muted); margin-top: 5px;">โปรดตรวจสอบความถูกต้องของรหัสจองหรือเบอร์โทรศัพท์ และลองใหม่อีกครั้ง</p>
+                <p style="color: var(--text-muted); margin-top: 5px;">โปรดตรวจสอบความถูกต้องของรหัสจอง, เบอร์โทรศัพท์ หรือวันที่ใช้งาน แล้วลองใหม่อีกครั้ง</p>
             </div>
         @else
             <h3 style="font-weight: 700; margin-bottom: 15px; padding-left: 5px;">
@@ -141,10 +157,10 @@
 
             @foreach ($bookings as $booking)
                 @php
-                    $taskPhotos = $booking->deliveryTasks->flatMap->photos;
-                    $afterPhotos = $booking->status === 'completed'
-                        ? $taskPhotos->where('photo_type', 'after')
-                        : collect();
+                    $afterPhotos = $booking->deliveryTasks
+                        ->filter(fn ($t) => in_array($t->status, ['photo_uploaded', 'completed'], true) || $booking->status === 'completed')
+                        ->flatMap->photos
+                        ->where('photo_type', 'after');
                 @endphp
                 <div class="cute-card" style="padding: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; border-bottom: 2px solid var(--border-cute); padding-bottom: 12px; margin-bottom: 15px;">
@@ -205,7 +221,18 @@
                         </div>
                         <div>
                             <span style="font-size: 12px; color: var(--text-muted); display: block;">การชำระเงิน:</span>
-                            <strong style="font-size: 15px;">{{ $booking->payment_slip_path ? 'แนบสลิปแล้ว' : ($booking->collect_front_store ? 'เก็บหน้าร้าน' : 'ยังไม่ระบุ') }}</strong>
+                            @if ($booking->payment_slip_path)
+                                <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                                    <strong style="font-size: 14px; color: var(--success);"><i class="fa-solid fa-circle-check"></i> แนบสลิปแล้ว</strong>
+                                    <button type="button" class="image-lightbox-trigger" data-lightbox-src="{{ route('media.show', ['path' => $booking->payment_slip_path]) }}" data-lightbox-alt="สลิปชำระเงิน" style="padding: 2px 8px; font-size: 11px; background: var(--bg-card-soft); border: 1px solid var(--border-cute); border-radius: 6px; cursor: pointer; color: var(--primary-hover); font-weight: 700;">
+                                        <i class="fa-solid fa-receipt"></i> ดูสลิป
+                                    </button>
+                                </div>
+                            @elseif ($booking->collect_front_store)
+                                <strong style="font-size: 15px;">เก็บหน้าร้าน</strong>
+                            @else
+                                <strong style="font-size: 15px; color: var(--text-muted);">ยังไม่ระบุ</strong>
+                            @endif
                         </div>
                     </div>
 

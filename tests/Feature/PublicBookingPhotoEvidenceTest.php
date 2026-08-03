@@ -51,6 +51,54 @@ class PublicBookingPhotoEvidenceTest extends TestCase
             ->assertDontSee('not-completed.jpg');
     }
 
+    public function test_customer_sees_photos_when_task_status_is_photo_uploaded(): void
+    {
+        $booking = $this->createBooking('installing');
+        $task = $this->createTask($booking, 'photo_uploaded');
+
+        $this->createPhoto($task, 'after', 'delivery-photos/staff-uploaded.jpg');
+
+        $response = $this->post(route('public.booking.check.submit'), [
+            'search_query' => $booking->booking_code,
+        ]);
+
+        $response->assertOk()
+            ->assertSee('รูปส่งงานหลังติดตั้งทั้งหมด (1 รูป)')
+            ->assertSee('staff-uploaded.jpg');
+    }
+
+    public function test_customer_can_filter_search_by_use_date(): void
+    {
+        $todayBooking = Booking::create([
+            'booking_code' => 'BKDATE001',
+            'use_date' => '2026-08-03',
+            'shop_name' => 'ร้านวันนี้',
+            'customer_phone' => '0899998888',
+            'tent_size' => '2x2',
+            'tent_color' => 'ขาว',
+            'status' => 'confirmed',
+        ]);
+
+        $tomorrowBooking = Booking::create([
+            'booking_code' => 'BKDATE002',
+            'use_date' => '2026-08-04',
+            'shop_name' => 'ร้านพรุ่งนี้',
+            'customer_phone' => '0899998888',
+            'tent_size' => '2x2',
+            'tent_color' => 'ขาว',
+            'status' => 'confirmed',
+        ]);
+
+        $response = $this->post(route('public.booking.check.submit'), [
+            'search_query' => '0899998888',
+            'use_date' => '2026-08-03',
+        ]);
+
+        $response->assertOk()
+            ->assertSee('BKDATE001')
+            ->assertDontSee('BKDATE002');
+    }
+
     private function createBooking(string $status): Booking
     {
         return Booking::create([

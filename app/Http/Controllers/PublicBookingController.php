@@ -263,30 +263,60 @@ class PublicBookingController extends Controller
         return redirect()->route('public.booking.check')->with('success', 'ส่งคำขอจองสำเร็จแล้ว! รหัสอ้างอิงของคุณคือ: ' . $booking->booking_code);
     }
 
-    public function checkForm()
+    public function checkForm(Request $request)
     {
-        return view('public.booking-check');
+        $query = $request->query('search_query');
+        $useDate = $request->query('use_date');
+
+        if ($query) {
+            $bookingsQuery = Booking::where(function ($q) use ($query) {
+                $q->where('booking_code', 'like', "%{$query}%")
+                  ->orWhere('customer_phone', 'like', "%{$query}%");
+            });
+
+            if ($useDate) {
+                $bookingsQuery->whereDate('use_date', $useDate);
+            }
+
+            $bookings = $bookingsQuery
+                ->with(['lots', 'deliveryTasks.photos'])
+                ->orderBy('use_date', 'desc')
+                ->get();
+
+            return view('public.booking-check', compact('bookings', 'query', 'useDate'));
+        }
+
+        return view('public.booking-check', compact('useDate'));
     }
 
     public function check(Request $request)
     {
         $validated = $request->validate([
             'search_query' => 'required|string|min:4',
+            'use_date' => 'nullable|date',
         ], [
             'search_query.required' => 'กรุณากรอกเบอร์โทรหรือรหัสจอง',
             'search_query.min' => 'กรุณากรอกอย่างน้อย 4 ตัวอักษร',
+            'use_date.date' => 'รูปแบบวันที่ไม่ถูกต้อง',
         ]);
 
         $query = $validated['search_query'];
+        $useDate = $validated['use_date'] ?? null;
 
-        $bookings = Booking::where(function ($q) use ($query) {
+        $bookingsQuery = Booking::where(function ($q) use ($query) {
             $q->where('booking_code', 'like', "%{$query}%")
               ->orWhere('customer_phone', 'like', "%{$query}%");
-        })
-        ->with(['lots', 'deliveryTasks.photos'])
-        ->orderBy('use_date', 'desc')
-        ->get();
+        });
 
-        return view('public.booking-check', compact('bookings', 'query'));
+        if ($useDate) {
+            $bookingsQuery->whereDate('use_date', $useDate);
+        }
+
+        $bookings = $bookingsQuery
+            ->with(['lots', 'deliveryTasks.photos'])
+            ->orderBy('use_date', 'desc')
+            ->get();
+
+        return view('public.booking-check', compact('bookings', 'query', 'useDate'));
     }
 }
