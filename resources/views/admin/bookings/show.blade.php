@@ -260,7 +260,7 @@
                             <strong style="display: block; font-size: 14px; margin-bottom: 8px; color: var(--text-dark);">
                                 <i class="fa-solid fa-store" style="color: #059669;"></i> 1. บันทึกเก็บเงินสด / หน้าร้าน
                             </strong>
-                            <form method="POST" action="{{ route('admin.dashboard.front_store.record', $booking) }}" style="display: flex; flex-direction: column; gap: 8px; margin: 0;">
+                            <form method="POST" action="{{ route('admin.dashboard.front_store_collection', $booking) }}" style="display: flex; flex-direction: column; gap: 8px; margin: 0;">
                                 @csrf
                                 <div style="display: flex; gap: 8px; align-items: center;">
                                     <input type="number" step="0.01" min="0.01" name="front_store_collected_amount" 
@@ -280,7 +280,7 @@
                             <strong style="display: block; font-size: 14px; margin-bottom: 8px; color: var(--text-dark);">
                                 <i class="fa-solid fa-file-invoice-dollar" style="color: var(--primary-hover);"></i> 2. อัปโหลด / แนบสลิปโอนเงิน
                             </strong>
-                            <form method="POST" action="{{ route('admin.bookings.upload_slip', $booking) }}" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 8px; margin: 0;">
+                            <form method="POST" action="{{ route('admin.bookings.payment_slip', $booking) }}" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 8px; margin: 0;">
                                 @csrf
                                 <input type="file" name="payment_slip" accept="image/jpeg,image/png,image/webp" required class="cute-input" style="padding: 6px 10px; font-size: 13px;">
                                 <button type="submit" class="btn-primary" style="justify-content: center;">

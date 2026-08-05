@@ -99,7 +99,7 @@ class AdminPaymentSlipUploadTest extends TestCase
         $this->assertNull($booking->fresh()->confirmed_at);
     }
 
-    public function test_front_store_booking_does_not_allow_payment_slip_upload(): void
+    public function test_front_store_booking_allows_admin_payment_slip_upload(): void
     {
         Storage::fake('public');
 
@@ -118,15 +118,15 @@ class AdminPaymentSlipUploadTest extends TestCase
             ->post(route('admin.bookings.payment_slip', $booking), [
                 'payment_slip' => $this->fakePaymentSlip(),
             ])
-            ->assertSessionHas('error', 'รายการนี้เลือกเก็บเงินหน้าร้าน จึงไม่ต้องแนบสลิป');
+            ->assertRedirect()
+            ->assertSessionHas('success');
 
-        $this->assertNull($booking->fresh()->payment_slip_path);
-        $this->assertSame([], Storage::disk('public')->allFiles());
+        $this->assertNotNull($booking->fresh()->payment_slip_path);
 
         $this->actingAs($admin)
             ->get(route('admin.bookings.show', $booking))
             ->assertOk()
-            ->assertDontSee(route('admin.bookings.payment_slip', $booking), false);
+            ->assertSee(route('admin.bookings.payment_slip', $booking), false);
     }
 
     public function test_booking_list_separates_front_store_and_slip_payments(): void

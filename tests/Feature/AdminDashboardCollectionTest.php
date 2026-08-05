@@ -51,7 +51,7 @@ class AdminDashboardCollectionTest extends TestCase
             ->assertSee(route('public.booking.create'), false);
     }
 
-    public function test_admin_cannot_record_collection_for_booking_without_front_store_option(): void
+    public function test_admin_can_record_collection_for_booking_without_initial_front_store_option(): void
     {
         $admin = $this->createAdmin('admin-collection-blocked');
         $booking = $this->createBooking(now()->addDay()->toDateString(), false, 'BKCOLLECT002');
@@ -62,8 +62,9 @@ class AdminDashboardCollectionTest extends TestCase
         );
 
         $response->assertRedirect()
-            ->assertSessionHas('error', 'รายการนี้ไม่ได้เลือกเก็บเงินหน้าร้าน');
-        $this->assertNull($booking->fresh()->front_store_collected_at);
+            ->assertSessionHas('success', 'บันทึกยอดเก็บหน้าร้านเรียบร้อยแล้ว');
+        $this->assertNotNull($booking->fresh()->front_store_collected_at);
+        $this->assertTrue((bool)$booking->fresh()->collect_front_store);
     }
 
     public function test_admin_can_export_front_store_collection_as_excel(): void
