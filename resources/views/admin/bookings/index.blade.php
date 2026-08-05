@@ -204,7 +204,7 @@
                             ->isNotEmpty();
                         $hasDraftPhotos = !$isPhotoReviewPending
                             && $booking->status !== 'completed'
-                            && $taskPhotos->where('photo_type', 'after')->isNotEmpty();
+                            && $booking->deliveryTasks->contains(fn ($t) => $t->status !== 'completed' && $t->photos->contains('photo_type', 'after'));
                         $tasksByType = $booking->deliveryTasks->keyBy('task_type');
                         $equipmentRows = [
                             ['type' => 'tent', 'label' => 'เต็นท์', 'enabled' => $booking->tentEquipmentItems() !== []],

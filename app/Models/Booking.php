@@ -63,19 +63,21 @@ class Booking extends Model
 
     public function refreshDeliveryStatus(): string
     {
-        if (in_array($this->status, ['pending_admin', 'cancelled'], true)) {
+        if ($this->status === 'cancelled') {
             return $this->status;
         }
 
         $tasks = $this->deliveryTasks()->get();
-        $status = 'confirmed';
+        $status = $this->status;
 
         if ($tasks->contains('status', 'problem')) {
             $status = 'problem';
         } elseif ($tasks->isNotEmpty() && $tasks->every(fn (DeliveryTask $task) => $task->status === 'completed')) {
             $status = 'completed';
         } elseif ($tasks->contains(fn (DeliveryTask $task) => in_array($task->status, ['started', 'photo_uploaded', 'completed'], true))) {
-            $status = 'installing';
+            if ($this->status !== 'pending_admin') {
+                $status = 'installing';
+            }
         }
 
         if ($this->status !== $status) {
