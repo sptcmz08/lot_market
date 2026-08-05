@@ -200,20 +200,59 @@
                 @endphp
                 <div class="booking-status-grid">
                     <div class="booking-status-panel">
-                        <h4><i class="fa-solid fa-wallet"></i> สถานะการชำระเงิน</h4>
-                        <span class="status-badge {{ $paymentIsPaid ? 'status-completed' : 'status-problem' }}">
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+                            <h4 style="margin: 0;"><i class="fa-solid fa-wallet"></i> สถานะการชำระเงิน</h4>
+                            <button type="button" class="btn-secondary" id="toggle-payment-edit-btn" style="padding: 3px 8px; font-size: 12px; border-radius: 8px;" title="แก้ไขการชำระเงิน">
+                                <i class="fa-solid fa-pen-to-square"></i> แก้ไข
+                            </button>
+                        </div>
+                        <span class="status-badge {{ $paymentIsPaid ? 'status-completed' : 'status-problem' }}" style="margin-top: 8px;">
                             <i class="fa-solid {{ $paymentIsPaid ? 'fa-circle-check' : 'fa-clock' }}"></i>
                             {{ $paymentIsPaid ? 'ชำระเงินแล้ว' : 'ยังไม่ชำระเงิน' }}
                         </span>
-                        <p>
-                            @if ($booking->collect_front_store)
-                                เก็บเงินหน้าร้าน{{ $booking->front_store_collected_at ? 'แล้ว' : ' (รอเก็บ)' }}
+                        <p style="margin-top: 6px; font-size: 13px; color: var(--text-dark);">
+                            @if ($booking->collect_front_store && $booking->front_store_collected_at)
+                                เก็บเงินหน้าร้านแล้ว ({{ number_format((float)$booking->front_store_collected_amount, 2) }} บาท)
                             @elseif ($booking->payment_slip_path)
-                                แนบสลิปแล้ว
+                                แนบสลิปโอนเงินแล้ว
+                            @elseif ($booking->collect_front_store)
+                                เก็บเงินหน้าร้าน (รอเก็บ)
                             @else
-                                รอแนบสลิป
+                                ยังไม่ได้แนบสลิป / รอชำระเงิน
                             @endif
                         </p>
+
+                        <!-- Collapsible Payment Edit Form Box -->
+                        <div id="payment-edit-form-box" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border-cute);">
+                            <strong style="font-size: 12px; display: block; margin-bottom: 8px; color: var(--text-dark);">✏️ แก้ไขข้อมูลการชำระเงิน (แอดมิน):</strong>
+                            
+                            <!-- Option A: Record/Edit Cash -->
+                            <form method="POST" action="{{ route('admin.dashboard.front_store_collection', $booking) }}" style="margin-bottom: 10px;">
+                                @csrf
+                                <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 3px;">1. บันทึก/แก้ไขเงินสดหน้าร้าน (บาท):</label>
+                                <div style="display: flex; gap: 6px;">
+                                    <input type="number" step="0.01" min="0.01" name="front_store_collected_amount" 
+                                           class="cute-input" 
+                                           value="{{ old('front_store_collected_amount', $booking->front_store_collected_amount ?: ($booking->total_price ?: 0)) }}" 
+                                           style="font-size: 12px; padding: 6px;" required>
+                                    <button type="submit" class="btn-primary" style="font-size: 12px; padding: 6px 10px; background: #059669; border-color: #059669; white-space: nowrap;">
+                                        บันทึกเงินสด
+                                    </button>
+                                </div>
+                            </form>
+
+                            <!-- Option B: Upload/Change Slip -->
+                            <form method="POST" action="{{ route('admin.bookings.payment_slip', $booking) }}" enctype="multipart/form-data">
+                                @csrf
+                                <label style="font-size: 11px; color: var(--text-muted); display: block; margin-bottom: 3px;">2. เปลี่ยน/แนบรูปสลิปโอนเงิน:</label>
+                                <div style="display: flex; gap: 6px; flex-direction: column;">
+                                    <input type="file" name="payment_slip" accept="image/jpeg,image/png,image/webp" required class="cute-input" style="font-size: 12px; padding: 4px;">
+                                    <button type="submit" class="btn-primary" style="font-size: 12px; padding: 6px 10px; white-space: nowrap;">
+                                        อัปโหลดสลิป
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                     <div class="booking-status-panel">
                         <h4><i class="fa-solid fa-list-check"></i> สถานะงานอุปกรณ์</h4>
@@ -244,49 +283,6 @@
                                     </div>
                                 @endif
                             @endforeach
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Interactive Payment Management Block -->
-                <div style="background-color: var(--bg-card); border: 2px solid var(--border-cute); border-radius: 16px; padding: 18px; margin-top: 18px;">
-                    <h4 style="font-size: 15px; font-weight: 700; margin: 0 0 12px; color: var(--text-dark); display: flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-money-bill-transfer" style="color: var(--primary-hover);"></i> จัดการและบันทึกการชำระเงิน
-                    </h4>
-
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
-                        <!-- Option 1: Record Cash / Store Collection -->
-                        <div style="background: var(--bg-page); border: 1.5px solid var(--border-cute); border-radius: 14px; padding: 14px;">
-                            <strong style="display: block; font-size: 14px; margin-bottom: 8px; color: var(--text-dark);">
-                                <i class="fa-solid fa-store" style="color: #059669;"></i> 1. บันทึกเก็บเงินสด / หน้าร้าน
-                            </strong>
-                            <form method="POST" action="{{ route('admin.dashboard.front_store_collection', $booking) }}" style="display: flex; flex-direction: column; gap: 8px; margin: 0;">
-                                @csrf
-                                <div style="display: flex; gap: 8px; align-items: center;">
-                                    <input type="number" step="0.01" min="0.01" name="front_store_collected_amount" 
-                                           class="cute-input" 
-                                           value="{{ old('front_store_collected_amount', $booking->front_store_collected_amount ?: ($booking->total_price ?: 0)) }}" 
-                                           placeholder="ยอดเงิน (บาท)" required style="flex: 1;">
-                                    <span style="font-size: 13px; font-weight: 700; color: var(--text-dark);">บาท</span>
-                                </div>
-                                <button type="submit" class="btn-primary" style="background: #059669; border-color: #059669; justify-content: center;">
-                                    <i class="fa-solid fa-cash-register"></i> {{ $booking->front_store_collected_at ? 'แก้ไขยอดเงินสดที่บันทึก' : 'บันทึกรับเงินสดหน้าร้าน' }}
-                                </button>
-                            </form>
-                        </div>
-
-                        <!-- Option 2: Upload / Change Payment Slip -->
-                        <div style="background: var(--bg-page); border: 1.5px solid var(--border-cute); border-radius: 14px; padding: 14px;">
-                            <strong style="display: block; font-size: 14px; margin-bottom: 8px; color: var(--text-dark);">
-                                <i class="fa-solid fa-file-invoice-dollar" style="color: var(--primary-hover);"></i> 2. อัปโหลด / แนบสลิปโอนเงิน
-                            </strong>
-                            <form method="POST" action="{{ route('admin.bookings.payment_slip', $booking) }}" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 8px; margin: 0;">
-                                @csrf
-                                <input type="file" name="payment_slip" accept="image/jpeg,image/png,image/webp" required class="cute-input" style="padding: 6px 10px; font-size: 13px;">
-                                <button type="submit" class="btn-primary" style="justify-content: center;">
-                                    <i class="fa-solid fa-upload"></i> {{ $booking->payment_slip_path ? 'อัปโหลดสลิปใบใหม่แทนที่' : 'อัปโหลด / แนบสลิปชำระเงิน' }}
-                                </button>
-                            </form>
                         </div>
                     </div>
                 </div>
@@ -481,4 +477,18 @@
     </div>
 
     @include('components.image-lightbox')
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btn = document.getElementById('toggle-payment-edit-btn');
+    const box = document.getElementById('payment-edit-form-box');
+    if (btn && box) {
+        btn.addEventListener('click', function() {
+            box.style.display = box.style.display === 'none' ? 'block' : 'none';
+        });
+    }
+});
+</script>
 @endsection
