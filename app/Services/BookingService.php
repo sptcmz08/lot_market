@@ -11,7 +11,7 @@ class BookingService
 {
     public function generateBookingCode(): string
     {
-        return 'BK' . now()->format('YmdHis') . random_int(100, 999);
+        return 'BK-' . now()->setTimezone('Asia/Bangkok')->format('dmY-His') . '-' . random_int(100, 999);
     }
 
     public function createBooking(array $data, array $lotIds): Booking
