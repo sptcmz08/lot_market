@@ -60,6 +60,42 @@
                         <input type="hidden" name="photo_type" value="after">
                         <div class="task-band"><span>{{ $taskTitle }}</span><small>รูปหลังติดตั้ง</small></div>
                         @include('staff.partials.task-photo-meta', ['booking' => $booking, 'task' => $task, 'lotCodes' => $lotCodes, 'tentColor' => $tentColor])
+
+                        @if ($booking->payment_slip_path || $booking->front_store_collected_at)
+                            <div style="background:#ecfdf5;border:1.5px solid #a7f3d0;color:#047857;padding:10px 14px;border-radius:14px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+                                <i class="fa-solid fa-circle-check" style="font-size:18px;"></i>
+                                <div>
+                                    <div>ชำระเงินเรียบร้อยแล้ว</div>
+                                    <small style="font-weight:600;font-size:11px;opacity:0.9;">
+                                        {{ $booking->collect_front_store && $booking->front_store_collected_at ? 'บันทึกเก็บเงินสดหน้าร้านแล้ว ' . number_format((float)$booking->front_store_collected_amount, 2) . ' บาท' : 'แนบสลิปโอนเงินเรียบร้อยแล้ว' }}
+                                    </small>
+                                </div>
+                            </div>
+                        @else
+                            <div class="on-site-payment-card" style="background:#fffdf0;border:2px dashed #fcd34d;border-radius:16px;padding:14px;margin-bottom:14px;">
+                                <strong style="font-size:14px;color:#92400e;display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+                                    <i class="fa-solid fa-hand-holding-dollar"></i> เช็คการชำระเงินหน้าร้าน
+                                </strong>
+                                <div style="margin-bottom:10px;">
+                                    <label style="font-size:13px;font-weight:700;color:var(--text-dark);display:block;margin-bottom:4px;">วิธีชำระเงิน:</label>
+                                    <select name="on_site_payment_method" class="cute-input staff-payment-method-select" style="width:100%;font-weight:700;padding:8px 12px;border-radius:10px;font-size:14px;">
+                                        <option value="cash" selected>💵 เงินสด (ไม่ต้องแนบรูปสลิป)</option>
+                                        <option value="transfer">📲 โอนจ่าย / สแกน QR (ถ่ายรูปสลิปแนบ)</option>
+                                    </select>
+                                </div>
+
+                                <div class="staff-cash-group" style="margin-bottom:8px;">
+                                    <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:3px;">จำนวนเงินสดที่รับมา (บาท):</label>
+                                    <input type="number" step="0.01" min="0.01" name="on_site_cash_amount" class="cute-input" value="{{ $booking->front_store_collected_amount ?: ($booking->total_price ?: 0) }}" style="width:100%;">
+                                </div>
+
+                                <div class="staff-slip-group" style="display:none;margin-bottom:8px;">
+                                    <label style="font-size:12px;color:#b42318;font-weight:700;display:block;margin-bottom:3px;">ถ่าย/เลือกรูปสลิปโอนเงิน (จำเป็น):</label>
+                                    <input type="file" name="on_site_payment_slip" accept="image/*" class="cute-input" style="padding:6px;width:100%;">
+                                </div>
+                            </div>
+                        @endif
+
                         <h2 style="font-size:18px;margin:0">ถ่ายรูปงานติดตั้ง</h2>
                         <p style="color:var(--text-muted);font-size:13px;margin:5px 0 0">ถ่ายหรือแนบได้หลายรูป และเพิ่มรูปซ้ำได้</p>
                         <div class="upload-choice">
@@ -74,8 +110,32 @@
                         <button class="btn-large btn-large-primary submit-after-upload" type="submit" name="submit_after_upload" value="1" disabled style="margin-top:10px"><i class="fa-solid fa-paper-plane"></i> ส่งงานให้ Admin ทันที</button>
                     </form>
                     @if($taskAfterPhotos->isNotEmpty())
-                        <form method="POST" action="{{ route('staff.bookings.submit_work', [$booking, $task]) }}" style="margin-top:10px" onsubmit="return confirm('ยืนยันส่งรูปงาน{{ $task->typeLabel() }} ให้ Admin ตรวจสอบ?')">
+                        <form method="POST" action="{{ route('staff.bookings.submit_work', [$booking, $task]) }}" enctype="multipart/form-data" style="margin-top:10px" onsubmit="return confirm('ยืนยันส่งรูปงาน{{ $task->typeLabel() }} ให้ Admin ตรวจสอบ?')">
                             @csrf
+                            @if (!$booking->payment_slip_path && !$booking->front_store_collected_at)
+                                <div class="on-site-payment-card" style="background:#fffdf0;border:2px dashed #fcd34d;border-radius:16px;padding:14px;margin-bottom:10px;">
+                                    <strong style="font-size:14px;color:#92400e;display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+                                        <i class="fa-solid fa-hand-holding-dollar"></i> เช็คการชำระเงินหน้าร้าน
+                                    </strong>
+                                    <div style="margin-bottom:10px;">
+                                        <label style="font-size:13px;font-weight:700;color:var(--text-dark);display:block;margin-bottom:4px;">วิธีชำระเงิน:</label>
+                                        <select name="on_site_payment_method" class="cute-input staff-payment-method-select" style="width:100%;font-weight:700;padding:8px 12px;border-radius:10px;font-size:14px;">
+                                            <option value="cash" selected>💵 เงินสด (ไม่ต้องแนบรูปสลิป)</option>
+                                            <option value="transfer">📲 โอนจ่าย / สแกน QR (ถ่ายรูปสลิปแนบ)</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="staff-cash-group" style="margin-bottom:8px;">
+                                        <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:3px;">จำนวนเงินสดที่รับมา (บาท):</label>
+                                        <input type="number" step="0.01" min="0.01" name="on_site_cash_amount" class="cute-input" value="{{ $booking->front_store_collected_amount ?: ($booking->total_price ?: 0) }}" style="width:100%;">
+                                    </div>
+
+                                    <div class="staff-slip-group" style="display:none;margin-bottom:8px;">
+                                        <label style="font-size:12px;color:#b42318;font-weight:700;display:block;margin-bottom:3px;">ถ่าย/เลือกรูปสลิปโอนเงิน (จำเป็น):</label>
+                                        <input type="file" name="on_site_payment_slip" accept="image/*" class="cute-input" style="padding:6px;width:100%;">
+                                    </div>
+                                </div>
+                            @endif
                             <button class="btn-large btn-large-primary" type="submit"><i class="fa-solid fa-paper-plane"></i> ส่งรูปงานให้ Admin ตรวจสอบ</button>
                         </form>
                     @endif
@@ -176,7 +236,21 @@ document.addEventListener('DOMContentLoaded', () => {
     close.addEventListener('click',stopCamera);modal.addEventListener('click',event=>{if(event.target===modal)stopCamera();});
     capture.addEventListener('click',()=>{if(!activeForm||!video.videoWidth)return;canvas.width=video.videoWidth;canvas.height=video.videoHeight;canvas.getContext('2d').drawImage(video,0,0);canvas.toBlob(blob=>{if(!blob)return;const input=activeForm.querySelector('.camera-input'),dt=new DataTransfer();dt.items.add(new File([blob],`camera-${Date.now()}.jpg`,{type:'image/jpeg'}));input.files=dt.files;input.dispatchEvent(new Event('change',{bubbles:true}));stopCamera();},'image/jpeg',.88);});
     const restoreDraft=async form=>{try{const records=await readDrafts(form.dataset.draftKey);if(!records.length)return;if(typeof DataTransfer==='undefined'||typeof File==='undefined')return;const inputs={camera:form.querySelector('.camera-input'),gallery:form.querySelector('.gallery-input')};Object.entries(inputs).forEach(([source,input])=>{const dt=new DataTransfer();records.filter(record=>record.source===source).sort((a,b)=>a.position-b.position).forEach(record=>dt.items.add(new File([record.blob],record.name||`draft-${record.position}.jpg`,{type:record.type||record.blob.type||'image/jpeg',lastModified:record.lastModified||Date.now()})));input.files=dt.files;});update(form);}catch(_){}}
-    clearDrafts(clearDraftKeys).then(()=>Promise.all([...document.querySelectorAll('.photo-upload-form')].map(restoreDraft)));
+    document.querySelectorAll('.staff-payment-method-select').forEach(function(select) {
+        select.addEventListener('change', function() {
+            const form = select.closest('form');
+            if (!form) return;
+            const cashGroup = form.querySelector('.staff-cash-group');
+            const slipGroup = form.querySelector('.staff-slip-group');
+            if (select.value === 'transfer') {
+                if (cashGroup) cashGroup.style.display = 'none';
+                if (slipGroup) slipGroup.style.display = 'block';
+            } else {
+                if (cashGroup) cashGroup.style.display = 'block';
+                if (slipGroup) slipGroup.style.display = 'none';
+            }
+        });
+    });
 });
 </script>
 @endsection

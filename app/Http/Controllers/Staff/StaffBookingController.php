@@ -241,6 +241,13 @@ class StaffBookingController extends Controller
             abort_unless($task->booking_id === $booking->id, 404);
         }
 
+        if ($request->filled('on_site_payment_method')) {
+            $paymentError = $this->processOnSitePayment($request, $booking);
+            if ($paymentError) {
+                return back()->with('error', $paymentError)->withInput();
+            }
+        }
+
         foreach ($files as $file) {
             DeliveryPhoto::create([
                 'delivery_task_id' => $task->id,
@@ -298,10 +305,17 @@ class StaffBookingController extends Controller
             ->with('success', 'ลบรูปเรียบร้อยแล้ว');
     }
 
-    public function submitWork(Booking $booking, DeliveryTask $task = null)
+    public function submitWork(Request $request, Booking $booking, DeliveryTask $task = null)
     {
         $booking->load('deliveryTasks.photos');
         $this->ensurePhotoAccess($booking);
+
+        if ($request->filled('on_site_payment_method')) {
+            $paymentError = $this->processOnSitePayment($request, $booking);
+            if ($paymentError) {
+                return back()->with('error', $paymentError)->withInput();
+            }
+        }
 
         if ($task) {
             abort_unless($task->booking_id === $booking->id, 404);
@@ -338,6 +352,60 @@ class StaffBookingController extends Controller
         });
 
         return redirect()->route('staff.bookings.index')->with('success', 'ส่งรูปงานติดตั้งเรียบร้อยแล้ว กรุณารอแอดมินอนุมัติ');
+    }
+
+    private function processOnSitePayment(Request $request, Booking $booking): ?string
+    {
+        $method = $request->input('on_site_payment_method');
+        if (!$method) return null;
+
+        if ($method === 'cash') {
+            $amount = (float) $request->input('on_site_cash_amount', $booking->total_price ?: 0);
+            $wasCollected = $booking->front_store_collected_at !== null;
+
+            $booking->update([
+                'collect_front_store' => true,
+                'front_store_collected_amount' => $amount > 0 ? $amount : ($booking->total_price ?: 0),
+                'front_store_collected_at' => now(),
+                'front_store_collected_by' => auth()->id(),
+            ]);
+
+            StatusLogService::log(
+                Booking::class,
+                $booking->id,
+                $booking->status,
+                $booking->status,
+                auth()->id(),
+                ($wasCollected ? 'Staff แก้ไขยอดรับเงินสดหน้าร้านเป็น ' : 'Staff บันทึกรับเงินสดหน้าร้าน ') .
+                    number_format((float) ($amount > 0 ? $amount : ($booking->total_price ?: 0)), 2) . ' บาท'
+            );
+        } elseif ($method === 'transfer') {
+            if ($request->hasFile('on_site_payment_slip')) {
+                $oldPath = $booking->payment_slip_path;
+                $newPath = $this->photoUploadService->upload($request->file('on_site_payment_slip'), 'payment-slips');
+
+                $booking->update([
+                    'payment_slip_path' => $newPath,
+                ]);
+
+                if ($oldPath && $oldPath !== $newPath) {
+                    Storage::disk('public')->delete($oldPath);
+                }
+
+                StatusLogService::log(
+                    Booking::class,
+                    $booking->id,
+                    $booking->status,
+                    $booking->status,
+                    auth()->id(),
+                    'Staff แนบรูปสลิปชำระเงินโอนหน้าร้าน'
+                );
+            } elseif (!$booking->payment_slip_path) {
+                return 'กรุณาแนบรูปสลิปการโอนเงินหน้าร้าน';
+            }
+        }
+
+        return null;
     }
 
     private function ensurePhotoAccess(Booking $booking): void
