@@ -71,15 +71,26 @@
                                     </small>
                                 </div>
                             </div>
+                        @elseif ($booking->status === 'completed')
+                            <div style="background:#fef2f2;border:1.5px solid #fecdd3;color:#991b1b;padding:10px 14px;border-radius:14px;font-weight:700;font-size:13px;display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+                                <i class="fa-solid fa-lock" style="font-size:18px;"></i>
+                                <div>
+                                    <div>ยังไม่ชำระเงิน (งานอนุมัติเรียบร้อยแล้ว)</div>
+                                    <small style="font-weight:600;font-size:11px;opacity:0.9;">
+                                        รายการนี้ตรวจสอบอนุมัติแล้ว หากต้องการบันทึกชำระเงิน กรุณาแจ้ง Admin
+                                    </small>
+                                </div>
+                            </div>
                         @else
                             <div class="on-site-payment-card" style="background:#fffdf0;border:2px dashed #fcd34d;border-radius:16px;padding:14px;margin-bottom:14px;">
                                 <strong style="font-size:14px;color:#92400e;display:flex;align-items:center;gap:6px;margin-bottom:8px;">
-                                    <i class="fa-solid fa-hand-holding-dollar"></i> เช็คการชำระเงินหน้าร้าน
+                                    <i class="fa-solid fa-hand-holding-dollar"></i> เช็คการชำระเงินหน้าร้าน (ระบุภายหลังได้)
                                 </strong>
                                 <div style="margin-bottom:6px;">
                                     <label style="font-size:13px;font-weight:700;color:var(--text-dark);display:block;margin-bottom:4px;">วิธีชำระเงิน:</label>
                                     <select name="on_site_payment_method" class="cute-input staff-payment-method-select" style="width:100%;font-weight:700;padding:8px 12px;border-radius:10px;font-size:14px;">
-                                        <option value="cash" selected>💵 เงินสด (ไม่ต้องแนบรูปสลิป)</option>
+                                        <option value="none" selected>⏳ ยังไม่ชำระเงิน / รอชำระเงิน (ระบุภายหลังได้)</option>
+                                        <option value="cash">💵 เงินสด (ไม่ต้องแนบรูปสลิป)</option>
                                         <option value="transfer">📲 โอนจ่าย / สแกน QR (ถ่ายรูปสลิปแนบ)</option>
                                     </select>
                                 </div>
@@ -107,15 +118,16 @@
                     @if($taskAfterPhotos->isNotEmpty())
                         <form method="POST" action="{{ route('staff.bookings.submit_work', [$booking, $task]) }}" enctype="multipart/form-data" style="margin-top:10px" onsubmit="return confirm('ยืนยันส่งรูปงาน{{ $task->typeLabel() }} ให้ Admin ตรวจสอบ?')">
                             @csrf
-                            @if (!$booking->payment_slip_path && !$booking->front_store_collected_at)
+                            @if (!$booking->payment_slip_path && !$booking->front_store_collected_at && $booking->status !== 'completed')
                                 <div class="on-site-payment-card" style="background:#fffdf0;border:2px dashed #fcd34d;border-radius:16px;padding:14px;margin-bottom:10px;">
                                     <strong style="font-size:14px;color:#92400e;display:flex;align-items:center;gap:6px;margin-bottom:8px;">
-                                        <i class="fa-solid fa-hand-holding-dollar"></i> เช็คการชำระเงินหน้าร้าน
+                                        <i class="fa-solid fa-hand-holding-dollar"></i> เช็คการชำระเงินหน้าร้าน (ระบุภายหลังได้)
                                     </strong>
                                     <div style="margin-bottom:6px;">
                                         <label style="font-size:13px;font-weight:700;color:var(--text-dark);display:block;margin-bottom:4px;">วิธีชำระเงิน:</label>
                                         <select name="on_site_payment_method" class="cute-input staff-payment-method-select" style="width:100%;font-weight:700;padding:8px 12px;border-radius:10px;font-size:14px;">
-                                            <option value="cash" selected>💵 เงินสด (ไม่ต้องแนบรูปสลิป)</option>
+                                            <option value="none" selected>⏳ ยังไม่ชำระเงิน / รอชำระเงิน (ระบุภายหลังได้)</option>
+                                            <option value="cash">💵 เงินสด (ไม่ต้องแนบรูปสลิป)</option>
                                             <option value="transfer">📲 โอนจ่าย / สแกน QR (ถ่ายรูปสลิปแนบ)</option>
                                         </select>
                                     </div>

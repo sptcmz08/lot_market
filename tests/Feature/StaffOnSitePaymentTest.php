@@ -102,4 +102,46 @@ class StaffOnSitePaymentTest extends TestCase
         $booking->refresh();
         $this->assertNotNull($booking->payment_slip_path);
     }
+
+    public function test_staff_cannot_record_payment_if_booking_is_completed(): void
+    {
+        Storage::fake('public');
+
+        $staff = User::create([
+            'name' => 'Staff',
+            'username' => 'staff3',
+            'password' => bcrypt('password'),
+            'role' => 'staff',
+        ]);
+
+        $booking = Booking::create([
+            'booking_code' => 'BKONSITE003',
+            'use_date' => now()->format('Y-m-d'),
+            'shop_name' => 'ร้านที่เสร็จสิ้นแล้ว',
+            'customer_phone' => '0877777777',
+            'total_price' => 500.00,
+            'status' => 'completed',
+        ]);
+
+        $task = DeliveryTask::create([
+            'booking_id' => $booking->id,
+            'task_type' => 'tent',
+            'status' => 'completed',
+            'task_date' => now()->format('Y-m-d'),
+        ]);
+
+        $response = $this->actingAs($staff)->post(
+            route('staff.bookings.photos', [$booking, $task]),
+            [
+                'photo_type' => 'after',
+                'photos' => [UploadedFile::fake()->create('after.jpg', 100, 'image/jpeg')],
+                'on_site_payment_method' => 'cash',
+            ]
+        );
+
+        $response->assertStatus(403);
+
+        $booking->refresh();
+        $this->assertNull($booking->front_store_collected_at);
+    }
 }

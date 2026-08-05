@@ -357,11 +357,13 @@ class StaffBookingController extends Controller
     private function processOnSitePayment(Request $request, Booking $booking): ?string
     {
         $method = $request->input('on_site_payment_method');
-        if (!$method) return null;
+        if (!$method || $method === 'none') return null;
+
+        if ($booking->status === 'completed') {
+            return 'รายการนี้แอดมินอนุมัติเรียบร้อยแล้ว ไม่สามารถบันทึกการชำระเงินย้อนหลังโดยสตาฟได้ กรุณาติดต่อแอดมินเพื่อแก้ไข';
+        }
 
         if ($method === 'cash') {
-            $wasCollected = $booking->front_store_collected_at !== null;
-
             $booking->update([
                 'collect_front_store' => true,
                 'front_store_collected_at' => now(),
@@ -398,7 +400,7 @@ class StaffBookingController extends Controller
                     'Staff แนบรูปสลิปชำระเงินโอนหน้าร้าน'
                 );
             } elseif (!$booking->payment_slip_path) {
-                return 'กรุณาแนบรูปสลิปการโอนเงินหน้าร้าน';
+                return 'กรุณาแนบรูปสลิปการโอนเงินหน้าร้าน หรือเลือกยังไม่ชำระเงิน';
             }
         }
 
