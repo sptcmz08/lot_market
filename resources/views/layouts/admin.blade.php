@@ -413,29 +413,105 @@
         .alert-success { background-color: #E2F9E9; color: #1E7E34; border-color: #C3E6CB; }
         .alert-danger { background-color: #F8D7DA; color: #721C24; border-color: #F5C6CB; }
 
-        /* Pagination custom styling */
-        .pagination-cute {
+        /* Fix Laravel Pagination Sizing & Styling */
+        .pagination-cute, .pagination {
             display: flex;
             justify-content: center;
-            gap: 8px;
-            margin-top: 20px;
+            align-items: center;
+            margin-top: 24px;
+            margin-bottom: 10px;
+            width: 100%;
         }
 
-        .pagination-cute a, .pagination-cute span {
-            padding: 10px 15px;
-            border: 2px solid var(--border-cute);
-            border-radius: 12px;
-            color: var(--text-dark);
-            text-decoration: none;
-            font-weight: 600;
-            background-color: var(--bg-card);
-            transition: all 0.2s ease;
+        .pagination-cute nav, .pagination nav {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
         }
 
-        .pagination-cute .active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
+        .pagination-cute nav > div:first-child,
+        .pagination nav > div:first-child {
+            display: none !important;
+        }
+
+        .pagination-cute nav > div:last-child,
+        .pagination nav > div:last-child {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            box-shadow: none !important;
+            border: none !important;
+            background: transparent !important;
+        }
+
+        .pagination-cute nav svg,
+        .pagination nav svg,
+        .pagination-cute svg,
+        .pagination svg {
+            width: 16px !important;
+            height: 16px !important;
+            max-width: 16px !important;
+            max-height: 16px !important;
+            min-width: 16px !important;
+            min-height: 16px !important;
+            display: inline-block !important;
+            vertical-align: middle !important;
+        }
+
+        .pagination-cute nav p,
+        .pagination nav p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .pagination-cute nav a,
+        .pagination nav a,
+        .pagination-cute nav span[aria-current="page"],
+        .pagination nav span[aria-current="page"],
+        .pagination-cute nav span[aria-disabled="true"],
+        .pagination nav span[aria-disabled="true"] {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-width: 38px !important;
+            height: 38px !important;
+            padding: 0 12px !important;
+            border: 1px solid var(--border-cute) !important;
+            border-radius: 10px !important;
+            background-color: var(--bg-card) !important;
+            color: var(--text-dark) !important;
+            font-size: 13px !important;
+            font-weight: 700 !important;
+            text-decoration: none !important;
+            transition: all 0.2s ease !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+            margin: 0 !important;
+        }
+
+        .pagination-cute nav a:hover,
+        .pagination nav a:hover {
+            background-color: var(--bg-page) !important;
+            border-color: var(--primary) !important;
+            color: var(--primary-hover) !important;
+        }
+
+        .pagination-cute nav span[aria-current="page"],
+        .pagination nav span[aria-current="page"] {
+            background: var(--primary) !important;
+            color: white !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 4px 12px rgba(255, 143, 177, 0.35) !important;
+        }
+
+        .pagination-cute nav span[aria-disabled="true"],
+        .pagination nav span[aria-disabled="true"] {
+            opacity: 0.4 !important;
+            cursor: not-allowed !important;
         }
 
         /* Mobile specific admin styles */

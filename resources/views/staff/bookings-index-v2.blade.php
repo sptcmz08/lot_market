@@ -28,7 +28,14 @@
     .photo-action-row { display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap;min-width:132px; }
     .photo-open-action { min-height:36px;padding:0 10px;border:1px solid var(--border-cute);border-radius:10px;background:#fff;color:var(--text-dark);display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;cursor:pointer;font-size:12px;font-weight:800;white-space:nowrap; }
     .photo-open-action:hover { border-color:var(--primary);color:var(--primary-hover); }
-    .pagination { margin-top:18px; }
+    .pagination { margin-top:18px; display:flex; justify-content:center; align-items:center; width:100%; }
+    .pagination nav { display:flex; flex-direction:column; align-items:center; gap:10px; width:100%; }
+    .pagination nav > div:first-child { display:none !important; }
+    .pagination nav > div:last-child { display:flex !important; flex-wrap:wrap !important; align-items:center !important; justify-content:center !important; gap:6px !important; box-shadow:none !important; border:none !important; background:transparent !important; }
+    .pagination nav svg, .pagination svg { width:16px !important; height:16px !important; max-width:16px !important; max-height:16px !important; min-width:16px !important; min-height:16px !important; display:inline-block !important; vertical-align:middle !important; }
+    .pagination nav a, .pagination nav span[aria-current="page"], .pagination nav span[aria-disabled="true"] { display:inline-flex !important; align-items:center !important; justify-content:center !important; min-width:36px !important; height:36px !important; padding:0 12px !important; border:1px solid var(--border-cute) !important; border-radius:9px !important; background:#fff !important; color:var(--text-dark) !important; font-size:13px !important; font-weight:800 !important; text-decoration:none !important; }
+    .pagination nav span[aria-current="page"] { background:var(--primary) !important; color:#fff !important; border-color:var(--primary) !important; }
+    .pagination nav span[aria-disabled="true"] { opacity:.4 !important; cursor:not-allowed !important; }
     .status-filter-form { margin:0;flex:0 0 auto; }
     .status-tab { cursor:pointer;touch-action:manipulation; }
     .work-sheet-card { background:#fff;border:1px solid var(--border-cute);border-radius:20px;margin-bottom:18px;overflow:hidden; }
