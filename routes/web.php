@@ -55,8 +55,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     Route::resource('/users', AdminUserController::class)->except(['show']);
     Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
-    Route::get('/notifications/check', [AdminNotificationController::class, 'check'])->name('notifications.check');
 });
+
+// Notifications Endpoint (Accessible by Admin and Staff)
+Route::get('/notifications/check', [AdminNotificationController::class, 'check'])->middleware('auth')->name('notifications.check');
 
 // Staff Routes
 Route::middleware(['auth', 'role:staff,admin'])->prefix('staff')->name('staff.')->group(function () {

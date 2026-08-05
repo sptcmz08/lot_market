@@ -791,7 +791,7 @@
             }
 
             function checkNotifications() {
-                fetch('{{ route("admin.notifications.check") }}')
+                fetch('{{ route("notifications.check") }}')
                     .then(res => res.json())
                     .then(data => {
                         if (lastPendingCount !== null && data.pending_bookings_count > lastPendingCount) {
@@ -825,50 +825,58 @@
 
             document.addEventListener('DOMContentLoaded', function() {
                 const btn = document.getElementById('enable-notification-btn');
-                if (btn) {
-                    if (!('Notification' in window)) {
-                        btn.style.display = 'none';
-                        return;
-                    }
 
-                    function updateBtnState() {
-                        const textSpan = btn.querySelector('.notification-btn-text');
-                        if (Notification.permission === 'granted') {
-                            btn.style.backgroundColor = '#ECFDF5';
-                            btn.style.borderColor = '#A7F3D0';
-                            btn.style.color = '#047857';
-                            if (textSpan) textSpan.textContent = 'เปิดแจ้งเตือนแล้ว';
-                            btn.title = 'การแจ้งเตือนบนมือถือและบราวเซอร์เปิดใช้งานอยู่';
-                        } else if (Notification.permission === 'denied') {
-                            btn.style.backgroundColor = '#FFF1F2';
-                            btn.style.borderColor = '#FECDD3';
-                            btn.style.color = '#BE123C';
-                            if (textSpan) textSpan.textContent = 'ระงับการแจ้งเตือน';
-                            btn.title = 'สิทธิ์การแจ้งเตือนถูกปฏิเสธในบราวเซอร์';
-                        } else {
-                            btn.style.backgroundColor = 'var(--bg-card)';
-                            btn.style.borderColor = 'var(--border-cute)';
-                            btn.style.color = 'var(--text-dark)';
-                            if (textSpan) textSpan.textContent = 'เปิดแจ้งเตือนมือถือ';
-                            btn.title = 'กดเพื่อเปิดการแจ้งเตือนรายการจองใหม่และรูปงานตรวจ';
-                        }
+                function updateBtnState() {
+                    if (!btn) return;
+                    const textSpan = btn.querySelector('.notification-btn-text');
+                    if (Notification.permission === 'granted') {
+                        btn.style.backgroundColor = '#ECFDF5';
+                        btn.style.borderColor = '#A7F3D0';
+                        btn.style.color = '#047857';
+                        if (textSpan) textSpan.textContent = 'เปิดแจ้งเตือนแล้ว';
+                        btn.title = 'การแจ้งเตือนบนมือถือและบราวเซอร์เปิดใช้งานอยู่';
+                    } else if (Notification.permission === 'denied') {
+                        btn.style.backgroundColor = '#FFF1F2';
+                        btn.style.borderColor = '#FECDD3';
+                        btn.style.color = '#BE123C';
+                        if (textSpan) textSpan.textContent = 'ระงับการแจ้งเตือน';
+                        btn.title = 'สิทธิ์การแจ้งเตือนถูกปฏิเสธในบราวเซอร์';
+                    } else {
+                        btn.style.backgroundColor = 'var(--bg-card)';
+                        btn.style.borderColor = 'var(--border-cute)';
+                        btn.style.color = 'var(--text-dark)';
+                        if (textSpan) textSpan.textContent = 'เปิดแจ้งเตือนมือถือ';
+                        btn.title = 'กดเพื่อเปิดการแจ้งเตือนรายการจองใหม่และรูปงานตรวจ';
                     }
+                }
 
+                if ('Notification' in window) {
                     updateBtnState();
 
-                    btn.addEventListener('click', function() {
-                        Notification.requestPermission().then(function(perm) {
+                    // Auto prompt permission upon logging in / visiting admin page
+                    if (Notification.permission === 'default') {
+                        Notification.requestPermission().then(function() {
                             updateBtnState();
-                            if (perm === 'granted') {
-                                showPushNotification(
-                                    '🎉 เปิดการแจ้งเตือนสำเร็จ!',
-                                    'ระบบจะแจ้งเตือนเมื่อมีรายการจองใหม่ หรือสตาฟส่งรูปงานเข้ามา',
-                                    window.location.href,
-                                    'test-alert'
-                                );
-                            }
                         });
-                    });
+                    }
+
+                    if (btn) {
+                        btn.addEventListener('click', function() {
+                            Notification.requestPermission().then(function(perm) {
+                                updateBtnState();
+                                if (perm === 'granted') {
+                                    showPushNotification(
+                                        '🎉 เปิดการแจ้งเตือนสำเร็จ!',
+                                        'ระบบจะแจ้งเตือนเมื่อมีรายการจองใหม่ หรือสตาฟส่งรูปงานเข้ามา',
+                                        window.location.href,
+                                        'test-alert'
+                                    );
+                                }
+                            });
+                        });
+                    }
+                } else if (btn) {
+                    btn.style.display = 'none';
                 }
 
                 checkNotifications();

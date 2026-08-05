@@ -11,6 +11,9 @@ class AdminNotificationController extends Controller
 {
     public function check(Request $request)
     {
+        $user = auth()->user();
+
+        // 1. Admin Notifications Data
         $pendingBookingsCount = Booking::where('status', 'pending_admin')->count();
         $photoReviewCount = DeliveryTask::where('status', 'photo_uploaded')->count();
 
@@ -24,7 +27,27 @@ class AdminNotificationController extends Controller
             ->orderBy('updated_at', 'desc')
             ->first();
 
+        // 2. Staff Notifications Data
+        $confirmedBookingsCount = Booking::whereIn('status', ['confirmed', 'assigned'])
+            ->whereDate('use_date', now()->format('Y-m-d'))
+            ->count();
+
+        $latestConfirmedBooking = Booking::whereIn('status', ['confirmed', 'assigned'])
+            ->whereDate('use_date', now()->format('Y-m-d'))
+            ->with('lots')
+            ->orderBy('updated_at', 'desc')
+            ->first();
+
+        $latestRejectedTask = DeliveryTask::whereNotNull('problem_note')
+            ->where('status', 'started')
+            ->with('booking.lots')
+            ->orderBy('updated_at', 'desc')
+            ->first();
+
         return response()->json([
+            'role' => $user?->role,
+
+            // Admin Payload
             'pending_bookings_count' => $pendingBookingsCount,
             'photo_review_count' => $photoReviewCount,
             'latest_pending_booking' => $latestPendingBooking ? [
@@ -44,6 +67,27 @@ class AdminNotificationController extends Controller
                 'type_label' => $latestPhotoReviewTask->equipment_type === 'counter' ? 'เคาน์เตอร์' : 'เต็นท์',
                 'url' => route('admin.bookings.show', $latestPhotoReviewTask->booking_id) . '#installation-review',
                 'updated_at' => $latestPhotoReviewTask->updated_at->toIso8601String(),
+            ] : null,
+
+            // Staff Payload
+            'confirmed_bookings_count' => $confirmedBookingsCount,
+            'latest_confirmed_booking' => $latestConfirmedBooking ? [
+                'id' => $latestConfirmedBooking->id,
+                'code' => $latestConfirmedBooking->booking_code,
+                'shop' => $latestConfirmedBooking->shop_name,
+                'lots' => $latestConfirmedBooking->lots->pluck('lot_code')->implode(', '),
+                'url' => route('staff.bookings.camera', $latestConfirmedBooking),
+                'updated_at' => $latestConfirmedBooking->updated_at->toIso8601String(),
+            ] : null,
+            'latest_rejected_task' => $latestRejectedTask ? [
+                'task_id' => $latestRejectedTask->id,
+                'booking_id' => $latestRejectedTask->booking_id,
+                'code' => $latestRejectedTask->booking?->booking_code,
+                'shop' => $latestRejectedTask->booking?->shop_name,
+                'lots' => $latestRejectedTask->booking?->lots->pluck('lot_code')->implode(', '),
+                'reason' => $latestRejectedTask->problem_note,
+                'url' => route('staff.bookings.camera', $latestRejectedTask->booking_id),
+                'updated_at' => $latestRejectedTask->updated_at->toIso8601String(),
             ] : null,
         ]);
     }

@@ -276,6 +276,9 @@
             <span>รายการจอง</span>
         </a>
         <div style="display: flex; align-items: center; gap: 10px;">
+            <button type="button" id="enable-notification-btn" class="btn-notification-toggle" style="padding: 5px 9px; font-size: 11px; font-weight: 700; border-radius: 8px; border: 1px solid var(--border-cute); background: var(--bg-card); color: var(--text-dark); cursor: pointer; display: inline-flex; align-items: center; gap: 4px;" title="เปิดการแจ้งเตือนบนมือถือ">
+                <i class="fa-solid fa-bell"></i> <span class="notification-btn-text">เปิดแจ้งเตือน</span>
+            </button>
             <span style="font-size: 13px; font-weight: 600; color: var(--text-muted);">{{ Auth::user()->name }}</span>
             <form action="{{ route('logout') }}" method="POST" class="logout-form">
                 @csrf
@@ -311,6 +314,165 @@
                 navigator.serviceWorker.register('/service-worker.js').catch(() => {});
             });
         }
+
+        (function() {
+            let lastConfirmedCount = null;
+            let lastRejectedId = null;
+
+            function playChimeSound() {
+                try {
+                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    const now = audioCtx.currentTime;
+                    
+                    const osc1 = audioCtx.createOscillator();
+                    const gain1 = audioCtx.createGain();
+                    osc1.type = 'sine';
+                    osc1.frequency.setValueAtTime(880, now);
+                    gain1.gain.setValueAtTime(0.15, now);
+                    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                    osc1.connect(gain1);
+                    gain1.connect(audioCtx.destination);
+                    osc1.start(now);
+                    osc1.stop(now + 0.3);
+
+                    const osc2 = audioCtx.createOscillator();
+                    const gain2 = audioCtx.createGain();
+                    osc2.type = 'sine';
+                    osc2.frequency.setValueAtTime(1174.66, now + 0.15);
+                    gain2.gain.setValueAtTime(0.2, now + 0.15);
+                    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                    osc2.connect(gain2);
+                    gain2.connect(audioCtx.destination);
+                    osc2.start(now + 0.15);
+                    osc2.stop(now + 0.5);
+                } catch(e) {}
+            }
+
+            function showPushNotification(title, body, url, tag) {
+                playChimeSound();
+
+                if (window.Notification && Notification.permission === 'granted') {
+                    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                        navigator.serviceWorker.ready.then(function(reg) {
+                            reg.showNotification(title, {
+                                body: body,
+                                icon: '/images/tent.png',
+                                badge: '/images/tent.png',
+                                tag: tag || 'lot-market-staff-alert',
+                                data: { url: url },
+                                vibrate: [200, 100, 200]
+                            });
+                        }).catch(function() {
+                            const n = new Notification(title, { body: body, icon: '/images/tent.png', data: { url: url } });
+                            n.onclick = function(e) {
+                                e.preventDefault();
+                                window.focus();
+                                window.location.href = url;
+                            };
+                        });
+                    } else {
+                        const n = new Notification(title, { body: body, icon: '/images/tent.png', data: { url: url } });
+                        n.onclick = function(e) {
+                            e.preventDefault();
+                            window.focus();
+                            window.location.href = url;
+                        };
+                    }
+                }
+            }
+
+            function checkNotifications() {
+                fetch('{{ route("notifications.check") }}')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (lastConfirmedCount !== null && data.confirmed_bookings_count > lastConfirmedCount) {
+                            const b = data.latest_confirmed_booking;
+                            if (b) {
+                                showPushNotification(
+                                    '📦 มีงานติดตั้งใหม่จากแอดมิน!',
+                                    `รหัส ${b.code} (แผง ${b.lots}) - ร้าน ${b.shop}`,
+                                    b.url,
+                                    'confirmed-booking-' + b.id
+                                );
+                            }
+                        }
+                        lastConfirmedCount = data.confirmed_bookings_count;
+
+                        if (data.latest_rejected_task) {
+                            const r = data.latest_rejected_task;
+                            if (lastRejectedId !== r.task_id) {
+                                if (lastRejectedId !== null) {
+                                    showPushNotification(
+                                        '⚠️ รูปงานติดตั้งถูกตีกลับ / ขอรูปใหม่!',
+                                        `รหัส ${r.code} (แผง ${r.lots}) - ${r.reason}`,
+                                        r.url,
+                                        'rejected-task-' + r.task_id
+                                    );
+                                }
+                                lastRejectedId = r.task_id;
+                            }
+                        }
+                    })
+                    .catch(() => {});
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const btn = document.getElementById('enable-notification-btn');
+                
+                function updateBtnState() {
+                    if (!btn) return;
+                    const textSpan = btn.querySelector('.notification-btn-text');
+                    if (Notification.permission === 'granted') {
+                        btn.style.backgroundColor = '#ECFDF5';
+                        btn.style.borderColor = '#A7F3D0';
+                        btn.style.color = '#047857';
+                        if (textSpan) textSpan.textContent = 'เปิดแจ้งเตือนแล้ว';
+                    } else if (Notification.permission === 'denied') {
+                        btn.style.backgroundColor = '#FFF1F2';
+                        btn.style.borderColor = '#FECDD3';
+                        btn.style.color = '#BE123C';
+                        if (textSpan) textSpan.textContent = 'ระงับแจ้งเตือน';
+                    } else {
+                        btn.style.backgroundColor = 'var(--bg-card)';
+                        btn.style.borderColor = 'var(--border-cute)';
+                        btn.style.color = 'var(--text-dark)';
+                        if (textSpan) textSpan.textContent = 'เปิดแจ้งเตือน';
+                    }
+                }
+
+                if ('Notification' in window) {
+                    updateBtnState();
+
+                    // Auto prompt permission upon logging in / visiting staff page
+                    if (Notification.permission === 'default') {
+                        Notification.requestPermission().then(function() {
+                            updateBtnState();
+                        });
+                    }
+
+                    if (btn) {
+                        btn.addEventListener('click', function() {
+                            Notification.requestPermission().then(function(perm) {
+                                updateBtnState();
+                                if (perm === 'granted') {
+                                    showPushNotification(
+                                        '🎉 เปิดการแจ้งเตือนสำเร็จ!',
+                                        'ระบบจะแจ้งเตือนเมื่อแอดมินยืนยันรายการจองใหม่ หรือมีการส่งงานแก้ไข',
+                                        window.location.href,
+                                        'staff-test-alert'
+                                    );
+                                }
+                            });
+                        });
+                    }
+                } else if (btn) {
+                    btn.style.display = 'none';
+                }
+
+                checkNotifications();
+                setInterval(checkNotifications, 15000);
+            });
+        })();
     </script>
     @yield('scripts')
 </body>

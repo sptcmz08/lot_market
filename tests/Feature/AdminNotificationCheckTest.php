@@ -33,7 +33,7 @@ class AdminNotificationCheckTest extends TestCase
         ]);
 
         $response = $this->actingAs($admin)
-            ->getJson(route('admin.notifications.check'));
+            ->getJson(route('notifications.check'));
 
         $response->assertStatus(200)
             ->assertJson([
@@ -41,5 +41,34 @@ class AdminNotificationCheckTest extends TestCase
                 'photo_review_count' => 0,
             ])
             ->assertJsonPath('latest_pending_booking.code', $booking->booking_code);
+    }
+
+    public function test_staff_can_check_notifications_endpoint(): void
+    {
+        $staff = User::create([
+            'name' => 'Staff Test',
+            'username' => 'stafftest',
+            'password' => bcrypt('password'),
+            'role' => 'staff',
+        ]);
+
+        $booking = Booking::create([
+            'booking_code' => 'BK-20260805-0888',
+            'shop_name' => 'ร้านทดสอบสตาฟ',
+            'customer_name' => 'ลูกค้าสตาฟ',
+            'customer_phone' => '0823456789',
+            'use_date' => now()->format('Y-m-d'),
+            'status' => 'confirmed',
+            'total_price' => 150.00,
+        ]);
+
+        $response = $this->actingAs($staff)
+            ->getJson(route('notifications.check'));
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'confirmed_bookings_count' => 1,
+            ])
+            ->assertJsonPath('latest_confirmed_booking.code', $booking->booking_code);
     }
 }
