@@ -248,6 +248,49 @@
                     </div>
                 </div>
 
+                <!-- Interactive Payment Management Block -->
+                <div style="background-color: var(--bg-card); border: 2px solid var(--border-cute); border-radius: 16px; padding: 18px; margin-top: 18px;">
+                    <h4 style="font-size: 15px; font-weight: 700; margin: 0 0 12px; color: var(--text-dark); display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-money-bill-transfer" style="color: var(--primary-hover);"></i> จัดการและบันทึกการชำระเงิน
+                    </h4>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+                        <!-- Option 1: Record Cash / Store Collection -->
+                        <div style="background: var(--bg-page); border: 1.5px solid var(--border-cute); border-radius: 14px; padding: 14px;">
+                            <strong style="display: block; font-size: 14px; margin-bottom: 8px; color: var(--text-dark);">
+                                <i class="fa-solid fa-store" style="color: #059669;"></i> 1. บันทึกเก็บเงินสด / หน้าร้าน
+                            </strong>
+                            <form method="POST" action="{{ route('admin.dashboard.front_store.record', $booking) }}" style="display: flex; flex-direction: column; gap: 8px; margin: 0;">
+                                @csrf
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <input type="number" step="0.01" min="0.01" name="front_store_collected_amount" 
+                                           class="cute-input" 
+                                           value="{{ old('front_store_collected_amount', $booking->front_store_collected_amount ?: ($booking->total_price ?: 0)) }}" 
+                                           placeholder="ยอดเงิน (บาท)" required style="flex: 1;">
+                                    <span style="font-size: 13px; font-weight: 700; color: var(--text-dark);">บาท</span>
+                                </div>
+                                <button type="submit" class="btn-primary" style="background: #059669; border-color: #059669; justify-content: center;">
+                                    <i class="fa-solid fa-cash-register"></i> {{ $booking->front_store_collected_at ? 'แก้ไขยอดเงินสดที่บันทึก' : 'บันทึกรับเงินสดหน้าร้าน' }}
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Option 2: Upload / Change Payment Slip -->
+                        <div style="background: var(--bg-page); border: 1.5px solid var(--border-cute); border-radius: 14px; padding: 14px;">
+                            <strong style="display: block; font-size: 14px; margin-bottom: 8px; color: var(--text-dark);">
+                                <i class="fa-solid fa-file-invoice-dollar" style="color: var(--primary-hover);"></i> 2. อัปโหลด / แนบสลิปโอนเงิน
+                            </strong>
+                            <form method="POST" action="{{ route('admin.bookings.upload_slip', $booking) }}" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 8px; margin: 0;">
+                                @csrf
+                                <input type="file" name="payment_slip" accept="image/jpeg,image/png,image/webp" required class="cute-input" style="padding: 6px 10px; font-size: 13px;">
+                                <button type="submit" class="btn-primary" style="justify-content: center;">
+                                    <i class="fa-solid fa-upload"></i> {{ $booking->payment_slip_path ? 'อัปโหลดสลิปใบใหม่แทนที่' : 'อัปโหลด / แนบสลิปชำระเงิน' }}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
                 @if ($booking->payment_slip_path)
                     <div style="background-color: var(--bg-page); border: 2px solid var(--border-cute); border-radius: 16px; padding: 15px; margin-top: 15px;">
                         <strong style="font-size: 14px; display: block; margin-bottom: 10px;"><i class="fa-solid fa-receipt"></i> รูปภาพสลิปชำระเงิน:</strong>

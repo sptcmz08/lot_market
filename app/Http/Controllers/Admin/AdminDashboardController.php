@@ -59,10 +59,6 @@ class AdminDashboardController extends Controller
 
     public function collectFrontStore(Request $request, Booking $booking)
     {
-        if (!$booking->collect_front_store) {
-            return back()->with('error', 'รายการนี้ไม่ได้เลือกเก็บเงินหน้าร้าน');
-        }
-
         if ($booking->status === 'cancelled') {
             return back()->with('error', 'ไม่สามารถบันทึกยอดของรายการที่ยกเลิกแล้ว');
         }
@@ -80,6 +76,7 @@ class AdminDashboardController extends Controller
             $wasCollected = $booking->front_store_collected_at !== null;
 
             $booking->update([
+                'collect_front_store' => true,
                 'front_store_collected_amount' => $validated['front_store_collected_amount'],
                 'front_store_collected_at' => now(),
                 'front_store_collected_by' => auth()->id(),

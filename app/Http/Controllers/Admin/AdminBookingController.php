@@ -200,9 +200,6 @@ class AdminBookingController extends Controller
 
     public function uploadPaymentSlip(Request $request, Booking $booking)
     {
-        if ($booking->collect_front_store) {
-            return back()->with('error', 'รายการนี้เลือกเก็บเงินหน้าร้าน จึงไม่ต้องแนบสลิป');
-        }
 
         $validated = $request->validate([
             'payment_slip' => 'required|image|mimes:jpg,jpeg,png,webp',
