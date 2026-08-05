@@ -301,31 +301,31 @@
                                 <span class="status-badge {{ $statusClass }}">{{ $statusName }}</span>
                             @endif
                         </td>
-                        <td>
-                            <div class="admin-action-list booking-action-list">
-                                <a href="{{ route('admin.bookings.show', $booking) }}{{ $isPhotoReviewPending ? '#installation-review' : '' }}" class="{{ $isPhotoReviewPending ? 'btn-primary' : 'btn-secondary' }}" style="padding: 6px 12px; font-size: 13px; border-radius: 10px;" title="{{ $isPhotoReviewPending ? 'เปิดตรวจและอนุมัติรูป' : 'เปิดดูรายละเอียด' }}">
-                                    <i class="fa-solid {{ $isPhotoReviewPending ? 'fa-camera-retro' : 'fa-eye' }}"></i> {{ $isWorkReviewPending ? 'ตรวจรูปงาน' : 'ดูรายละเอียด' }}
+                        <td style="white-space: nowrap; vertical-align: middle;">
+                            <div class="booking-action-list">
+                                <a href="{{ route('admin.bookings.show', $booking) }}{{ $isPhotoReviewPending ? '#installation-review' : '' }}" class="{{ $isPhotoReviewPending ? 'btn-primary' : 'btn-secondary' }}" title="{{ $isPhotoReviewPending ? 'เปิดตรวจและอนุมัติรูป' : 'เปิดดูรายละเอียด' }}">
+                                    <i class="fa-solid {{ $isPhotoReviewPending ? 'fa-camera-retro' : 'fa-eye' }}"></i> <span>{{ $isWorkReviewPending ? 'ตรวจรูปงาน' : 'รายละเอียด' }}</span>
                                 </a>
                                 @if (!$booking->collect_front_store && !$booking->payment_slip_path)
-                                    <form action="{{ route('admin.bookings.payment_slip', $booking) }}" method="POST" enctype="multipart/form-data" style="margin:0;">
+                                    <form action="{{ route('admin.bookings.payment_slip', $booking) }}" method="POST" enctype="multipart/form-data" style="margin:0; display:inline-block;">
                                         @csrf
-                                        <label class="btn-secondary" style="padding:6px 12px;font-size:13px;border-radius:10px;cursor:pointer;margin:0;" title="แนบรูปสลิปการชำระเงิน">
-                                            <i class="fa-solid fa-receipt"></i> แนบสลิป
+                                        <label class="btn-secondary" style="cursor:pointer;" title="แนบรูปสลิปการชำระเงิน">
+                                            <i class="fa-solid fa-receipt"></i> <span>แนบสลิป</span>
                                             <input type="file" name="payment_slip" accept="image/jpeg,image/png,image/webp" required hidden onchange="this.form.submit()">
                                         </label>
                                     </form>
                                 @endif
                                 @if($booking->status === 'pending_admin')
                                     @if ($booking->payment_slip_path || $booking->collect_front_store)
-                                        <form action="{{ route('admin.bookings.confirm', $booking) }}" method="POST" style="margin:0;">
+                                        <form action="{{ route('admin.bookings.confirm', $booking) }}" method="POST" style="margin:0; display:inline-block;">
                                             @csrf
-                                            <button type="submit" class="btn-primary" style="padding: 6px 12px; font-size: 13px; border-radius: 10px;" title="ยืนยันการจอง">
-                                                <i class="fa-solid fa-check"></i> ยืนยัน
+                                            <button type="submit" class="btn-primary" style="background: #047857; border-color: #047857;" title="ยืนยันการจอง">
+                                                <i class="fa-solid fa-check"></i> <span>ยืนยัน</span>
                                             </button>
                                         </form>
                                     @else
-                                        <button type="button" class="btn-secondary" style="padding:6px 12px;font-size:13px;border-radius:10px;opacity:.6;cursor:not-allowed;" disabled title="กรุณาแนบสลิปก่อนยืนยัน">
-                                            <i class="fa-solid fa-lock"></i> แนบสลิปก่อน
+                                        <button type="button" class="btn-secondary" style="opacity:.65; cursor:not-allowed;" disabled title="กรุณาแนบสลิปก่อนยืนยัน">
+                                            <i class="fa-solid fa-lock"></i> <span>แนบสลิปก่อน</span>
                                         </button>
                                     @endif
                                 @endif

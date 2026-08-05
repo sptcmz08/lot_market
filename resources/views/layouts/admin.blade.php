@@ -136,6 +136,42 @@
         .admin-action-list > form > label,
         .admin-action-list > a,
         .admin-action-list > button { display: inline-flex; align-items: center; justify-content: center; }
+
+        /* Action buttons inside tables - Single Horizontal Row */
+        .cute-table .booking-action-list,
+        .cute-table .admin-action-list {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: nowrap;
+            white-space: nowrap;
+        }
+
+        .cute-table .booking-action-list > a,
+        .cute-table .booking-action-list > form,
+        .cute-table .booking-action-list > button,
+        .cute-table .booking-action-list > form > label,
+        .cute-table .booking-action-list > form > button,
+        .cute-table .admin-action-list > a,
+        .cute-table .admin-action-list > form,
+        .cute-table .admin-action-list > button,
+        .cute-table .admin-action-list > form > label,
+        .cute-table .admin-action-list > form > button {
+            min-height: 34px;
+            height: 34px;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 9px;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            margin: 0;
+            flex: 0 0 auto;
+        }
+
         .admin-filter-form { min-width: 0; }
         .admin-form-actions { display: flex; gap: 12px; margin-top: 30px; }
         .admin-form-actions > * { min-height: 44px; }
