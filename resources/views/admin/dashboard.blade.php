@@ -50,6 +50,15 @@
         color: white;
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
         border: 1px solid rgba(255,255,255,0.2);
+        text-decoration: none !important;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+        cursor: pointer;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+        filter: brightness(1.05);
     }
 
     .stat-card-yellow { background: linear-gradient(135deg, #FFD166, #F4B929); color: #664d03 !important; }
@@ -96,6 +105,13 @@
         border-left: 4px solid var(--primary);
         border-radius: 12px;
         background: var(--bg-card);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor: pointer;
+    }
+
+    .daily-summary-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.06);
     }
 
     .daily-summary-item:nth-child(2) { border-left-color: #22c55e; }
@@ -326,26 +342,26 @@
 
     <!-- Status Stats Grid -->
     <div class="stats-grid">
-        <div class="stat-card stat-card-yellow">
+        <a href="{{ route('admin.bookings.index', ['status' => 'pending_admin']) }}" class="stat-card stat-card-yellow" title="ดูรายการจองใหม่ (รอยืนยัน)">
             <span class="stat-label"><i class="fa-solid fa-spinner"></i> จองใหม่</span>
             <span class="stat-value">{{ $stats['pending'] }}</span>
-        </div>
-        <div class="stat-card stat-card-blue">
+        </a>
+        <a href="{{ route('admin.bookings.index', ['status' => 'confirmed']) }}" class="stat-card stat-card-blue" title="ดูรายการยืนยันแล้ว / รอส่ง">
             <span class="stat-label"><i class="fa-solid fa-calendar-check"></i> ยืนยัน / รอส่ง</span>
             <span class="stat-value">{{ $stats['confirmed'] }}</span>
-        </div>
-        <div class="stat-card stat-card-purple">
+        </a>
+        <a href="{{ route('admin.bookings.index', ['status' => 'installing']) }}" class="stat-card stat-card-purple" title="ดูรายการกำลังติดตั้ง">
             <span class="stat-label"><i class="fa-solid fa-hammer"></i> กำลังติดตั้ง</span>
             <span class="stat-value">{{ $stats['installing'] }}</span>
-        </div>
-        <div class="stat-card stat-card-green">
+        </a>
+        <a href="{{ route('admin.bookings.index', ['status' => 'completed']) }}" class="stat-card stat-card-green" title="ดูรายการติดตั้งเสร็จแล้ว">
             <span class="stat-label"><i class="fa-solid fa-circle-check"></i> ติดตั้งเสร็จแล้ว</span>
             <span class="stat-value">{{ $stats['completed'] }}</span>
-        </div>
-        <div class="stat-card stat-card-orange">
+        </a>
+        <a href="{{ route('admin.bookings.index', ['status' => 'problem']) }}" class="stat-card stat-card-orange" title="ดูรายการที่มีปัญหา">
             <span class="stat-label"><i class="fa-solid fa-triangle-exclamation"></i> มีปัญหา</span>
             <span class="stat-value">{{ $stats['problem'] }}</span>
-        </div>
+        </a>
     </div>
 
     <div class="cute-card">
@@ -383,26 +399,26 @@
         </div>
 
         <div class="daily-summary-grid">
-            <div class="daily-summary-item">
+            <a href="{{ route('admin.bookings.index', ['date' => $selectedDate]) }}" class="daily-summary-item" style="text-decoration:none;" title="ดูรายการจองประจำวันที่ {{ \Carbon\Carbon::parse($selectedDate)->format('d/m/Y') }}">
                 <span class="daily-summary-label">รายการจองวันนี้</span>
                 <span class="daily-summary-value">{{ number_format($dailySummary['bookings']) }} งาน</span>
-            </div>
-            <div class="daily-summary-item">
+            </a>
+            <a href="{{ route('admin.map.index', ['date' => $selectedDate]) }}" class="daily-summary-item" style="text-decoration:none;" title="ดูแผนผังแผงประจำวันที่ {{ \Carbon\Carbon::parse($selectedDate)->format('d/m/Y') }}">
                 <span class="daily-summary-label">จำนวน LOT วันนี้</span>
                 <span class="daily-summary-value">{{ number_format($dailySummary['lots']) }} LOT</span>
-            </div>
-            <div class="daily-summary-item">
+            </a>
+            <a href="{{ route('admin.bookings.index', ['date' => $selectedDate, 'payment_method' => 'front_store']) }}" class="daily-summary-item" style="text-decoration:none;" title="ดูรายการรอเก็บเงินหน้าร้าน">
                 <span class="daily-summary-label">รอเก็บเงินหน้าร้าน</span>
                 <span class="daily-summary-value">{{ number_format($dailySummary['front_store_pending']) }} รายการ</span>
-            </div>
-            <div class="daily-summary-item">
+            </a>
+            <a href="#front-store-section" class="daily-summary-item" style="text-decoration:none;" title="ดูตารางเก็บเงินหน้าร้านด้านล่าง">
                 <span class="daily-summary-label">ยอดเก็บหน้าร้านแล้ว</span>
                 <span class="daily-summary-value">{{ number_format($dailySummary['front_store_collected_amount'], 2) }} บาท</span>
-            </div>
+            </a>
         </div>
     </div>
 
-    <div class="cute-card">
+    <div class="cute-card" id="front-store-section">
         <h3 class="cute-card-title">
             <i class="fa-solid fa-cash-register"></i> รายการเก็บเงินหน้าร้าน
         </h3>
