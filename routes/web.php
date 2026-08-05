@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Admin\AdminReportController;
 use App\Http\Controllers\Admin\AdminMapController;
 use App\Http\Controllers\Admin\AdminInstallationReviewController;
+use App\Http\Controllers\Admin\AdminNotificationController;
 use App\Http\Controllers\Staff\StaffBookingController;
 use App\Http\Controllers\Staff\StaffTaskController;
 use Illuminate\Support\Facades\Route;
@@ -54,6 +55,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     Route::resource('/users', AdminUserController::class)->except(['show']);
     Route::get('/reports', [AdminReportController::class, 'index'])->name('reports.index');
+    Route::get('/notifications/check', [AdminNotificationController::class, 'check'])->name('notifications.check');
 });
 
 // Staff Routes

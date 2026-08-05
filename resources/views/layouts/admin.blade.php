@@ -671,6 +671,9 @@
             </div>
             
             <div class="user-info">
+                <button type="button" id="enable-notification-btn" class="btn-notification-toggle" style="padding: 6px 12px; font-size: 12px; font-weight: 700; border-radius: 10px; border: 1px solid var(--border-cute); background: var(--bg-card); color: var(--text-dark); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease;" title="เปิดการแจ้งเตือนบนมือถือและบราวเซอร์">
+                    <i class="fa-solid fa-bell"></i> <span class="notification-btn-text">เปิดแจ้งเตือนมือถือ</span>
+                </button>
                 <span class="user-badge"><i class="fa-solid fa-shield-halved"></i> แอดมิน</span>
                 <form action="{{ route('logout') }}" method="POST" style="margin: 0;">
                     @csrf
@@ -726,6 +729,152 @@
                 navigator.serviceWorker.register('/service-worker.js').catch(() => {});
             });
         }
+
+        (function() {
+            let lastPendingCount = null;
+            let lastReviewCount = null;
+
+            function playChimeSound() {
+                try {
+                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    const now = audioCtx.currentTime;
+                    
+                    const osc1 = audioCtx.createOscillator();
+                    const gain1 = audioCtx.createGain();
+                    osc1.type = 'sine';
+                    osc1.frequency.setValueAtTime(880, now);
+                    gain1.gain.setValueAtTime(0.15, now);
+                    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                    osc1.connect(gain1);
+                    gain1.connect(audioCtx.destination);
+                    osc1.start(now);
+                    osc1.stop(now + 0.3);
+
+                    const osc2 = audioCtx.createOscillator();
+                    const gain2 = audioCtx.createGain();
+                    osc2.type = 'sine';
+                    osc2.frequency.setValueAtTime(1174.66, now + 0.15);
+                    gain2.gain.setValueAtTime(0.2, now + 0.15);
+                    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                    osc2.connect(gain2);
+                    gain2.connect(audioCtx.destination);
+                    osc2.start(now + 0.15);
+                    osc2.stop(now + 0.5);
+                } catch(e) {}
+            }
+
+            function showPushNotification(title, body, url, tag) {
+                playChimeSound();
+
+                if (window.Notification && Notification.permission === 'granted') {
+                    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                        navigator.serviceWorker.ready.then(function(reg) {
+                            reg.showNotification(title, {
+                                body: body,
+                                icon: '/images/tent.png',
+                                badge: '/images/tent.png',
+                                tag: tag || 'lot-market-alert',
+                                data: { url: url },
+                                vibrate: [200, 100, 200]
+                            });
+                        }).catch(function() {
+                            new Notification(title, { body: body, icon: '/images/tent.png', data: { url: url } });
+                        });
+                    } else {
+                        const n = new Notification(title, { body: body, icon: '/images/tent.png', data: { url: url } });
+                        n.onclick = function(e) {
+                            e.preventDefault();
+                            window.open(url, '_blank');
+                        };
+                    }
+                }
+            }
+
+            function checkNotifications() {
+                fetch('{{ route("admin.notifications.check") }}')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (lastPendingCount !== null && data.pending_bookings_count > lastPendingCount) {
+                            const b = data.latest_pending_booking;
+                            if (b) {
+                                showPushNotification(
+                                    '🔔 มีรายการจองใหม่เข้ามา!',
+                                    `รหัส ${b.code} (แผง ${b.lots}) - ร้าน ${b.shop}`,
+                                    b.url,
+                                    'new-booking-' + b.id
+                                );
+                            }
+                        }
+                        lastPendingCount = data.pending_bookings_count;
+
+                        if (lastReviewCount !== null && data.photo_review_count > lastReviewCount) {
+                            const r = data.latest_photo_review;
+                            if (r) {
+                                showPushNotification(
+                                    '📸 สตาฟส่งรูปงานติดตั้งรอตรวจ!',
+                                    `รหัส ${r.code} (แผง ${r.lots}) - งาน ${r.type_label}`,
+                                    r.url,
+                                    'photo-review-' + r.task_id
+                                );
+                            }
+                        }
+                        lastReviewCount = data.photo_review_count;
+                    })
+                    .catch(() => {});
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                const btn = document.getElementById('enable-notification-btn');
+                if (btn) {
+                    if (!('Notification' in window)) {
+                        btn.style.display = 'none';
+                        return;
+                    }
+
+                    function updateBtnState() {
+                        const textSpan = btn.querySelector('.notification-btn-text');
+                        if (Notification.permission === 'granted') {
+                            btn.style.backgroundColor = '#ECFDF5';
+                            btn.style.borderColor = '#A7F3D0';
+                            btn.style.color = '#047857';
+                            if (textSpan) textSpan.textContent = 'เปิดแจ้งเตือนแล้ว';
+                            btn.title = 'การแจ้งเตือนบนมือถือและบราวเซอร์เปิดใช้งานอยู่';
+                        } else if (Notification.permission === 'denied') {
+                            btn.style.backgroundColor = '#FFF1F2';
+                            btn.style.borderColor = '#FECDD3';
+                            btn.style.color = '#BE123C';
+                            if (textSpan) textSpan.textContent = 'ระงับการแจ้งเตือน';
+                            btn.title = 'สิทธิ์การแจ้งเตือนถูกปฏิเสธในบราวเซอร์';
+                        } else {
+                            btn.style.backgroundColor = 'var(--bg-card)';
+                            btn.style.borderColor = 'var(--border-cute)';
+                            btn.style.color = 'var(--text-dark)';
+                            if (textSpan) textSpan.textContent = 'เปิดแจ้งเตือนมือถือ';
+                            btn.title = 'กดเพื่อเปิดการแจ้งเตือนรายการจองใหม่และรูปงานตรวจ';
+                        }
+                    }
+
+                    updateBtnState();
+
+                    btn.addEventListener('click', function() {
+                        Notification.requestPermission().then(function(perm) {
+                            updateBtnState();
+                            if (perm === 'granted') {
+                                showPushNotification(
+                                    '🎉 เปิดการแจ้งเตือนสำเร็จ!',
+                                    'ระบบจะแจ้งเตือนเมื่อมีรายการจองใหม่ หรือสตาฟส่งรูปงานเข้ามา',
+                                    window.location.href,
+                                    'test-alert'
+                                );
+                            }
+                        });
+                    });
+                }
+
+                checkNotifications();
+                setInterval(checkNotifications, 15000);
+            });
+        })();
     </script>
     @yield('scripts')
 </body>
