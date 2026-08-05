@@ -44,6 +44,12 @@ class AdminNotificationController extends Controller
             ->orderBy('updated_at', 'desc')
             ->first();
 
+        $latestApprovedTask = DeliveryTask::where('status', 'completed')
+            ->whereNotNull('completed_at')
+            ->with('booking.lots')
+            ->orderBy('completed_at', 'desc')
+            ->first();
+
         return response()->json([
             'role' => $user?->role,
 
@@ -64,7 +70,7 @@ class AdminNotificationController extends Controller
                 'code' => $latestPhotoReviewTask->booking?->booking_code,
                 'shop' => $latestPhotoReviewTask->booking?->shop_name,
                 'lots' => $latestPhotoReviewTask->booking?->lots->pluck('lot_code')->implode(', '),
-                'type_label' => $latestPhotoReviewTask->equipment_type === 'counter' ? 'เคาน์เตอร์' : 'เต็นท์',
+                'type_label' => $latestPhotoReviewTask->typeLabel(),
                 'url' => route('admin.bookings.show', $latestPhotoReviewTask->booking_id) . '#installation-review',
                 'updated_at' => $latestPhotoReviewTask->updated_at->toIso8601String(),
             ] : null,
@@ -88,6 +94,16 @@ class AdminNotificationController extends Controller
                 'reason' => $latestRejectedTask->problem_note,
                 'url' => route('staff.bookings.camera', $latestRejectedTask->booking_id),
                 'updated_at' => $latestRejectedTask->updated_at->toIso8601String(),
+            ] : null,
+            'latest_approved_task' => $latestApprovedTask ? [
+                'task_id' => $latestApprovedTask->id,
+                'booking_id' => $latestApprovedTask->booking_id,
+                'code' => $latestApprovedTask->booking?->booking_code,
+                'shop' => $latestApprovedTask->booking?->shop_name,
+                'lots' => $latestApprovedTask->booking?->lots->pluck('lot_code')->implode(', '),
+                'type_label' => $latestApprovedTask->typeLabel(),
+                'url' => route('staff.bookings.camera', $latestApprovedTask->booking_id),
+                'completed_at' => $latestApprovedTask->completed_at?->toIso8601String(),
             ] : null,
         ]);
     }

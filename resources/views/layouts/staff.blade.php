@@ -318,6 +318,7 @@
         (function() {
             let lastConfirmedCount = null;
             let lastRejectedId = null;
+            let lastApprovedId = null;
 
             function playChimeSound() {
                 try {
@@ -410,6 +411,21 @@
                                     );
                                 }
                                 lastRejectedId = r.task_id;
+                            }
+                        }
+
+                        if (data.latest_approved_task) {
+                            const a = data.latest_approved_task;
+                            if (lastApprovedId !== a.task_id) {
+                                if (lastApprovedId !== null) {
+                                    showPushNotification(
+                                        '🎉 รูปงานติดตั้งได้รับการอนุมัติเรียบร้อยแล้ว!',
+                                        `รหัส ${a.code} (แผง ${a.lots}) - ${a.type_label} อนุมัติผ่านเรียบร้อยแล้ว`,
+                                        a.url,
+                                        'approved-task-' + a.task_id
+                                    );
+                                }
+                                lastApprovedId = a.task_id;
                             }
                         }
                     })
