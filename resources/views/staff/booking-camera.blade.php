@@ -67,7 +67,7 @@
                                 <div>
                                     <div>ชำระเงินเรียบร้อยแล้ว</div>
                                     <small style="font-weight:600;font-size:11px;opacity:0.9;">
-                                        {{ $booking->collect_front_store && $booking->front_store_collected_at ? 'บันทึกเก็บเงินสดหน้าร้านแล้ว ' . number_format((float)$booking->front_store_collected_amount, 2) . ' บาท' : 'แนบสลิปโอนเงินเรียบร้อยแล้ว' }}
+                                        {{ $booking->collect_front_store && $booking->front_store_collected_at ? 'บันทึกเก็บเงินสดหน้าร้านแล้ว' : 'แนบสลิปโอนเงินเรียบร้อยแล้ว' }}
                                     </small>
                                 </div>
                             </div>
@@ -76,7 +76,7 @@
                                 <strong style="font-size:14px;color:#92400e;display:flex;align-items:center;gap:6px;margin-bottom:8px;">
                                     <i class="fa-solid fa-hand-holding-dollar"></i> เช็คการชำระเงินหน้าร้าน
                                 </strong>
-                                <div style="margin-bottom:10px;">
+                                <div style="margin-bottom:6px;">
                                     <label style="font-size:13px;font-weight:700;color:var(--text-dark);display:block;margin-bottom:4px;">วิธีชำระเงิน:</label>
                                     <select name="on_site_payment_method" class="cute-input staff-payment-method-select" style="width:100%;font-weight:700;padding:8px 12px;border-radius:10px;font-size:14px;">
                                         <option value="cash" selected>💵 เงินสด (ไม่ต้องแนบรูปสลิป)</option>
@@ -84,12 +84,7 @@
                                     </select>
                                 </div>
 
-                                <div class="staff-cash-group" style="margin-bottom:8px;">
-                                    <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:3px;">จำนวนเงินสดที่รับมา (บาท):</label>
-                                    <input type="number" step="0.01" min="0.01" name="on_site_cash_amount" class="cute-input" value="{{ $booking->front_store_collected_amount ?: ($booking->total_price ?: 0) }}" style="width:100%;">
-                                </div>
-
-                                <div class="staff-slip-group" style="display:none;margin-bottom:8px;">
+                                <div class="staff-slip-group" style="display:none;margin-top:8px;">
                                     <label style="font-size:12px;color:#b42318;font-weight:700;display:block;margin-bottom:3px;">ถ่าย/เลือกรูปสลิปโอนเงิน (จำเป็น):</label>
                                     <input type="file" name="on_site_payment_slip" accept="image/*" class="cute-input" style="padding:6px;width:100%;">
                                 </div>
@@ -117,7 +112,7 @@
                                     <strong style="font-size:14px;color:#92400e;display:flex;align-items:center;gap:6px;margin-bottom:8px;">
                                         <i class="fa-solid fa-hand-holding-dollar"></i> เช็คการชำระเงินหน้าร้าน
                                     </strong>
-                                    <div style="margin-bottom:10px;">
+                                    <div style="margin-bottom:6px;">
                                         <label style="font-size:13px;font-weight:700;color:var(--text-dark);display:block;margin-bottom:4px;">วิธีชำระเงิน:</label>
                                         <select name="on_site_payment_method" class="cute-input staff-payment-method-select" style="width:100%;font-weight:700;padding:8px 12px;border-radius:10px;font-size:14px;">
                                             <option value="cash" selected>💵 เงินสด (ไม่ต้องแนบรูปสลิป)</option>
@@ -125,12 +120,7 @@
                                         </select>
                                     </div>
 
-                                    <div class="staff-cash-group" style="margin-bottom:8px;">
-                                        <label style="font-size:12px;color:var(--text-muted);display:block;margin-bottom:3px;">จำนวนเงินสดที่รับมา (บาท):</label>
-                                        <input type="number" step="0.01" min="0.01" name="on_site_cash_amount" class="cute-input" value="{{ $booking->front_store_collected_amount ?: ($booking->total_price ?: 0) }}" style="width:100%;">
-                                    </div>
-
-                                    <div class="staff-slip-group" style="display:none;margin-bottom:8px;">
+                                    <div class="staff-slip-group" style="display:none;margin-top:8px;">
                                         <label style="font-size:12px;color:#b42318;font-weight:700;display:block;margin-bottom:3px;">ถ่าย/เลือกรูปสลิปโอนเงิน (จำเป็น):</label>
                                         <input type="file" name="on_site_payment_slip" accept="image/*" class="cute-input" style="padding:6px;width:100%;">
                                     </div>

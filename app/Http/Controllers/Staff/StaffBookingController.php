@@ -360,12 +360,10 @@ class StaffBookingController extends Controller
         if (!$method) return null;
 
         if ($method === 'cash') {
-            $amount = (float) $request->input('on_site_cash_amount', $booking->total_price ?: 0);
             $wasCollected = $booking->front_store_collected_at !== null;
 
             $booking->update([
                 'collect_front_store' => true,
-                'front_store_collected_amount' => $amount > 0 ? $amount : ($booking->total_price ?: 0),
                 'front_store_collected_at' => now(),
                 'front_store_collected_by' => auth()->id(),
             ]);
@@ -376,8 +374,7 @@ class StaffBookingController extends Controller
                 $booking->status,
                 $booking->status,
                 auth()->id(),
-                ($wasCollected ? 'Staff แก้ไขยอดรับเงินสดหน้าร้านเป็น ' : 'Staff บันทึกรับเงินสดหน้าร้าน ') .
-                    number_format((float) ($amount > 0 ? $amount : ($booking->total_price ?: 0)), 2) . ' บาท'
+                'Staff บันทึกรับชำระเงินสดหน้าร้าน'
             );
         } elseif ($method === 'transfer') {
             if ($request->hasFile('on_site_payment_slip')) {

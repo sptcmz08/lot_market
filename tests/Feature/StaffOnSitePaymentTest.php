@@ -49,7 +49,6 @@ class StaffOnSitePaymentTest extends TestCase
                 'photos' => [UploadedFile::fake()->create('after.jpg', 100, 'image/jpeg')],
                 'submit_after_upload' => '1',
                 'on_site_payment_method' => 'cash',
-                'on_site_cash_amount' => '300.00',
             ]
         );
 
@@ -58,7 +57,6 @@ class StaffOnSitePaymentTest extends TestCase
         $booking->refresh();
         $this->assertTrue((bool)$booking->collect_front_store);
         $this->assertNotNull($booking->front_store_collected_at);
-        $this->assertEquals(300.00, (float)$booking->front_store_collected_amount);
     }
 
     public function test_staff_can_upload_payment_slip_during_work_photo_upload(): void
