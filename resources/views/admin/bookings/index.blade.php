@@ -260,30 +260,30 @@
                         </td>
                         <td class="payment-method-detail">
                             @if ($booking->collect_front_store)
-                                <span class="status-badge status-pending_admin"><i class="fa-solid fa-cash-register"></i> เก็บหน้าร้าน</span>
+                                <span class="status-badge badge-payment-front_store"><i class="fa-solid fa-store"></i> เก็บหน้าร้าน</span>
                                 @if ($booking->front_store_collected_at)
-                                    <small style="display:block;margin-top:5px;color:#15803d;font-weight:700;">
-                                        เก็บแล้ว {{ number_format((float) $booking->front_store_collected_amount, 2) }} บาท
+                                    <small style="display:block;margin-top:5px;color:#047857;font-weight:700;">
+                                        <i class="fa-solid fa-circle-check"></i> เก็บแล้ว {{ number_format((float) $booking->front_store_collected_amount, 2) }} บาท
                                     </small>
                                 @else
-                                    <small style="display:block;margin-top:5px;color:var(--text-muted);">ยังไม่ได้เก็บเงิน</small>
+                                    <small style="display:block;margin-top:5px;color:var(--text-muted);font-weight:600;">ยังไม่ได้เก็บเงิน</small>
                                 @endif
                             @elseif ($booking->payment_slip_path)
-                                <span class="status-badge status-completed"><i class="fa-solid fa-receipt"></i> แนบสลิปแล้ว</span>
-                                <button type="button" class="image-lightbox-trigger" data-lightbox-src="{{ route('media.show', ['path' => $booking->payment_slip_path]) }}" data-lightbox-alt="สลิป {{ $booking->booking_code }}" style="display:block;margin-top:6px;color:var(--primary-hover);font-weight:700;font-size:12px;">
+                                <span class="status-badge badge-payment-slip_attached"><i class="fa-solid fa-receipt"></i> แนบสลิปแล้ว</span>
+                                <button type="button" class="image-lightbox-trigger" data-lightbox-src="{{ route('media.show', ['path' => $booking->payment_slip_path]) }}" data-lightbox-alt="สลิป {{ $booking->booking_code }}" style="display:inline-flex;align-items:center;gap:4px;margin-top:6px;color:var(--primary-hover);font-weight:700;font-size:12px;background:none;border:none;cursor:pointer;padding:0;">
                                     <i class="fa-solid fa-magnifying-glass"></i> ดูสลิป
                                 </button>
                             @else
-                                <span class="status-badge status-problem"><i class="fa-solid fa-clock"></i> รอแนบสลิป</span>
+                                <span class="status-badge badge-payment-slip_pending"><i class="fa-solid fa-clock"></i> รอแนบสลิป</span>
                             @endif
                         </td>
                         <td>
                             @if ($isWorkReviewPending)
-                                <span class="status-badge status-pending_admin"><i class="fa-solid fa-camera"></i> รูปงานรอตรวจ</span>
+                                <span class="status-badge status-photo_review"><i class="fa-solid fa-camera"></i> รูปงานรอตรวจ</span>
                             @elseif ($isPhotoRejected)
                                 <span class="status-badge status-problem"><i class="fa-solid fa-rotate-left"></i> ตีกลับ / รอส่งใหม่</span>
                             @elseif ($hasDraftPhotos)
-                                <span class="status-badge status-installing"><i class="fa-solid fa-images"></i> มีรูปงานรอส่งตรวจ</span>
+                                <span class="status-badge status-photo_review"><i class="fa-solid fa-images"></i> มีรูปงานรอส่งตรวจ</span>
                             @else
                                 @php
                                     $statusClass = 'status-' . $booking->status;

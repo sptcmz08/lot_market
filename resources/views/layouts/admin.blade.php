@@ -8,7 +8,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=Prompt:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- FontAwesome icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -31,7 +31,9 @@
         }
 
         body {
-            font-family: 'Prompt', 'Outfit', sans-serif;
+            font-family: 'Noto Sans Thai', 'Prompt', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
             background-color: var(--bg-page);
             color: var(--text-dark);
             margin: 0;
@@ -287,24 +289,42 @@
             background-color: #FFFDFE;
         }
 
-        /* Badges status */
+        /* Badges status - High Contrast Modern Palette */
         .status-badge {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 6px;
-            border-radius: 999px;
-            padding: 6px 14px;
-            font-size: 13px;
+            border-radius: 10px;
+            padding: 5px 12px;
+            font-size: 12px;
             font-weight: 700;
+            line-height: 1.35;
+            white-space: nowrap;
+            letter-spacing: 0.01em;
+            border: 1px solid transparent;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+            transition: all 0.2s ease;
         }
 
-        .status-pending_admin { background-color: #FFF3CD; color: #856404; }
-        .status-confirmed { background-color: #E2F9E9; color: #1E7E34; }
-        .status-assigned { background-color: #E8F4FD; color: #004085; }
-        .status-installing { background-color: #EBE3FC; color: #5B21B6; }
-        .status-completed { background-color: #D1ECF1; color: #0C5460; }
-        .status-cancelled { background-color: #E2E3E5; color: #383D41; }
-        .status-problem { background-color: #FFE6D2; color: #D35400; }
+        .status-badge i {
+            font-size: 11px;
+        }
+
+        /* Status colors with high contrast & soft borders */
+        .status-pending_admin, .status-pending { background-color: #FEF3C7; border-color: #FDE68A; color: #92400E; }
+        .status-confirmed { background-color: #ECFDF5; border-color: #A7F3D0; color: #047857; }
+        .status-assigned { background-color: #EFF6FF; border-color: #BFDBFE; color: #1D4ED8; }
+        .status-installing { background-color: #F3E8FF; border-color: #E9D5FF; color: #6B21A8; }
+        .status-completed, .status-available { background-color: #F0FDFA; border-color: #99F6E4; color: #0F766E; }
+        .status-cancelled, .status-blocked { background-color: #F1F5F9; border-color: #CBD5E1; color: #475569; }
+        .status-problem { background-color: #FFF1F2; border-color: #FECDD3; color: #BE123C; }
+        .status-photo_review, .status-photo_uploaded { background-color: #EEF2FF; border-color: #C7D2FE; color: #3730A3; }
+
+        /* Payment Badges */
+        .badge-payment-front_store { background-color: #FEF9C3; border-color: #FDE047; color: #854D0E; }
+        .badge-payment-slip_attached { background-color: #E0F2FE; border-color: #BAE6FD; color: #0369A1; }
+        .badge-payment-slip_pending { background-color: #FFEDD5; border-color: #FED7AA; color: #C2410C; }
 
         /* Forms inputs */
         .form-grid {
