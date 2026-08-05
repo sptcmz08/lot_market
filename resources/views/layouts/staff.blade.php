@@ -468,6 +468,10 @@
 
                     if (btn) {
                         btn.addEventListener('click', function() {
+                            if (Notification.permission === 'denied') {
+                                alert('📌 วิธีเปิดอนุญาตการแจ้งเตือน:\n\n1. กดที่รูปแม่กุญแจ 🔒 หรือรูปปุ่มปรับแต่งทางด้านซ้ายของช่องพิมพ์ชื่อเว็บ (URL Bar ด้านบนสุด)\n2. เลือก "การตั้งค่าไซต์" หรือ "การแจ้งเตือน (Notifications)"\n3. เปลี่ยนจาก "บล็อก / ไม่อนุญาต" ให้เป็น "อนุญาต (Allow)"\n4. จากนั้นกดรีเฟรช (Refresh) หน้าเว็บอีกครั้งครับ');
+                                return;
+                            }
                             Notification.requestPermission().then(function(perm) {
                                 updateBtnState();
                                 if (perm === 'granted') {
