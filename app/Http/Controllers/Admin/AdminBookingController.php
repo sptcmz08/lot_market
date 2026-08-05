@@ -76,6 +76,7 @@ class AdminBookingController extends Controller
         }
 
         $bookings = $query->orderBy('use_date', 'desc')->paginate(15)->withQueryString();
+        $bookings->getCollection()->each(fn (Booking $b) => $b->refreshDeliveryStatus());
 
         return view('admin.bookings.index', compact('bookings', 'paymentSummary'));
     }
